@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(my_project)
 
 # GoogleTest requires at least C++14
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
@@ -18,6 +18,7 @@ enable_testing()
 set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/myunittests")
 
 # Get all .cc files in the TEST_DIR directory
+# the tests only depand the itself .cc
 file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
 include(GoogleTest)
 foreach(src_file ${SRC_FILES})
@@ -34,3 +35,16 @@ foreach(src_file ${SRC_FILES})
     gtest_discover_tests(${src_name}_test)
   endif()
 endforeach()
+
+SET(SU "${CMAKE_CURRENT_SOURCE_DIR}/my_special_unittests")
+
+add_executable(sstable_test "${SU}/sstable_test.cc" sstable.cc bloomfilter.cc skiplist.cc)
+
+target_link_libraries(sstable_test GTest::gtest_main)
+
+gtest_discover_tests(sstable_test)
+
+
+SET(SRC_WITHOUT_TEST kvstore.cc bloomfilter.cc skiplist.cc sstable.cc)
+add_executable(persistence persistence.cc ${SRC_WITHOUT_TEST})
+add_executable(correctness correctness.cc ${SRC_WITHOUT_TEST})

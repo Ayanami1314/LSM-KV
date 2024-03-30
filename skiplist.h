@@ -23,6 +23,7 @@ private:
   // add something here
   size_t height;
   double p;
+  size_t ele_number;
   typedef struct node {
     key_type key;
     value_type value;
@@ -94,6 +95,7 @@ public:
   void print() const;
   std::list<key_type> get_keyset() const;
   std::list<kvpair> scan(key_type start, key_type end) const;
+  size_t size() const;
 };
 
 } // namespace skiplist

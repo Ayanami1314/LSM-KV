@@ -1,6 +1,6 @@
 #include "bloomfilter.h"
 
-BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed = 13147)
+BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
 
   BF.resize(length, false);

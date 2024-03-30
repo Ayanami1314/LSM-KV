@@ -45,6 +45,7 @@ void skiplist_type::put(key_type key, const value_type &val) {
     prev.at(i)->next = new_top;
     new_node_vec.at(i) = new_top;
   }
+  ele_number++;
   // Now new_node_vec[i] is node in layer i
 }
 std::string skiplist_type::get(key_type key) const {
@@ -79,6 +80,7 @@ std::list<key_type> skiplist_type::get_keyset() const {
     keys.push_back(cur->key);
     cur = cur->next;
   }
+  assert(ele_number == keys.size());
   return keys;
 }
 std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
@@ -97,4 +99,5 @@ std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
   }
   return pairs;
 }
+size_t skiplist_type::size() const { return ele_number; }
 } // namespace skiplist
