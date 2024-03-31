@@ -15,8 +15,9 @@ private:
   size_t cal_new_size();
   static const std::string delete_symbol;
   static const size_t max_sz;
-
+  const std::string save_dir;
   Layers ss_layers;
+  void compaction();
 
 public:
   KVStore(const std::string &dir);

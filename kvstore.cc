@@ -1,13 +1,14 @@
 #include "kvstore.h"
 #include "skiplist.h"
 #include "sstable.h"
+#include <cstdint>
 #include <memory>
 #include <string>
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * 1024; // 16KB
 KVStore::KVStore(const std::string &dir)
-    : KVStoreAPI(dir), pkvs(std::make_unique<skiplist::skiplist_type>()),
-      sst_sz(0) {}
+    : KVStoreAPI(dir), save_dir(dir),
+      pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0) {}
 
 KVStore::~KVStore() {}
 size_t KVStore::cal_new_size() {
@@ -71,3 +72,8 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
  * value. chunk_size is the size in byte you should AT LEAST recycle.
  */
 void KVStore::gc(uint64_t chunk_size) {}
+
+void KVStore::compaction() {
+  // called when sst_sz > max_sz
+  // TODO
+}
