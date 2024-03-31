@@ -91,11 +91,12 @@ public:
   }
   void put(key_type key, const value_type &val);
   // std::optional<value_type> get(key_type key) const;
-  std::string get(key_type key) const;
+  [[nodiscard]] std::string get(key_type key) const;
   void print() const;
-  std::list<key_type> get_keyset() const;
-  std::list<kvpair> scan(key_type start, key_type end) const;
-  size_t size() const;
+  [[nodiscard]] std::list<key_type> get_keylist() const;
+  [[nodiscard]] std::list<kvpair> get_kvplist() const;
+  [[nodiscard]] std::list<kvpair> scan(key_type start, key_type end) const;
+  [[nodiscard]] size_t size() const;
 };
 
 } // namespace skiplist

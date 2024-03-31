@@ -1,16 +1,32 @@
 #include "kvstore.h"
 #include "skiplist.h"
 #include "sstable.h"
+#include "type.h"
+#include "utils.h"
+#include "vlog.h"
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <string>
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * 1024; // 16KB
 KVStore::KVStore(const std::string &dir)
     : KVStoreAPI(dir), save_dir(dir),
-      pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0) {}
+      pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0),
+      vStore(std::filesystem::path(dir) / "vLog") {
+  utils::mkdir(std::filesystem::path(dir) / "level_0");
+  // NOTE: vLog is a file
+}
 
-KVStore::~KVStore() {}
+KVStore::~KVStore() {
+  // NOTE: now only level-0
+  std::vector<std::string> save_paths;
+  utils::scanDir(save_dir, save_paths);
+  for (auto &p : save_paths) {
+    utils::rmfile(p);
+  }
+  utils::rmdir(std::filesystem::path(save_dir) / "level_0");
+}
 size_t KVStore::cal_new_size() {
   return SSTable::sstable_type::cal_size(
       static_cast<int>(this->pkvs->size() + 1));
@@ -76,4 +92,40 @@ void KVStore::gc(uint64_t chunk_size) {}
 void KVStore::compaction() {
   // called when sst_sz > max_sz
   // TODO
+}
+
+void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
+  auto kvplist = pkvs->get_kvplist();
+  kEntrys kes;
+  for (auto kv : kvplist) {
+    TOff offset = vl.addVlog({.key = kv.first,
+                              .vlen = static_cast<TLen>(kv.second.size()),
+                              .vvalue = kv.second},
+                             false);
+
+    kes.push_back({.key = kv.first,
+                   .offset = offset,
+                   .len = static_cast<TLen>(kv.second.size())});
+  }
+  sst = SSTable::sstable_type(kes);
+}
+
+void KVStore::save() {
+  auto l0_dir = std::filesystem::path(save_dir) / "level_0";
+  if (!std::filesystem::exists(l0_dir)) {
+    throw("l0_dir does not exist");
+  }
+  if (!std::filesystem::is_directory(l0_dir)) {
+    throw("l0_dir is not a directory");
+  }
+  SSTable::sstable_type new_sstable;
+  convert_sst(new_sstable, vStore);
+  std::string sst_filename = std::to_string(new_sstable.getUID()) + ".sst";
+  auto sst_path = l0_dir / sst_filename;
+
+  if (std::filesystem::exists(sst_path)) {
+    throw("sstable already exists");
+  }
+  new_sstable.save(sst_path);
+  vStore.sync();
 }

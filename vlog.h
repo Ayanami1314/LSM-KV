@@ -23,8 +23,10 @@ public:
   // methods
   vLogs(TPath vpath);
   void relocTail();
-  void addVlog(const vEntryProps &v, bool sync);
+  TOff addVlog(const vEntryProps &v,
+               bool sync); // ret: the offset of the add vlog
   void append_file(TBytes data);
+  void sync();
   void clear();
   [[nodiscard]] u64 getHead() const { return head; }
   [[nodiscard]] u64 getTail() const { return tail; }

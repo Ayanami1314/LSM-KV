@@ -21,7 +21,7 @@ vLogs::~vLogs() {
     ofs.close();
   }
 }
-void vLogs::addVlog(const vEntryProps &v, bool sync) {
+TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
   // HINT: add a new vEntry to the ves
   // HINT: update the tail
   TCheckSum checksum;
@@ -33,7 +33,15 @@ void vLogs::addVlog(const vEntryProps &v, bool sync) {
   if (sync) {
     ofs.flush();
   }
-  tail += sizeof(vEntry);
+  u64 ret = head;
+  head += sizeof(vEntry); // head 在前面，gc从tail开始
+  return ret;
+}
+void vLogs::sync() {
+  if (!ofs.is_open()) {
+    throw("In sync: the file should be open");
+  }
+  ofs.flush();
 }
 TBytes vLogs::cal_bytes(const vEntryProps &v, TCheckSum &checksum) {
   vEntry new_entry;

@@ -17,7 +17,7 @@ using TCheckSum = u16;
 using TMagic = u8;
 using TValue = std::string;
 using TBytes = std::vector<u8>;
-using kEntry = struct {
+using kEntry = struct kEntry {
   TKey key;
   TOff offset;
   TLen len;

@@ -3,6 +3,7 @@
 #include "kvstore_api.h"
 #include "skiplist.h"
 #include "sstable.h"
+#include "vlog.h"
 #include <memory>
 class KVStore : public KVStoreAPI {
   // You can add your implementation here
@@ -18,6 +19,8 @@ private:
   const std::string save_dir;
   Layers ss_layers;
   void compaction();
+  void save();
+  vLogs vStore;
 
 public:
   KVStore(const std::string &dir);
@@ -36,4 +39,5 @@ public:
             std::list<std::pair<uint64_t, std::string>> &list) override;
 
   void gc(uint64_t chunk_size) override;
+  void convert_sst(SSTable::sstable_type &sst, vLogs &vl);
 };

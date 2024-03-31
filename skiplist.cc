@@ -57,10 +57,6 @@ std::string skiplist_type::get(key_type key) const {
   return "";
 }
 void skiplist_type::print() const {
-  static int count = 0;
-  if (count) {
-    return;
-  }
   for (int i = height; i >= 0; i--) {
     Node *cur = head.at(i)->next;
     cout << "Layer " << i << ": ";
@@ -70,10 +66,9 @@ void skiplist_type::print() const {
     }
     cout << endl;
   }
-  count++;
 }
 
-std::list<key_type> skiplist_type::get_keyset() const {
+std::list<key_type> skiplist_type::get_keylist() const {
   Node *cur = head.at(0)->next;
   std::list<key_type> keys;
   while (cur != tail.at(0)) {
@@ -93,11 +88,22 @@ std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
   }
   while (cur != tail.at(0)) {
     if (cur->key >= start && cur->key <= end) {
-      pairs.push_back(std::make_pair(cur->key, cur->value));
+      pairs.emplace_back(std::make_pair(cur->key, cur->value));
     }
     cur = cur->next;
   }
   return pairs;
 }
 size_t skiplist_type::size() const { return ele_number; }
+
+std::list<kvpair> skiplist_type::get_kvplist() const {
+  Node *cur = head.at(0)->next;
+  std::list<kvpair> kvps;
+  while (cur != tail.at(0)) {
+    kvps.emplace_back(make_pair(cur->key, cur->value));
+    cur = cur->next;
+  }
+  assert(ele_number == kvps.size());
+  return kvps;
+}
 } // namespace skiplist
