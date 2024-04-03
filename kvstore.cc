@@ -4,25 +4,16 @@
 #include "type.h"
 #include "utils.h"
 #include "vlog.h"
-#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <string>
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * 1024; // 16KB
-KVStore::KVStore(const std::string &dir)
-    : KVStoreAPI(dir), save_dir(dir),
+KVStore::KVStore(const std::string &dir, const std::string &vlog)
+    : KVStoreAPI(dir, vlog), save_dir(dir),
       pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0),
-      vStore([dir]() {
-        auto data_dir = std::filesystem::path(dir);
-        if (!std::filesystem::exists(data_dir)) {
-          utils::mkdir(data_dir);
-        }
-        utils::mkdir(std::filesystem::path(dir) / "level_0");
-        // NOTE: vLog is a file
-        return vLogs(std::filesystem::path(dir) / "vLog");
-      }()) {}
+      vStore(vlog) {}
 
 KVStore::~KVStore() {
   // NOTE: now only level-0

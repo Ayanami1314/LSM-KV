@@ -23,7 +23,7 @@ private:
   vLogs vStore;
 
 public:
-  KVStore(const std::string &dir);
+  KVStore(const std::string &dir, const std::string &vlog);
 
   ~KVStore();
 

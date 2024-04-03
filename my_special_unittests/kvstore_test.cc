@@ -7,7 +7,8 @@ protected:
     // Code here will be called immediately after the constructor (right
     // before each test).
     std::string testdir = "../tmp";
-    pStore = make_unique<KVStore>(testdir);
+    std::string vLog = "../tmp/vlog";
+    pStore = make_unique<KVStore>(testdir, vLog);
   }
 
   void TearDown() override {
