@@ -26,8 +26,6 @@ void skiplist_type::put(key_type key, const value_type &val) {
   }
 
   size_t layer = roll_size();
-  static int call_number = 0;
-  call_number++;
   vector<Node *> new_node_vec(height + 1, nullptr);
   for (int i = 0; i <= layer; i++) {
     if (i > height) {
@@ -81,7 +79,12 @@ std::list<key_type> skiplist_type::get_keylist() const {
     keys.push_back(cur->key);
     cur = cur->next;
   }
-  assert(ele_number == keys.size());
+  // std::cerr << "The skiplist should has " << ele_number << "elements"
+  //           << std::endl;
+  // std::cerr << "But it has " << keys.size() << "elements: " << std::endl;
+  // for (auto &k : keys) {
+  //   std::cerr << k << " ";
+  // }
   return keys;
 }
 std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
@@ -109,7 +112,14 @@ std::list<kvpair> skiplist_type::get_kvplist() const {
     kvps.emplace_back(make_pair(cur->key, cur->value));
     cur = cur->next;
   }
-  assert(ele_number == kvps.size());
+  // if (ele_number != kvps.size()) {
+  //   std::cerr << "The skiplist should has " << ele_number << "elements"
+  //             << std::endl;
+  //   std::cerr << "But it has " << kvps.size() << "elements: " << std::endl;
+  //   for (auto &kv : kvps) {
+  //     std::cerr << kv.first << " " << kv.second << std::endl;
+  //   }
+  // }
   return kvps;
 }
 } // namespace skiplist

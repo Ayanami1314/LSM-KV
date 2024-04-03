@@ -1,20 +1,28 @@
 #include "../kvstore.h"
 #include "../skiplist.h"
+#include "../utils.h"
 #include <gtest/gtest.h>
+#include <string>
 class KVStoreTest : public ::testing::Test {
 protected:
   void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
-    std::string testdir = "../tmp";
-    std::string vLog = "../tmp/vlog";
+
+    if (!utils::dirExists(testdir))
+      utils::mkdir(testdir);
     pStore = make_unique<KVStore>(testdir, vLog);
   }
 
   void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
+    if (utils::dirExists(testdir)) {
+      system(("rm -rf " + testdir).c_str());
+    }
   }
+  std::string testdir = "../tmp";
+  std::string vLog = "../tmp/vlog";
   std::unique_ptr<KVStore> pStore;
 };
 
@@ -114,11 +122,11 @@ TEST_F(KVStoreTest, BasicScan4) {
   pStore->scan(1, 2, res);
   EXPECT_EQ(res, ref);
 }
-TEST_F(KVStoreTest, RegularTest) {
+TEST_F(KVStoreTest, RegularTest50) {
 
   uint64_t i;
   const std::string not_found = "";
-  const int max = 10;
+  const int max = 50;
   // Test a single key
   EXPECT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
@@ -173,4 +181,112 @@ TEST_F(KVStoreTest, RegularTest) {
 
   for (i = 1; i < max; ++i)
     EXPECT_EQ(i & 1, pStore->del(i));
+}
+
+TEST_F(KVStoreTest, RegularTest200) {
+
+  uint64_t i;
+  const std::string not_found = "";
+  const int max = 200;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+
+  // Test multiple key-value pairs
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::string(i + 1, 's'));
+    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+  }
+
+  // Test after all insertions
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+
+  // Test scan
+  std::list<std::pair<uint64_t, std::string>> list_ans;
+  std::list<std::pair<uint64_t, std::string>> list_stu;
+
+  for (i = 0; i < max / 2; ++i) {
+    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
+  }
+
+  pStore->scan(0, max / 2 - 1, list_stu);
+  EXPECT_EQ(list_ans.size(), list_stu.size());
+
+  auto ap = list_ans.begin();
+  auto sp = list_stu.begin();
+  while (ap != list_ans.end()) {
+    if (sp == list_stu.end()) {
+      EXPECT_EQ((*ap).first, -1);
+      EXPECT_EQ((*ap).second, not_found);
+      ap++;
+    } else {
+      EXPECT_EQ((*ap).first, (*sp).first);
+      EXPECT_EQ((*ap).second, (*sp).second);
+      ap++;
+      sp++;
+    }
+  }
+
+  // Test deletions
+  for (i = 0; i < max; i += 2) {
+    EXPECT_EQ(true, pStore->del(i));
+  }
+
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ((i & 1) ? std::string(i + 1, 's') : not_found, pStore->get(i));
+
+  for (i = 1; i < max; ++i)
+    EXPECT_EQ(i & 1, pStore->del(i));
+}
+
+TEST_F(KVStoreTest, JustOverflow) {
+
+  uint64_t i;
+  const std::string not_found = "";
+  const int max = 350;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+
+  // Test multiple key-value pairs
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+  }
+
+  // // Test after all insertions
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+}
+TEST_F(KVStoreTest, ThreeSST) {
+
+  uint64_t i;
+  const std::string not_found = "";
+  const int max = 1000;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+
+  // Test multiple key-value pairs
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+  }
+
+  // // Test after all insertions
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
 }

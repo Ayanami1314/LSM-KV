@@ -13,16 +13,31 @@ const size_t KVStore::max_sz = 16 * 1024; // 16KB
 KVStore::KVStore(const std::string &dir, const std::string &vlog)
     : KVStoreAPI(dir, vlog), save_dir(dir),
       pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0),
-      vStore(vlog) {}
+      vStore([dir, vlog]() {
+        if (!utils::dirExists(dir)) {
+          utils::mkdir(dir);
+        }
+        return vlog;
+      }()) {
+  const std::string l0_dir = std::filesystem::path(save_dir) / "level_0";
+  if (!utils::dirExists(l0_dir)) {
+    utils::mkdir(l0_dir);
+  }
+  Layer l0;
+  ss_layers.push_back(l0);
+}
 
 KVStore::~KVStore() {
   // NOTE: now only level-0
   std::vector<std::string> save_paths;
-  utils::scanDir(save_dir, save_paths);
-  for (auto &p : save_paths) {
-    utils::rmfile(p);
+  Log("Remove file in %s", save_dir);
+  if (utils::dirExists(save_dir)) {
+    utils::scanDir(save_dir, save_paths);
+    for (auto &p : save_paths) {
+      utils::rmfile(p);
+    }
+    utils::rmdir(std::filesystem::path(save_dir) / "level_0");
   }
-  utils::rmdir(std::filesystem::path(save_dir) / "level_0");
 }
 size_t KVStore::cal_new_size() {
   return SSTable::sstable_type::cal_size(
@@ -40,6 +55,7 @@ void KVStore::put(uint64_t key, const std::string &s) {
     // NOTE: reset sst_sz
     sst_sz = 0;
     // TODO: compaction();
+    compaction();
   }
   pkvs->put(key, s);
   sst_sz = new_sz;
@@ -51,7 +67,25 @@ void KVStore::put(uint64_t key, const std::string &s) {
 std::string KVStore::get(uint64_t key) {
   // TODO: query in L0
   auto value = pkvs->get(key);
-  return value == delete_symbol ? "" : value;
+  bool mem_exist = value != "" && value != delete_symbol;
+
+  if (mem_exist) {
+    return value;
+  }
+  TValue v = "";
+  // query in layers
+  for (auto &layer : this->ss_layers) {
+    for (auto &sst : layer) {
+      auto ke = sst.query(key); // HINT: header and BF: may exist?
+      if (ke == type::ke_not_found) {
+        continue;
+      }
+      if ((v = vStore.query(ke)) != "") {
+        break;
+      }
+    }
+  }
+  return v;
 }
 /**
  * Delete the given key-value pair if it exists.
@@ -73,8 +107,30 @@ bool KVStore::del(uint64_t key) {
  * including memtable and all sstables files.
  */
 void KVStore::reset() {
+  // clear file
+  if (std::filesystem::exists(save_dir)) {
+    std::vector<std::string> rmfiles;
+    utils::scanDir(save_dir, rmfiles);
+    for (auto &f : rmfiles) {
+      utils::rmfile(f);
+    }
+    // NOTE: not delete the dir itself
+    // NOTE: create the .gitkeep file
+    std::ofstream(save_dir + "/.gitkeep", std::ios::trunc);
+  }
+  // clear mem
   pkvs = std::make_unique<skiplist::skiplist_type>();
+  vStore.clear();
   sst_sz = 0;
+
+  // clear cache
+  for (auto &layer : ss_layers) {
+    for (auto &sst : layer) {
+      sst.clear();
+    }
+  }
+  // reset global state
+  SSTable::sstable_type::resetID();
 }
 
 /**
@@ -84,6 +140,7 @@ void KVStore::reset() {
  */
 void KVStore::scan(uint64_t key1, uint64_t key2,
                    std::list<std::pair<uint64_t, std::string>> &list) {
+  // TODO: sst scan
   const auto first_scan = pkvs->scan(key1, key2);
   // filter the del element
   for (auto &kv : first_scan) {
@@ -102,20 +159,28 @@ void KVStore::gc(uint64_t chunk_size) {}
 void KVStore::compaction() {
   // called when sst_sz > max_sz
   // TODO
+  Log("compaction start:");
+  save();
+  auto l0_dir = std::filesystem::path(save_dir) / "level_0";
+  if (!utils::dirExists(l0_dir)) {
+    Log("l0_dir does not exist");
+  }
+  std::vector<std::string> l0_ssts;
+  utils::scanDir(l0_dir, l0_ssts);
+  if (l0_ssts.size() > level_limit(0)) {
+    // TODO, merge
+  }
 }
-
 void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
   auto kvplist = pkvs->get_kvplist();
   kEntrys kes;
   for (auto kv : kvplist) {
-    TOff offset = vl.addVlog({.key = kv.first,
-                              .vlen = static_cast<TLen>(kv.second.size()),
-                              .vvalue = kv.second},
-                             false);
+    TLen len =
+        kv.second == delete_symbol ? 0 : static_cast<TLen>(kv.second.size());
+    TOff offset =
+        vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second}, false);
 
-    kes.push_back({.key = kv.first,
-                   .offset = offset,
-                   .len = static_cast<TLen>(kv.second.size())});
+    kes.push_back({.key = kv.first, .offset = offset, .len = len});
   }
   sst = SSTable::sstable_type(kes);
 }
@@ -123,19 +188,29 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
 void KVStore::save() {
   auto l0_dir = std::filesystem::path(save_dir) / "level_0";
   if (!std::filesystem::exists(l0_dir)) {
-    throw("l0_dir does not exist");
+    Log("l0_dir %s does not exist", l0_dir);
+    return;
   }
   if (!std::filesystem::is_directory(l0_dir)) {
-    throw("l0_dir is not a directory");
+    Log("l0_dir %s is not a directory", l0_dir);
+    return;
   }
   SSTable::sstable_type new_sstable;
   convert_sst(new_sstable, vStore);
+  // NOTE: update the cache
+  ss_layers[0].push_back(new_sstable);
+
   std::string sst_filename = std::to_string(new_sstable.getUID()) + ".sst";
   auto sst_path = l0_dir / sst_filename;
 
   if (std::filesystem::exists(sst_path)) {
-    throw("sstable already exists");
+    Log("sstable %s already exists", sst_path);
+    return;
   }
   new_sstable.save(sst_path);
   vStore.sync();
+
+  // clear the pkvs
+  pkvs = std::make_unique<skiplist::skiplist_type>();
+  sst_sz = 0;
 }

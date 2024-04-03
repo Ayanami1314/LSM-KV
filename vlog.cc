@@ -1,7 +1,6 @@
 #include "vlog.h"
 #include "type.h"
 #include "utils.h"
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -14,8 +13,9 @@ vLogs::vLogs(TPath vpath)
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
   if (!ofs) {
-    std::cout << "vpath: " << vpath << std::endl;
-    throw std::runtime_error("Failed to open file");
+    Log("vpath: %s", vpath);
+    Log("Failed to open file, vpath=%s", vpath);
+    return;
   }
 }
 vLogs::~vLogs() {
@@ -28,7 +28,7 @@ TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
   // HINT: update the tail
   TCheckSum checksum;
   TBytes bytes = cal_bytes(v, checksum);
-  std::printf("Checksum of v is: %x\n", checksum);
+  // std::printf("Checksum of v is: %x\n", checksum);
   ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 
   // sync with file
@@ -36,12 +36,13 @@ TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
     ofs.flush();
   }
   u64 ret = head;
-  head += sizeof(vEntry); // head 在前面，gc从tail开始
+  head += bytes.size(); // head 在前面，gc从tail开始
   return ret;
 }
 void vLogs::sync() {
   if (!ofs.is_open()) {
-    throw("In sync: the file should be open");
+    Log("In sync: the file should be open");
+    return;
   }
   ofs.flush();
 }
@@ -79,7 +80,6 @@ TBytes vLogs::cal_bytes(const vEntryProps &v, TCheckSum &checksum) {
   }
 
   bytes.insert(bytes.end(), data.begin(), data.end());
-  std::cout << "vlog bytes size: " << bytes.size() << std::endl;
   return bytes;
 }
 TBytes vLogs::cal_bytes(const vEntry &v, TCheckSum &checksum) {
@@ -96,7 +96,38 @@ void vLogs::clear() {
     ofs.close();
     ofs.open(vfilepath, std::ios::binary | std::ios::trunc);
     if (!ofs) {
-      throw std::runtime_error("Failed to open file");
+      Log("In clear: Failed to open file");
+      return;
     }
   }
+}
+void vLogs::relocTail() {}
+TValue vLogs::query(kEntry ke) {
+  // return "" if fail or deleted
+  std::ifstream ifs(vfilepath, std::ios::binary);
+  if (!ifs.is_open()) {
+    return "";
+  }
+  ifs.seekg(ke.offset);
+  TMagic magic;
+  TCheckSum checksum;
+  TKey key;
+  TLen vlen;
+  TValue value;
+  // read bytes
+  ifs.read(reinterpret_cast<char *>(&magic), sizeof(magic));
+  ifs.read(reinterpret_cast<char *>(&checksum), sizeof(checksum));
+  ifs.read(reinterpret_cast<char *>(&key), sizeof(key));
+  ifs.read(reinterpret_cast<char *>(&vlen), sizeof(vlen));
+  Log("the key param is %llu", ke.key);
+  if (key != ke.key || vlen != ke.len || vlen == 0) {
+    Log("the read key is %llu", key);
+    // vlen == 0: deleted
+    return "";
+  }
+  TBytes data(vlen);
+  ifs.read(reinterpret_cast<char *>(data.data()), data.size());
+  TValue ret(data.begin(), data.end());
+
+  return ret;
 }

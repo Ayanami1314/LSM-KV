@@ -88,6 +88,7 @@ public:
     t0->prev = h0;
     this->head.push_back(h0);
     this->tail.push_back(t0);
+    this->ele_number = 0;
   }
   void put(key_type key, const value_type &val);
   // std::optional<value_type> get(key_type key) const;

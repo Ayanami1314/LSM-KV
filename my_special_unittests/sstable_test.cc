@@ -22,5 +22,5 @@ TEST_F(SSTableTest, defaultSize) {
 
 TEST_F(SSTableTest, defaultCalSize) {
   EXPECT_EQ(SSTable::sstable_type::cal_size(10),
-            10 * sizeof(u64) + 32 + 8 * 1024);
+            10 * sizeof(kEntry) + 32 + 8 * 1024);
 }

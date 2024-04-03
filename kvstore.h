@@ -4,11 +4,12 @@
 #include "skiplist.h"
 #include "sstable.h"
 #include "vlog.h"
+#include <cmath>
 #include <memory>
 class KVStore : public KVStoreAPI {
   // You can add your implementation here
-  using Layer = std::list<SSTable::sstable_type>;
-  using Layers = std::list<std::tuple<Layer, int>>;
+  using Layer = std::vector<SSTable::sstable_type>;
+  using Layers = std::vector<Layer>;
 
 private:
   std::unique_ptr<skiplist::skiplist_type> pkvs;
@@ -21,6 +22,7 @@ private:
   void compaction();
   void save();
   vLogs vStore;
+  inline int level_limit(int level) { return std::pow(2, level + 1); }
 
 public:
   KVStore(const std::string &dir, const std::string &vlog);

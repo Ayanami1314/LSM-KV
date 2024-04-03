@@ -19,6 +19,7 @@ private:
 public:
   BloomFilter(size_t length, int hash_func_number = 3, int seed = 13147);
   BloomFilter(const TBytes &bytes, int hash_func_number = 3, int seed = 13147);
+  BloomFilter(const BloomFilter &other);
   [[nodiscard]] bool find_u64(uint64_t key) const;
   void insert_u64(uint64_t key);
   void clear() { std::fill(BF.begin(), BF.end(), false); }

@@ -83,3 +83,17 @@ TEST_F(vLogTest, addVlog) {
 
   ivfs.close();
 }
+
+TEST_F(vLogTest, loadSaveTest) {
+  vl->clear();
+  std::string vvalue = "Hello, LSM!";
+  vEntryProps v;
+  v.key = 0;
+  v.vvalue = vvalue;
+  v.vlen = vvalue.size();
+  TOff off = vl->addVlog(v, true);
+  system("xxd -i ./tmp/vlog");
+  kEntry ke = {.key = 0, .offset = off, .len = v.vlen};
+  TValue res_v = vl->query(ke);
+  EXPECT_EQ(res_v, vvalue);
+}

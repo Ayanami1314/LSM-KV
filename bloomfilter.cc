@@ -2,8 +2,8 @@
 
 BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
-
-  BF.resize(length, false);
+  // HINT
+  BF.resize(length, true);
   hashes.resize(hash_func_number);
   for (int i = 0; i < hash_func_number; i++) {
     hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
@@ -26,7 +26,8 @@ BloomFilter::BloomFilter(const TBytes &bytes, int hash_func_number, int seed)
     };
   }
 }
-
+BloomFilter::BloomFilter(const BloomFilter &other)
+    : hash_gen_seed(other.hash_gen_seed), BF(other.BF), hashes(other.hashes) {}
 void BloomFilter::insert_u64(uint64_t key) {
   std::vector<int> results;
   for (const auto &h : hashes) {

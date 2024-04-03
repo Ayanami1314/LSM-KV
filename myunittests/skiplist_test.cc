@@ -29,6 +29,7 @@ TEST_F(SkipListTest, BasicGet) {
   for (int i = 0; i < 1000; ++i) {
     EXPECT_EQ(sl.get(i), std::to_string(i));
   }
+  EXPECT_EQ(sl.size(), 1000);
 }
 
 TEST_F(SkipListTest, GetNonExist) { EXPECT_EQ(sl.get(10000), ""); }

@@ -13,6 +13,7 @@ private:
   std::ofstream ofs;
 
 public:
+  // TODO: add vlog cache
   static const u8 magic;
   static TBytes cal_bytes(const vEntryProps &v, TCheckSum &checksum);
   static TBytes cal_bytes(const vEntry &v, TCheckSum &checksum);
@@ -25,6 +26,7 @@ public:
   TOff addVlog(const vEntryProps &v,
                bool sync); // ret: the offset of the add vlog
   void append_file(TBytes data);
+  TValue query(kEntry ke);
   void sync();
   void clear();
   [[nodiscard]] u64 getHead() const { return head; }
