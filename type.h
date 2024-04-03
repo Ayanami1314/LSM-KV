@@ -24,7 +24,7 @@ using kEntry = struct kEntry {
     return key == rhs.key && offset == rhs.offset && len == rhs.len;
   }
 };
-using kEntrys = std::list<kEntry>;
+using kEntrys = std::vector<kEntry>;
 using vEntryPrefix = struct prefix {
   TMagic magic;
   TCheckSum checksum;

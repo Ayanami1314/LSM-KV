@@ -67,18 +67,58 @@ bool sstable_type::mayKeyExist(TKey key) {
   }
   return true;
 }
+
 kEntry sstable_type::query(TKey key) {
   if (!mayKeyExist(key)) {
     return type::ke_not_found;
   }
-  // TODO: 二分查找
-  for (auto &entry : *pkes) {
-    if (entry.key == key) {
-      return entry;
+  // for (auto &entry : *pkes) {
+  //   if (entry.key == key) {
+  //     return entry;
+  //   }
+  // }
+  auto total = header.getNumOfKV();
+  Log("The total number of kv is %d", total);
+  Log("The real key is %llu", key);
+  u64 left = 0;
+  u64 right = total - 1;
+  u64 choose = 0;
+  bool exist = true;
+  while (left != right) {
+    u64 mid = (left + right) / 2;
+    if (key == pkes->at(left).key) {
+      choose = left;
+      break;
+    }
+    if (key == pkes->at(right).key) {
+      choose = right;
+      break;
+    }
+    if (key == pkes->at(mid).key) {
+      choose = mid;
+      break;
+    }
+    if (pkes->at(left).key < key && key < pkes->at(mid).key) {
+      right = mid;
+      continue;
+    }
+    if (key > pkes->at(mid).key && key < pkes->at(right).key) {
+      left = mid;
+      continue;
     }
   }
-  return type::ke_not_found;
+  if (left == right) {
+    choose = left;
+  }
+
+  if (pkes->at(choose).key != key) {
+    return type::ke_not_found;
+  }
+
+  Log("The choose key is %llu", pkes->at(right).key);
+  return pkes->at(choose);
 }
+
 void sstable_type::save(const std::string &path) {
   if (std::filesystem::exists(path)) {
     std::string msg = "Try to save to file(%s) that already exists";
