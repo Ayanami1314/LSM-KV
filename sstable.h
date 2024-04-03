@@ -48,6 +48,7 @@ private:
   BloomFilter BF;
   Header header;
   std::shared_ptr<kEntrys> pkes;
+  u64 binary_search(TKey key, u64 total, bool &exist, bool use_BF = true);
 
 public:
   static void resetID();
@@ -61,6 +62,7 @@ public:
   void save(const std::string &path);
   void load(const std::string &path);
   bool mayKeyExist(TKey key);
+  void scan(TKey min, TKey max, kEntrys &res);
   kEntry query(TKey key);
   void clear();
 

@@ -23,6 +23,15 @@ using kEntry = struct kEntry {
   bool operator==(const kEntry &rhs) const {
     return key == rhs.key && offset == rhs.offset && len == rhs.len;
   }
+  // NOTE：a < b. a's priority < b. a is deleted or a's key > b's or a's key ==
+  // b's and a's offset < b's(older)
+  bool operator<(const kEntry &rhs) const {
+    return len == 0 || key > rhs.key || (key == rhs.key && offset < rhs.offset);
+  }
+  bool operator>(const kEntry &rhs) const {
+    return rhs.len == 0 || key < rhs.key ||
+           (key == rhs.key && offset > rhs.offset);
+  }
 };
 using kEntrys = std::vector<kEntry>;
 using vEntryPrefix = struct prefix {

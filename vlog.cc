@@ -26,6 +26,10 @@ vLogs::~vLogs() {
 TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
   // HINT: add a new vEntry to the ves
   // HINT: update the tail
+  if (v.vlen == 0) {
+    // deleted element
+    return 0;
+  }
   TCheckSum checksum;
   TBytes bytes = cal_bytes(v, checksum);
   // std::printf("Checksum of v is: %x\n", checksum);

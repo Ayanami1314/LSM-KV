@@ -67,23 +67,16 @@ bool sstable_type::mayKeyExist(TKey key) {
   }
   return true;
 }
-
-kEntry sstable_type::query(TKey key) {
-  if (!mayKeyExist(key)) {
-    return type::ke_not_found;
+u64 sstable_type::binary_search(TKey key, u64 total, bool &exist, bool use_BF) {
+  // NOTE: idx form 0 to total - 1
+  if (use_BF && !BF.find_u64(key)) {
+    exist = false;
+    return -1;
   }
-  // for (auto &entry : *pkes) {
-  //   if (entry.key == key) {
-  //     return entry;
-  //   }
-  // }
-  auto total = header.getNumOfKV();
-  Log("The total number of kv is %d", total);
-  Log("The real key is %llu", key);
   u64 left = 0;
   u64 right = total - 1;
   u64 choose = 0;
-  bool exist = true;
+  exist = true;
   while (left != right) {
     u64 mid = (left + right) / 2;
     if (key == pkes->at(left).key) {
@@ -110,6 +103,22 @@ kEntry sstable_type::query(TKey key) {
   if (left == right) {
     choose = left;
   }
+  return choose;
+}
+kEntry sstable_type::query(TKey key) {
+  if (!mayKeyExist(key)) {
+    return type::ke_not_found;
+  }
+  // for (auto &entry : *pkes) {
+  //   if (entry.key == key) {
+  //     return entry;
+  //   }
+  // }
+  bool exist = false;
+  auto choose = binary_search(key, header.getNumOfKV(), exist, false);
+  auto total = header.getNumOfKV();
+  Log("The total number of kv is %d", total);
+  Log("The real key is %llu", key);
 
   if (pkes->at(choose).key != key) {
     return type::ke_not_found;
@@ -117,6 +126,46 @@ kEntry sstable_type::query(TKey key) {
 
   Log("The choose key is %llu", pkes->at(right).key);
   return pkes->at(choose);
+}
+void sstable_type::scan(TKey min, TKey max, kEntrys &res) {
+  if (min > header.getMaxKey() || max < header.getMinKey()) {
+    return;
+  }
+  if (min < header.getMinKey()) {
+    min = header.getMinKey();
+  }
+  if (max > header.getMaxKey()) {
+    max = header.getMaxKey();
+  }
+  bool exist_min = false;
+  bool exist_max = false;
+  auto min_in_this = binary_search(min, header.getNumOfKV(), exist_min);
+  auto max_in_this = binary_search(max, header.getNumOfKV(), exist_max);
+  if (exist_min) {
+    Log("min_in_this is %llu", min_in_this);
+  }
+  if (exist_max) {
+    Log("max_in_this is %llu", max_in_this);
+  }
+  if (!exist_min && !exist_max) {
+    return;
+  }
+  if (exist_min && exist_max) {
+    for (auto i = min_in_this; i <= max_in_this; ++i) {
+      res.push_back(pkes->at(i));
+    }
+  }
+  if (exist_min && !exist_max) {
+    for (auto i = min_in_this; i < header.getNumOfKV(); ++i) {
+      res.push_back(pkes->at(i));
+    }
+  }
+  if (!exist_min && exist_max) {
+    for (auto i = 0; i <= max_in_this; ++i) {
+      res.push_back(pkes->at(i));
+    }
+  }
+  return;
 }
 
 void sstable_type::save(const std::string &path) {

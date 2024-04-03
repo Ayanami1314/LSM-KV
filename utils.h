@@ -1,15 +1,16 @@
 #pragma once
 
+#include "type.h"
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
 #include <memory>
+#include <queue>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-
 #define PAGE_SIZE (4 * 1024)
 
 template <typename... Args>
@@ -24,7 +25,7 @@ std::string string_format(const std::string &format, Args... args) {
   return std::string(buf.get(),
                      buf.get() + size - 1); // We don't want the '\0' inside
 }
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #define Log(format, ...)                                                       \
   std::cout << string_format(format, ##__VA_ARGS__) << std::endl;
@@ -204,5 +205,43 @@ static inline uint16_t crc16(const std::vector<unsigned char> &data) {
   }
   return crc;
 }
+static inline void mergeKSorted(const std::vector<kEntrys> &src, kEntrys &dst) {
+  // NOTE: src is sorted by the priority(keep the priority highest at begin!)
+  // priority: the time
+  // memtable > l0 > l1 > l2 > ..., in the same layer the index is the priority
+  // e.g. l0 sst2 < l0 sst4
+  // HINT：use priority queue
 
+  std::priority_queue<kEntry> pq;
+  int K = src.size();
+  std::vector<size_t> limitK(K, 0);
+  for (int i = 0; i < K; ++i) {
+    limitK[i] = src[i].size();
+  }
+  std::vector<size_t> index(K, 0);
+  for (int i = 0; i < src.size(); ++i) {
+    if (!src[i].empty()) {
+      pq.push(src[i].front());
+      index[i]++;
+    }
+  }
+  TKey lastKey = 0;
+  while (!pq.empty()) {
+    auto top = pq.top();
+    pq.pop();
+    if (top.key == lastKey) {
+      // NOTE: repeat element should be filtered
+      continue;
+    }
+    dst.push_back(top);
+    int i = 0;
+    for (; i < K; ++i) {
+      if (index[i] < limitK[i]) {
+        pq.push(src[i][index[i]]);
+        index[i]++;
+      }
+    }
+    lastKey = top.key;
+  }
+}
 } // namespace utils

@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <queue>
 #include <string>
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * 1024; // 16KB
@@ -141,18 +142,92 @@ void KVStore::reset() {
 void KVStore::scan(uint64_t key1, uint64_t key2,
                    std::list<std::pair<uint64_t, std::string>> &list) {
   // TODO: sst scan
-  const auto first_scan = pkvs->scan(key1, key2);
+  kEntrys kvec;
+  const auto mem_list = pkvs->scan(key1, key2);
   // filter the del element
-  for (auto &kv : first_scan) {
-    if (kv.second != delete_symbol) {
-      list.push_back(kv);
+  // for (auto &kv : mem_list) {
+  //   if (kv.second != delete_symbol) {
+  //     list.push_back(kv);
+  //   }
+  // }
+  // scan in layers
+  std::vector<kEntrys> layer_kvs;
+  for (auto &layer : this->ss_layers) {
+    for (int i = layer.size() - 1; i >= 0; --i) {
+      auto &sst = layer[i];
+      kEntrys tmp;
+      sst.scan(key1, key2, tmp);
+      if (tmp.size() != 0) {
+        layer_kvs.push_back(tmp);
+      }
+      // HINT: now sorted by priority
     }
+  }
+  // TODO: merge the layer_ks and the mem_list
+  kEntrys merge_layers;
+  utils::mergeKSorted(layer_kvs, merge_layers);
+
+  // merge the memtable and the layers
+  auto it = mem_list.begin();
+  auto it2 = merge_layers.begin();
+  while (it != mem_list.end() && it2 != merge_layers.end()) {
+    if (it->first < it2->key) {
+      if (it->second == delete_symbol) {
+        // NOTE: attention this behavior
+        // list.push_back(std::make_pair(it->first, ""));
+        it++;
+        continue;
+      }
+      it++;
+      list.push_back(*it);
+    } else if (it2->key < it->first) {
+      if (it2->len == 0) {
+        // list.push_back(std::make_pair(it->first, ""));
+        it2++;
+        continue;
+      }
+
+      list.push_back({it2->key, vStore.query(*it2)});
+      it2++;
+    } else {
+      // key equal
+      if (it->second == delete_symbol) {
+        // NOTE: attention this behavior
+        // list.push_back(std::make_pair(it->first, ""));
+        it++;
+        it2++;
+        continue;
+      }
+      list.push_back(*it);
+      it++;
+      it2++;
+    }
+  }
+  while (it != mem_list.end()) {
+    if (it->second == delete_symbol) {
+      // NOTE: attention this behavior
+      // list.push_back(std::make_pair(it->first, ""));
+      it++;
+      continue;
+    }
+    list.push_back(*it);
+    it++;
+  }
+  while (it2 != merge_layers.end()) {
+    if (it2->len == 0) {
+      // list.push_back(std::make_pair(it->first, ""));
+      it2++;
+      continue;
+    }
+    list.push_back({it2->key, vStore.query(*it2)});
+    it2++;
   }
 }
 
 /**
- * This reclaims space from vLog by moving valid value and discarding invalid
- * value. chunk_size is the size in byte you should AT LEAST recycle.
+ * This reclaims space from vLog by moving valid value and discarding
+ * invalid value. chunk_size is the size in byte you should AT LEAST
+ * recycle.
  */
 void KVStore::gc(uint64_t chunk_size) {}
 
@@ -179,7 +254,6 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
         kv.second == delete_symbol ? 0 : static_cast<TLen>(kv.second.size());
     TOff offset =
         vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second}, false);
-
     kes.push_back({.key = kv.first, .offset = offset, .len = len});
   }
   sst = SSTable::sstable_type(kes);

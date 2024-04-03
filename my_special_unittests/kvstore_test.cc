@@ -81,8 +81,8 @@ TEST_F(KVStoreTest, BasicScan2) {
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 10;
   for (int i = 0; i < max / 2; ++i) {
-    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
-    pStore->put(i, std::string(i + 1, 's'));
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
+    pStore->put(i, std::to_string(i));
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
@@ -93,8 +93,8 @@ TEST_F(KVStoreTest, BasicScan3) {
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 11;
   for (int i = 0; i < max / 2; ++i) {
-    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
-    pStore->put(i, std::string(i + 1, 's'));
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
+    pStore->put(i, std::to_string(i));
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
@@ -105,8 +105,8 @@ TEST_F(KVStoreTest, ScanWithDel) {
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 11;
   for (int i = 0; i < max / 2; ++i) {
-    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
-    pStore->put(i, std::string(i + 1, 's'));
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
+    pStore->put(i, std::to_string(i));
   }
   pStore->del(0);
   pStore->scan(0, max / 2 - 1, list_stu);
@@ -137,20 +137,20 @@ TEST_F(KVStoreTest, RegularTest50) {
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
-    pStore->put(i, std::string(i + 1, 's'));
-    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    pStore->put(i, std::to_string(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
   std::list<std::pair<uint64_t, std::string>> list_stu;
 
   for (i = 0; i < max / 2; ++i) {
-    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
@@ -177,7 +177,7 @@ TEST_F(KVStoreTest, RegularTest50) {
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::string(i + 1, 's') : not_found, pStore->get(i));
+    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
     EXPECT_EQ(i & 1, pStore->del(i));
@@ -198,20 +198,20 @@ TEST_F(KVStoreTest, RegularTest200) {
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
-    pStore->put(i, std::string(i + 1, 's'));
-    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    pStore->put(i, std::to_string(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
   std::list<std::pair<uint64_t, std::string>> list_stu;
 
   for (i = 0; i < max / 2; ++i) {
-    list_ans.emplace_back(std::make_pair(i, std::string(i + 1, 's')));
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
@@ -238,7 +238,7 @@ TEST_F(KVStoreTest, RegularTest200) {
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::string(i + 1, 's') : not_found, pStore->get(i));
+    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
     EXPECT_EQ(i & 1, pStore->del(i));
@@ -289,4 +289,86 @@ TEST_F(KVStoreTest, ThreeSST) {
   // // Test after all insertions
   for (i = 0; i < max; ++i)
     EXPECT_EQ(std::to_string(i), pStore->get(i));
+}
+
+TEST_F(KVStoreTest, LargeScan) {
+  for (int i = 0; i < 1000; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+  auto ref = std::list<skiplist::kvpair>();
+  auto res = std::list<skiplist::kvpair>();
+  pStore->scan(100, 100000, res);
+
+  for (int i = 100; i < 1000; ++i) {
+    ref.push_back({i, std::to_string(i)});
+  }
+
+  EXPECT_EQ(ref, res);
+}
+
+TEST_F(KVStoreTest, LargeScanWithDel) {
+  for (int i = 0; i < 1000; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+  for (int i = 0; i < 1000; i += 2) {
+    pStore->del(i);
+  }
+  auto ref = std::list<skiplist::kvpair>();
+  auto res = std::list<skiplist::kvpair>();
+  pStore->scan(100, 900, res);
+
+  for (int i = 101; i <= 900; i += 2) {
+    ref.push_back({i, std::to_string(i)});
+  }
+
+  EXPECT_EQ(ref, res);
+}
+
+TEST_F(KVStoreTest, AnotherLargeScan) {
+  // Test after all insertions
+  uint64_t i;
+  auto not_found = "";
+  int max = 345;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+
+  // Test multiple key-value pairs
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+    // EXPECT_EQ(std::to_string(i), pStore->get(i));
+  }
+
+  // for (i = 0; i < max; ++i)
+  //   EXPECT_EQ(std::to_string(i), pStore->get(i));
+
+  // Test scan
+  std::list<std::pair<uint64_t, std::string>> list_ans;
+  std::list<std::pair<uint64_t, std::string>> list_stu;
+
+  for (i = 0; i < max / 2; ++i) {
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
+  }
+
+  pStore->scan(0, max / 2 - 1, list_stu);
+  EXPECT_EQ(list_ans.size(), list_stu.size());
+
+  // auto ap = list_ans.begin();
+  // auto sp = list_stu.begin();
+  // while (ap != list_ans.end()) {
+  //   if (sp == list_stu.end()) {
+  //     EXPECT_EQ((*ap).first, -1);
+  //     EXPECT_EQ((*ap).second, not_found);
+  //     ap++;
+  //   } else {
+  //     EXPECT_EQ((*ap).first, (*sp).first);
+  //     EXPECT_EQ((*ap).second, (*sp).second);
+  //     ap++;
+  //     sp++;
+  //   }
+  // }
 }
