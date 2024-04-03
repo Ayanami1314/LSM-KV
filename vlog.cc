@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+const u8 vLogs::magic = 0xff;
 vLogs::vLogs(TPath vpath)
     : head(0), tail(0), vfilepath(vpath),
       ofs(vpath, std::ios::binary | std::ios::app) {
@@ -13,6 +14,7 @@ vLogs::vLogs(TPath vpath)
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
   if (!ofs) {
+    std::cout << "vpath: " << vpath << std::endl;
     throw std::runtime_error("Failed to open file");
   }
 }

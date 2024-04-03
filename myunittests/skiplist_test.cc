@@ -59,9 +59,9 @@ TEST_F(SkipListTest, BasicPut) {
 TEST_F(SkipListTest, BasicKeySet) {
   std::list<uint64_t> keyset(10);
   std::iota(keyset.begin(), keyset.end(), 0);
-  EXPECT_EQ(sl_small.get_keyset(), keyset);
+  EXPECT_EQ(sl_small.get_keylist(), keyset);
   keyset.push_back(1);
-  EXPECT_NE(sl.get_keyset(), keyset);
+  EXPECT_NE(sl.get_keylist(), keyset);
 }
 
 TEST_F(SkipListTest, BasicScan) {

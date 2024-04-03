@@ -4,6 +4,7 @@
 #include "type.h"
 #include "utils.h"
 #include "vlog.h"
+#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -13,10 +14,15 @@ const size_t KVStore::max_sz = 16 * 1024; // 16KB
 KVStore::KVStore(const std::string &dir)
     : KVStoreAPI(dir), save_dir(dir),
       pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0),
-      vStore(std::filesystem::path(dir) / "vLog") {
-  utils::mkdir(std::filesystem::path(dir) / "level_0");
-  // NOTE: vLog is a file
-}
+      vStore([dir]() {
+        auto data_dir = std::filesystem::path(dir);
+        if (!std::filesystem::exists(data_dir)) {
+          utils::mkdir(data_dir);
+        }
+        utils::mkdir(std::filesystem::path(dir) / "level_0");
+        // NOTE: vLog is a file
+        return vLogs(std::filesystem::path(dir) / "vLog");
+      }()) {}
 
 KVStore::~KVStore() {
   // NOTE: now only level-0
@@ -51,14 +57,21 @@ void KVStore::put(uint64_t key, const std::string &s) {
  * Returns the (string) value of the given key.
  * An empty string indicates not found.
  */
-std::string KVStore::get(uint64_t key) { return pkvs->get(key); }
+std::string KVStore::get(uint64_t key) {
+  // TODO: query in L0
+  auto value = pkvs->get(key);
+  return value == delete_symbol ? "" : value;
+}
 /**
  * Delete the given key-value pair if it exists.
  * Returns false iff the key is not found.
  */
 bool KVStore::del(uint64_t key) {
-  bool exist = !(pkvs->get(key) == "");
+  bool exist = pkvs->get(key) != delete_symbol;
   if (exist) {
+    // bool exist_in_mem = !(pkvs->get(key) == "");
+    // if (exist_in_mem) {
+    // }
     pkvs->put(key, delete_symbol);
   }
   return exist;
@@ -80,7 +93,13 @@ void KVStore::reset() {
  */
 void KVStore::scan(uint64_t key1, uint64_t key2,
                    std::list<std::pair<uint64_t, std::string>> &list) {
-  list = pkvs->scan(key1, key2);
+  const auto first_scan = pkvs->scan(key1, key2);
+  // filter the del element
+  for (auto &kv : first_scan) {
+    if (kv.second != delete_symbol) {
+      list.push_back(kv);
+    }
+  }
 }
 
 /**

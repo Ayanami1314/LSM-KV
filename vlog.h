@@ -2,7 +2,6 @@
 #define __VLOG_H__
 #include "type.h"
 #include <fstream>
-#include <vector>
 class vLogs {
 private:
   // TBytes data;
@@ -14,7 +13,7 @@ private:
   std::ofstream ofs;
 
 public:
-  static const u8 magic = 0xff;
+  static const u8 magic;
   static TBytes cal_bytes(const vEntryProps &v, TCheckSum &checksum);
   static TBytes cal_bytes(const vEntry &v, TCheckSum &checksum);
   vEntrys ves;

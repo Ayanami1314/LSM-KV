@@ -5,7 +5,6 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <memory>
-const u8 vLogs::magic;
 class vLogTest : public ::testing::Test {
 protected:
   void SetUp() override {

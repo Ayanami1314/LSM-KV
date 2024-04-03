@@ -12,9 +12,15 @@ using std::endl;
 void skiplist_type::put(key_type key, const value_type &val) {
   vector<Node *> prev = find_prev(key);
   // if the key already exist, simply replace the val
-  for (int i = 0; i < height; ++i) {
-    if (prev.at(i)->next != nullptr && prev.at(i)->next->key == key) {
-      prev.at(i)->next->value = val;
+  // NOTE: height start at 0
+  for (int i = height; i >= 0; --i) {
+    if (prev.at(i)->next != tail.at(i) && prev.at(i)->next->key == key) {
+      auto p_equal = prev.at(i)->next;
+      p_equal->value = val;
+      while (p_equal->down != nullptr) {
+        p_equal = p_equal->down;
+        p_equal->value = val;
+      }
       return;
     }
   }
@@ -26,7 +32,7 @@ void skiplist_type::put(key_type key, const value_type &val) {
   for (int i = 0; i <= layer; i++) {
     if (i > height) {
       // NOTE: create a new layer
-      cout << "create new layer: " << i << endl;
+      // cout << "create new layer: " << i << endl;
       height = i;
       head.push_back(new Node(nullptr, nullptr));
       tail.push_back(new Node(nullptr, nullptr));
