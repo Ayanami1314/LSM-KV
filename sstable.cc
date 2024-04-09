@@ -124,7 +124,7 @@ kEntry sstable_type::query(TKey key) {
     return type::ke_not_found;
   }
 
-  Log("The choose key is %llu", pkes->at(right).key);
+  Log("The choose key is %llu", choose);
   return pkes->at(choose);
 }
 void sstable_type::scan(TKey min, TKey max, kEntrys &res) {

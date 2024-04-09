@@ -355,6 +355,7 @@ TEST_F(KVStoreTest, AnotherLargeScan) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
+
   EXPECT_EQ(list_ans.size(), list_stu.size());
 
   // auto ap = list_ans.begin();

@@ -226,11 +226,14 @@ static inline void mergeKSorted(const std::vector<kEntrys> &src, kEntrys &dst) {
     }
   }
   TKey lastKey = 0;
+  // the first key == init lastkey and make the pq reduce to 0
+  int call_num = 0;
   while (!pq.empty()) {
     auto top = pq.top();
     pq.pop();
-    if (top.key == lastKey) {
+    if (top.key == lastKey && call_num != 0) {
       // NOTE: repeat element should be filtered
+      // NOTE: the lastKey's init value shouldn't cause affect
       continue;
     }
     dst.push_back(top);
@@ -242,6 +245,7 @@ static inline void mergeKSorted(const std::vector<kEntrys> &src, kEntrys &dst) {
       }
     }
     lastKey = top.key;
+    call_num++;
   }
 }
 } // namespace utils
