@@ -68,14 +68,13 @@ void KVStore::put(uint64_t key, const std::string &s) {
 std::string KVStore::get(uint64_t key) {
   // TODO: query in L0
   auto value = pkvs->get(key);
-  bool mem_exist = value != "" && value != delete_symbol;
+  bool mem_exist = value != "";
 
   if (mem_exist) {
-    return value;
+    return value == delete_symbol ? "" : value;
   }
   TValue v = "";
   // query in layers
-  // TODO: fix the bug, not the sst order
   for (auto &layer : this->ss_layers) {
     // NOTE：the newest SST is the last one in the layer
     for (int i = layer.size() - 1; i >= 0; --i) {

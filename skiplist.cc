@@ -52,6 +52,11 @@ void skiplist_type::put(key_type key, const value_type &val) {
   ele_number++;
   // Now new_node_vec[i] is node in layer i
 }
+/**
+@brief get value by key
+ * @param  key
+ * @return std::string "" if not found
+ */
 std::string skiplist_type::get(key_type key) const {
   vector<Node *> prev = find_prev(key);
   Node *node = prev.at(0)->next;
