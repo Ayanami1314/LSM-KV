@@ -46,19 +46,39 @@ void sstable_type::addBF(const kEntrys &kes) {
     BF.insert_u64(entry.key);
   }
 }
-size_t sstable_type::size() {
+/**
+@brief
+ * @return size_t the generated file size of the current sstable
+ */
+size_t sstable_type::size() const {
   // num_of_kv: u64
   return header.getNumOfKV() * sizeof(u64) + sizeof(header) + bf_size / 8;
 }
+/**
+@brief clear the current sstable
+ */
 void sstable_type::clear() {
   pkes = std::make_unique<kEntrys>();
   BF.clear();
   header.clear();
 }
+/**
+@brief calculate the generated file size of the current sstable
+ * @param  number_of_kv
+ * @param  BF_size
+ * @return size_t
+ */
 size_t sstable_type::cal_size(int number_of_kv, size_t BF_size) {
   return number_of_kv * sizeof(kEntry) + sizeof(header) + BF_size / 8;
 }
-bool sstable_type::mayKeyExist(TKey key) {
+
+/**
+@brief judge if the key exist by Header and BF
+ * @param  key
+ * @return true
+ * @return false
+ */
+bool sstable_type::mayKeyExist(TKey key) const {
   if (key > header.getMaxKey() || key < header.getMinKey()) {
     return false;
   }
@@ -67,7 +87,16 @@ bool sstable_type::mayKeyExist(TKey key) {
   }
   return true;
 }
-u64 sstable_type::binary_search(TKey key, u64 total, bool &exist, bool use_BF) {
+/**
+@brief binary search in sstable in range [0, total)
+ * @param  key
+ * @param  total total number of kv
+ * @param  exist true if found, false if not found
+ * @param  use_BF
+ * @return u64 index if found, -1 if not found
+ */
+u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
+                                bool use_BF) const {
   // NOTE: idx form 0 to total - 1
   if (use_BF && !BF.find_u64(key)) {
     exist = false;
@@ -105,7 +134,12 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist, bool use_BF) {
   }
   return choose;
 }
-kEntry sstable_type::query(TKey key) {
+/**
+@brief
+ * @param  key
+ * @return kEntry return ke_not_found macro if not found
+ */
+kEntry sstable_type::query(TKey key) const {
   if (!mayKeyExist(key)) {
     return type::ke_not_found;
   }
@@ -127,7 +161,14 @@ kEntry sstable_type::query(TKey key) {
   Log("The choose key is %llu", choose);
   return pkes->at(choose);
 }
-void sstable_type::scan(TKey min, TKey max, kEntrys &res) {
+
+/**
+@brief scan the sstable
+ * @param  min minKey
+ * @param  max maxKey
+ * @param  res a list of kEntry(key, offset, vlen)
+ */
+void sstable_type::scan(TKey min, TKey max, kEntrys &res) const {
   if (min > header.getMaxKey() || max < header.getMinKey()) {
     return;
   }
@@ -167,7 +208,10 @@ void sstable_type::scan(TKey min, TKey max, kEntrys &res) {
   }
   return;
 }
-
+/**
+@brief save the SSTable to path(will not clear the current sstable)
+ * @param  path
+ */
 void sstable_type::save(const std::string &path) {
   if (std::filesystem::exists(path)) {
     std::string msg = "Try to save to file(%s) that already exists";
@@ -184,6 +228,11 @@ void sstable_type::save(const std::string &path) {
   }
   ofile.close();
 }
+
+/**
+@brief load a sstable from path
+ * @param  path
+ */
 void sstable_type::load(const std::string &path) {
   std::ifstream ifile(path, std::ios::binary);
   if (!std::filesystem::exists(path)) {

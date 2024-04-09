@@ -38,7 +38,12 @@ void BloomFilter::insert_u64(uint64_t key) {
   for_each(results.begin(), results.end(),
            [this](int i) { this->BF.at(i) = true; });
 }
-
+/**
+@brief find if the u64 key exist
+ * @param  key
+ * @return true
+ * @return false
+ */
 bool BloomFilter::find_u64(uint64_t key) const {
   std::vector<int> results;
   for (const auto &h : hashes) {
@@ -55,7 +60,10 @@ bool BloomFilter::find_u64(uint64_t key) const {
   }
   return exist;
 }
-
+/**
+@brief serialize the BF
+ * @return std::vector<uint8_t>
+ */
 std::vector<uint8_t> BloomFilter::toBytes() const {
   std::vector<uint8_t> bytes;
   uint8_t byte = 0;

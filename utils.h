@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <vector>
 #define PAGE_SIZE (4 * 1024)
-
+#define DEBUG 0
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args) {
   int size =
@@ -25,7 +25,7 @@ std::string string_format(const std::string &format, Args... args) {
   return std::string(buf.get(),
                      buf.get() + size - 1); // We don't want the '\0' inside
 }
-#define DEBUG 1
+
 #if DEBUG
 #define Log(format, ...)                                                       \
   std::cout << string_format(format, ##__VA_ARGS__) << std::endl;
@@ -205,6 +205,12 @@ static inline uint16_t crc16(const std::vector<unsigned char> &data) {
   }
   return crc;
 }
+/**
+@brief K-ways merge
+ * @param  src sorted by the priority(keep the highest priority element at
+begin!)
+ * @param  dst
+ */
 static inline void mergeKSorted(const std::vector<kEntrys> &src, kEntrys &dst) {
   // NOTE: src is sorted by the priority(keep the priority highest at begin!)
   // priority: the time

@@ -104,7 +104,10 @@ std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
   return pairs;
 }
 size_t skiplist_type::size() const { return ele_number; }
-
+/**
+@brief get all key-value pair list
+ * @return std::list<kvpair>
+ */
 std::list<kvpair> skiplist_type::get_kvplist() const {
   Node *cur = head.at(0)->next;
   std::list<kvpair> kvps;

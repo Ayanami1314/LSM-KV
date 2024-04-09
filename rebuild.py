@@ -1,6 +1,17 @@
 import subprocess as sh
+import threading
 import os
 import sys
+import time
+MAX_LOG_SIZE = 1024 * 1024  # 1MB, adjust as needed
+
+def check_file_size(proc, filename):
+    while proc.poll() is None:  # while the process is running
+        if os.stat(filename).st_size > MAX_LOG_SIZE:
+            proc.terminate()
+            print("Log file is too large, exiting.")
+            sys.exit(1)
+        time.sleep(1)  # check every second
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     sh.run("cmake -S . -B build", shell=True)
@@ -11,8 +22,11 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "run":
         print(sys.argv[1])
         with open("../log/correctness.log", "w") as cf:
-            sh.run("./correctness -v", shell=True, stdout=cf, stderr=cf)
+            proc = sh.Popen(["./correctness", "-v"], stdout=cf, stderr=cf)
+            threading.Thread(target=check_file_size, args=(proc, cf.name)).start()
+            proc.wait()
         with open("../log/persistence.log", "w") as pf:
-            sh.run("./persistence -v", shell=True, stdout=pf, stderr=pf)
-        sh.run("make clean", shell=True)
+            proc = sh.Popen(["./persistence", "-v"], stdout=pf, stderr=pf)
+            threading.Thread(target=check_file_size, args=(proc, pf.name)).start()
+            proc.wait()
     os.chdir("..")

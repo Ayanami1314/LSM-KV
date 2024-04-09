@@ -48,7 +48,7 @@ private:
   BloomFilter BF;
   Header header;
   std::shared_ptr<kEntrys> pkes;
-  u64 binary_search(TKey key, u64 total, bool &exist, bool use_BF = true);
+  u64 binary_search(TKey key, u64 total, bool &exist, bool use_BF = true) const;
 
 public:
   static void resetID();
@@ -57,13 +57,13 @@ public:
                int hash_num = 3);
   sstable_type(const sstable_type &other);
   void addBF(const kEntrys &kes);
-  size_t size();
+  size_t size() const;
   static size_t cal_size(int number_of_kv, size_t BF_size = default_bf_size);
   void save(const std::string &path);
   void load(const std::string &path);
-  bool mayKeyExist(TKey key);
-  void scan(TKey min, TKey max, kEntrys &res);
-  kEntry query(TKey key);
+  bool mayKeyExist(TKey key) const;
+  void scan(TKey min, TKey max, kEntrys &res) const;
+  kEntry query(TKey key) const;
   void clear();
 
   ~sstable_type() = default;

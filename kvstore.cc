@@ -75,8 +75,11 @@ std::string KVStore::get(uint64_t key) {
   }
   TValue v = "";
   // query in layers
+  // TODO: fix the bug, not the sst order
   for (auto &layer : this->ss_layers) {
-    for (auto &sst : layer) {
+    // NOTE：the newest SST is the last one in the layer
+    for (int i = layer.size() - 1; i >= 0; --i) {
+      const auto &sst = layer[i];
       auto ke = sst.query(key); // HINT: header and BF: may exist?
       if (ke == type::ke_not_found) {
         continue;
@@ -141,7 +144,6 @@ void KVStore::reset() {
  */
 void KVStore::scan(uint64_t key1, uint64_t key2,
                    std::list<std::pair<uint64_t, std::string>> &list) {
-  // TODO: sst scan
   kEntrys kvec;
   const auto mem_list = pkvs->scan(key1, key2);
   // filter the del element
@@ -163,7 +165,6 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
       // HINT: now sorted by priority
     }
   }
-  // TODO: merge the layer_ks and the mem_list
   kEntrys merge_layers;
   utils::mergeKSorted(layer_kvs, merge_layers);
 
@@ -230,7 +231,9 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
  * recycle.
  */
 void KVStore::gc(uint64_t chunk_size) {}
-
+/**
+ * @brief compaction in sstable layers
+ */
 void KVStore::compaction() {
   // called when sst_sz > max_sz
   // TODO
@@ -244,8 +247,15 @@ void KVStore::compaction() {
   utils::scanDir(l0_dir, l0_ssts);
   if (l0_ssts.size() > level_limit(0)) {
     // TODO, merge
+    Log("TODO: merge");
   }
 }
+/**
+@brief convert the kvstore in mem to sstable and vlog. if deleted, the len of
+the kEntry to be saved in sst will be 0
+ * @param  sst
+ * @param  vl
+ */
 void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
   auto kvplist = pkvs->get_kvplist();
   kEntrys kes;
@@ -259,6 +269,9 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
   sst = SSTable::sstable_type(kes);
 }
 
+/**
+@brief save the sstable cache and the vlog cache to file
+ */
 void KVStore::save() {
   auto l0_dir = std::filesystem::path(save_dir) / "level_0";
   if (!std::filesystem::exists(l0_dir)) {

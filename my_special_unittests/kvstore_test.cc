@@ -373,3 +373,29 @@ TEST_F(KVStoreTest, AnotherLargeScan) {
   //   }
   // }
 }
+TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
+  uint64_t i;
+  auto not_found = "";
+  int max = 345;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+
+  // Test deletions
+  for (i = 0; i < max; i += 2) {
+    EXPECT_EQ(true, pStore->del(i));
+  }
+
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+
+  for (i = 1; i < max; ++i)
+    EXPECT_EQ(i & 1, pStore->del(i));
+}
