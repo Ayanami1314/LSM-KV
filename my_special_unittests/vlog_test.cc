@@ -1,10 +1,13 @@
+#include "../sstable.h"
 #include "../utils.h"
 #include "../vlog.h"
+
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <memory>
+#include <string>
 class vLogTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -43,7 +46,7 @@ TEST_F(vLogTest, addVlog) {
   v.vvalue = vvalue;
   v.vlen = vvalue.size();
 
-  vl->addVlog(v, true);
+  vl->addVlog(v);
   system("xxd -i ./tmp/vlog");
   auto [ref_vkey, ref_vlen, ref_vvalue] = v;
   auto ref_magic = vl->getMagic();
@@ -91,9 +94,31 @@ TEST_F(vLogTest, loadSaveTest) {
   v.key = 0;
   v.vvalue = vvalue;
   v.vlen = vvalue.size();
-  TOff off = vl->addVlog(v, true);
+  TOff off = vl->addVlog(v);
   system("xxd -i ./tmp/vlog");
   kEntry ke = {.key = 0, .offset = off, .len = v.vlen};
   TValue res_v = vl->query(ke);
   EXPECT_EQ(res_v, vvalue);
+}
+
+TEST_F(vLogTest, readTest) {
+  vl->clear();
+  vEntrys ves;
+
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  system("xxd -i ./tmp/vlog");
+  std::vector<TOff> locs;
+  const int size_of_prefix = 15;
+  int ref_loc = 0;
+  vl->readVlogs(vl->getTail(), ves, 200, locs);
+  for (int i = 0; i < 10; ++i) {
+
+    EXPECT_EQ(locs[i], ref_loc);
+    ref_loc += (15 + 1);
+  }
+  EXPECT_EQ(vl->getHead(), vl->getTail());
 }

@@ -3,6 +3,18 @@
 #include "../utils.h"
 #include <gtest/gtest.h>
 #include <string>
+#define GC_EXPECT(cur, last, size)                                             \
+  gc_expect<decltype(last)>((cur), (last), (size), __FILE__, __LINE__)
+template <typename T>
+void gc_expect(const T &cur, const T &last, const T &size,
+               const std::string &file, int line) {
+  if (cur >= last + size) {
+    return;
+  }
+  std::cerr << "TEST Error @" << file << ":" << line;
+  std::cerr << ", current offset " << cur;
+  std::cerr << ", last offset " << last << std::endl;
+}
 class KVStoreTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -20,6 +32,16 @@ protected:
     if (utils::dirExists(testdir)) {
       system(("rm -rf " + testdir).c_str());
     }
+  }
+  void check_gc(uint64_t size) {
+    std::cout << "check_gc: " << size << std::endl;
+    uint64_t last_offset, cur_offset;
+    last_offset = utils::seek_data_block(vLog.c_str());
+    pStore->gc(size);
+
+    cur_offset = utils::seek_data_block(vLog.c_str());
+    GC_EXPECT(cur_offset, last_offset, size);
+    std::cout << "check_gc over" << std::endl;
   }
   std::string testdir = "../tmp";
   std::string vLog = "../tmp/vlog";
@@ -398,4 +420,40 @@ TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
 
   for (i = 1; i < max; ++i)
     EXPECT_EQ(i & 1, pStore->del(i));
+}
+
+TEST_F(KVStoreTest, gcTest) {
+#define MB (1024 * 1024)
+
+  int max = 1024 * 48;
+  uint64_t i;
+  uint64_t gc_trigger = 1024;
+
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::string(i + 1, 's'));
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    std::cout << "idx: " << i << std::endl;
+    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::string(i + 1, 'e'));
+      break;
+    case 1:
+      pStore->put(i, std::string(i + 1, '2'));
+      break;
+    case 2:
+      pStore->put(i, std::string(i + 1, '3'));
+      break;
+    default:
+      assert(0);
+    }
+
+    if (i % gc_trigger == 0) [[unlikely]] {
+      std::cout << "gc_start: " << i << std::endl;
+      check_gc(16 * MB);
+    }
+  }
+  std::cout << "Stage 1 end." << std::endl;
 }

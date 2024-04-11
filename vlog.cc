@@ -5,24 +5,40 @@
 #include <iostream>
 #include <vector>
 const u8 vLogs::magic = 0xff;
-vLogs::vLogs(TPath vpath)
-    : head(0), tail(0), vfilepath(vpath),
-      ofs(vpath, std::ios::binary | std::ios::app) {
+void read_a_ventry(std::ifstream &ifs, vEntry &ve) {
+  // read bytes
+  TMagic magic;
+  TCheckSum checksum;
+  TKey key;
+  TLen vlen;
+  TValue value;
+  ifs.read(reinterpret_cast<char *>(&magic), sizeof(magic));
+  ifs.read(reinterpret_cast<char *>(&checksum), sizeof(checksum));
+  ifs.read(reinterpret_cast<char *>(&key), sizeof(key));
+  ifs.read(reinterpret_cast<char *>(&vlen), sizeof(vlen));
+  TBytes data(vlen);
+  ifs.read(reinterpret_cast<char *>(data.data()), data.size());
+  TValue ret(data.begin(), data.end());
+  ve.magic = magic;
+  ve.checksum = checksum;
+  ve.key = key;
+  ve.vlen = vlen;
+  ve.vvalue = ret;
+}
+vLogs::vLogs(TPath vpath) : head(0), tail(0), vfilepath(vpath) {
   // HINT: magic number is used for find the head(because the head and the tail
   // won't be persistent), 0x7f
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
+  std::ofstream ofs(vpath, std::ios::binary | std::ios::app);
   if (!ofs) {
     Log("vpath: %s", vpath);
     Log("Failed to open file, vpath=%s", vpath);
     return;
   }
+  ofs.close();
 }
-vLogs::~vLogs() {
-  if (ofs.is_open()) {
-    ofs.close();
-  }
-}
+vLogs::~vLogs() {}
 /**
 @brief add a value entry to vlog (not change the vlog if the entry is marked
 deleted)
@@ -30,7 +46,7 @@ deleted)
  * @param  sync if sync to vlog file immediately
  * @return TOff the write location in file
  */
-TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
+TOff vLogs::addVlog(const vEntryProps &v) {
   // HINT: add a new vEntry to the ves
   // HINT: update the tail
   if (v.vlen == 0) {
@@ -39,23 +55,105 @@ TOff vLogs::addVlog(const vEntryProps &v, bool sync) {
   }
   TCheckSum checksum;
   TBytes bytes = cal_bytes(v, checksum);
+  std::ofstream ofs(vfilepath, std::ios::binary | std::ios::app);
   // std::printf("Checksum of v is: %x\n", checksum);
   ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 
   // sync with file
-  if (sync) {
-    ofs.flush();
-  }
+  ofs.flush();
+  ofs.close();
   u64 ret = head;
   head += bytes.size(); // head 在前面，gc从tail开始
   return ret;
 }
-void vLogs::sync() {
-  if (!ofs.is_open()) {
-    Log("In sync: the file should be open");
-    return;
+/**
+@brief the tail will be set to the begin the first magic
+ */
+void vLogs::relocTail() {
+  off_t tmp = utils::seek_data_block(vfilepath);
+  std::ifstream ifs(vfilepath, std::ios::binary);
+  ifs.seekg(tmp);
+  Log("reloc to %lu", tmp);
+  unsigned char byte;
+  vEntry ve;
+  TCheckSum cal_checksum;
+  int loop_num = 0;
+  while (ifs >> byte) {
+    loop_num++;
+    if (loop_num % 10000 == 0) {
+      std::cout << "relocTail: endless loop? loop_num is: " << loop_num
+                << std::endl;
+    }
+    if (byte == magic) {
+      ifs.seekg(-1, std::ios_base::cur); // return the begin of magic
+      auto back_loc = ifs.tellg();
+      read_a_ventry(ifs, ve);
+      cal_bytes(ve, cal_checksum);
+      ifs.seekg(back_loc);
+      if (cal_checksum == ve.checksum) {
+        tail = ifs.tellg();
+        ifs.close();
+        return;
+      }
+    }
   }
-  ofs.flush();
+  Log("reloc failure. the file reach the end");
+  return;
+}
+/**
+@brief read the first vEntry from vlog
+ * @param  offset
+ * @param  ve
+ */
+void vLogs::readVlog(TOff offset, vEntry &ve) {
+  relocTail();
+  // Now the tail is set to the begin of the first valid entry
+  std::ifstream ifs(vfilepath, std::ios::binary);
+  if (!ifs.is_open()) {
+    Log("In readVlog: Failed to open file");
+    ve = type::ve_not_found;
+  }
+  ifs.seekg(tail);
+  read_a_ventry(ifs, ve);
+  ifs.close();
+}
+
+/**
+@brief read vEntrys util the read bytes reach the chunk_size
+ * @param  offset
+ * @param  ves should be empty
+ * @param  chunk_size
+ */
+size_t vLogs::readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
+                        std::vector<TOff> &locs) {
+  relocTail();
+  // Now the tail is set to the begin of the first valid entry
+  std::ifstream ifs(vfilepath, std::ios::binary);
+  if (!ifs.is_open()) {
+    Log("In readVlog: Failed to open file");
+    return 0;
+  }
+  vEntry ve;
+  ifs.seekg(tail);
+  locs.push_back(tail);
+  auto begin = ifs.tellg();
+  size_t size = 0;
+  int loop_num = 0;
+  while (size < chunk_size && size + begin < head) {
+    loop_num++;
+    if (loop_num % 10000 == 0) {
+      std::cout << "readVlogs: endless loop? loop_num is: " << loop_num
+                << std::endl;
+    }
+    read_a_ventry(ifs, ve);
+    ves.push_back(ve);
+    auto cur = ifs.tellg();
+    size = cur - begin;
+    locs.push_back(cur);
+  }
+  tail = size + begin;
+  ifs.close();
+  return size;
 }
 /**
 @brief
@@ -117,16 +215,13 @@ void vLogs::clear() {
   ves.clear();
   head = 0;
   tail = 0;
-  if (ofs.is_open()) {
-    ofs.close();
-    ofs.open(vfilepath, std::ios::binary | std::ios::trunc);
-    if (!ofs) {
-      Log("In clear: Failed to open file");
-      return;
-    }
+  std::ofstream ofs(vfilepath, std::ios::binary | std::ios::trunc);
+  if (!ofs) {
+    Log("In clear: Failed to open file");
+    return;
   }
+  ofs.close();
 }
-void vLogs::relocTail() {}
 
 /**
 @brief
@@ -139,24 +234,7 @@ TValue vLogs::query(kEntry ke) {
     return "";
   }
   ifs.seekg(ke.offset);
-  TMagic magic;
-  TCheckSum checksum;
-  TKey key;
-  TLen vlen;
-  TValue value;
-  // read bytes
-  ifs.read(reinterpret_cast<char *>(&magic), sizeof(magic));
-  ifs.read(reinterpret_cast<char *>(&checksum), sizeof(checksum));
-  ifs.read(reinterpret_cast<char *>(&key), sizeof(key));
-  ifs.read(reinterpret_cast<char *>(&vlen), sizeof(vlen));
-  Log("the key param is %llu", ke.key);
-  if (key != ke.key || vlen != ke.len || vlen == 0) {
-    Log("the read key is %llu", key);
-    return "";
-  }
-  TBytes data(vlen);
-  ifs.read(reinterpret_cast<char *>(data.data()), data.size());
-  TValue ret(data.begin(), data.end());
-
-  return ret;
+  vEntry ve;
+  read_a_ventry(ifs, ve);
+  return ve.vvalue;
 }

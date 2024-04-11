@@ -41,7 +41,7 @@ using vEntryPrefix = struct prefix {
   TLen vlen;
 };
 
-using vEntry = struct VEntrys {
+using vEntry = struct VEntry {
   TMagic magic;
   TCheckSum checksum;
   TKey key;

@@ -42,9 +42,11 @@ SET(SU "${CMAKE_CURRENT_SOURCE_DIR}/my_special_unittests")
 
 add_executable(sstable_test "${SU}/sstable_test.cc" sstable.cc bloomfilter.cc skiplist.cc)
 add_executable(kvstore_test "${SU}/kvstore_test.cc" vlog.cc kvstore.cc sstable.cc bloomfilter.cc skiplist.cc)
+add_executable(vlog_test "${SU}/vlog_test.cc" sstable.cc bloomfilter.cc skiplist.cc vlog.cc)
 target_link_libraries(sstable_test GTest::gtest_main)
 target_link_libraries(kvstore_test  GTest::gtest_main)
-gtest_discover_tests(sstable_test kvstore_test)
+target_link_libraries(vlog_test  GTest::gtest_main)
+gtest_discover_tests(sstable_test kvstore_test vlog_test)
 
 SET(SRC_WITHOUT_TEST kvstore.cc bloomfilter.cc skiplist.cc sstable.cc vlog.cc)
 add_executable(persistence persistence.cc ${SRC_WITHOUT_TEST})

@@ -229,7 +229,48 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
  * invalid value. chunk_size is the size in byte you should AT LEAST
  * recycle.
  */
-void KVStore::gc(uint64_t chunk_size) {}
+void KVStore::gc(uint64_t chunk_size) {
+  // TODO
+  // HINT: the size of the value to be recycled is strictly no less than
+  // chunk_size
+  // NOTE: first, search the vlog tail
+  vStore.relocTail();
+  vEntrys ves;
+  std::vector<TOff> locs;
+  auto origin_tail = vStore.getTail();
+  vStore.readVlogs(origin_tail, ves, chunk_size, locs);
+
+  // NOTE: second, find in lsmtree(search in SSTables)
+  int idx = 0;
+  for (auto &ve : ves) {
+
+    kEntry ke = type::ke_not_found;
+    bool found = false;
+    for (auto &layer : this->ss_layers) {
+      // NOTE：the newest SST is the last one in the layer
+      for (int i = layer.size() - 1; i >= 0; --i) {
+        const auto &sst = layer[i];
+        ke = sst.query(ve.key); // HINT: header and BF: may exist?
+        if (ke != type::ke_not_found) {
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      continue;
+    }
+    // NOTE: if found, insert to memtable, else do nothing
+    if (ke.offset == locs.at(idx)) {
+      this->put(ke.key, ve.vvalue);
+    }
+    ++idx;
+  }
+  // NOTE: third, compaction and de_alloc_file
+  compaction();
+  auto new_tail = vStore.getTail();
+  utils::de_alloc_file(vStore.getPath(), origin_tail, new_tail - origin_tail);
+}
 /**
  * @brief compaction in sstable layers
  */
@@ -262,7 +303,7 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
     TLen len =
         kv.second == delete_symbol ? 0 : static_cast<TLen>(kv.second.size());
     TOff offset =
-        vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second}, false);
+        vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second});
     kes.push_back({.key = kv.first, .offset = offset, .len = len});
   }
   sst = SSTable::sstable_type(kes);
@@ -294,7 +335,6 @@ void KVStore::save() {
     return;
   }
   new_sstable.save(sst_path);
-  vStore.sync();
 
   // clear the pkvs
   pkvs = std::make_unique<skiplist::skiplist_type>();

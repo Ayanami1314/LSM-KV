@@ -10,7 +10,6 @@ private:
   u64 tail;
 
   TPath vfilepath;
-  std::ofstream ofs;
 
 public:
   // TODO: add vlog cache
@@ -23,15 +22,17 @@ public:
   // methods
   vLogs(TPath vpath);
   void relocTail();
-  TOff addVlog(const vEntryProps &v,
-               bool sync); // ret: the offset of the add vlog
+  TOff addVlog(const vEntryProps &v); // ret: the offset of the add vlog
   void append_file(TBytes data);
   TValue query(kEntry ke);
-  void sync();
   void clear();
+  void readVlog(TOff offset, vEntry &ve);
+  size_t readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
+                   std::vector<TOff> &locs);
   [[nodiscard]] u64 getHead() const { return head; }
   [[nodiscard]] u64 getTail() const { return tail; }
   [[nodiscard]] u8 getMagic() const { return magic; }
+  [[nodiscard]] std::string getPath() const { return vfilepath; }
   ~vLogs();
 };
 #endif

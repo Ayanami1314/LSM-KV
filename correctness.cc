@@ -87,7 +87,7 @@ private:
     for (i = 0; i < max; ++i) {
       store.put(i, std::string(i + 1, 's'));
     }
-
+    std::cout << "Put end." << std::endl;
     for (i = 0; i < max; ++i) {
       EXPECT(std::string(i + 1, 's'), store.get(i));
       switch (i % 3) {
@@ -103,12 +103,12 @@ private:
       default:
         assert(0);
       }
-
+      std::cout << "idx: " << i << std::endl;
       if (i % gc_trigger == 0) [[unlikely]] {
         check_gc(16 * MB);
       }
     }
-
+    std::cout << "Stage 1 end." << std::endl;
     phase();
 
     for (i = 0; i < max; ++i) {
@@ -128,7 +128,7 @@ private:
     }
 
     phase();
-
+    std::cout << "Stage 2 end." << std::endl;
     for (i = 1; i < max; i += 2) {
       EXPECT(true, store.del(i));
 
@@ -136,7 +136,7 @@ private:
         check_gc(8 * MB);
       }
     }
-
+    std::cout << "Stage 3 end." << std::endl;
     for (i = 0; i < max; i += 2) {
       switch (i % 3) {
       case 0:
@@ -158,7 +158,7 @@ private:
         check_gc(32 * MB);
       }
     }
-
+    std::cout << "Stage 4 end." << std::endl;
     for (i = 0; i < max; ++i) {
       EXPECT(not_found, store.get(i));
     }
