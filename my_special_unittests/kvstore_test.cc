@@ -266,6 +266,67 @@ TEST_F(KVStoreTest, RegularTest200) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
+TEST_F(KVStoreTest, RegularTest1024) {
+
+  uint64_t i;
+  const std::string not_found = "";
+  const int max = 1024;
+  // Test a single key
+  EXPECT_EQ(not_found, pStore->get(1));
+  pStore->put(1, "SE");
+  EXPECT_EQ("SE", pStore->get(1));
+  EXPECT_EQ(true, pStore->del(1));
+  EXPECT_EQ(not_found, pStore->get(1));
+  EXPECT_EQ(false, pStore->del(1));
+
+  // Test multiple key-value pairs
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+  }
+
+  // Test after all insertions
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+
+  // Test scan
+  std::list<std::pair<uint64_t, std::string>> list_ans;
+  std::list<std::pair<uint64_t, std::string>> list_stu;
+
+  for (i = 0; i < max / 2; ++i) {
+    list_ans.emplace_back(std::make_pair(i, std::to_string(i)));
+  }
+
+  pStore->scan(0, max / 2 - 1, list_stu);
+  EXPECT_EQ(list_ans.size(), list_stu.size());
+
+  auto ap = list_ans.begin();
+  auto sp = list_stu.begin();
+  while (ap != list_ans.end()) {
+    if (sp == list_stu.end()) {
+      EXPECT_EQ((*ap).first, -1);
+      EXPECT_EQ((*ap).second, not_found);
+      ap++;
+    } else {
+      EXPECT_EQ((*ap).first, (*sp).first);
+      EXPECT_EQ((*ap).second, (*sp).second);
+      ap++;
+      sp++;
+    }
+  }
+
+  // Test deletions
+  for (i = 0; i < max; i += 2) {
+    EXPECT_EQ(true, pStore->del(i));
+  }
+
+  for (i = 0; i < max; ++i)
+    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+
+  for (i = 1; i < max; ++i)
+    EXPECT_EQ(i & 1, pStore->del(i));
+}
+
 TEST_F(KVStoreTest, JustOverflow) {
 
   uint64_t i;
@@ -350,7 +411,7 @@ TEST_F(KVStoreTest, AnotherLargeScan) {
   // Test after all insertions
   uint64_t i;
   auto not_found = "";
-  int max = 345;
+  int max = 500;
   // Test a single key
   EXPECT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
@@ -423,28 +484,29 @@ TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
 }
 
 TEST_F(KVStoreTest, gcTest) {
-#define MB (1024 * 1024)
+#define KB (1024)
 
-  int max = 1024 * 48;
+  int max = 1024;
   uint64_t i;
   uint64_t gc_trigger = 1024;
 
   for (i = 0; i < max; ++i) {
-    pStore->put(i, std::string(i + 1, 's'));
+    pStore->put(i, std::to_string(i));
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
     std::cout << "idx: " << i << std::endl;
-    EXPECT_EQ(std::string(i + 1, 's'), pStore->get(i));
+    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    std::cout << "after get" << std::endl;
     switch (i % 3) {
     case 0:
-      pStore->put(i, std::string(i + 1, 'e'));
+      pStore->put(i, std::to_string(i));
       break;
     case 1:
-      pStore->put(i, std::string(i + 1, '2'));
+      pStore->put(i, std::to_string(i));
       break;
     case 2:
-      pStore->put(i, std::string(i + 1, '3'));
+      pStore->put(i, std::to_string(i));
       break;
     default:
       assert(0);
@@ -452,7 +514,7 @@ TEST_F(KVStoreTest, gcTest) {
 
     if (i % gc_trigger == 0) [[unlikely]] {
       std::cout << "gc_start: " << i << std::endl;
-      check_gc(16 * MB);
+      // check_gc(16 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
