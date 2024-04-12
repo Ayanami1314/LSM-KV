@@ -26,6 +26,7 @@ public:
   void append_file(TBytes data);
   TValue query(kEntry ke);
   void clear();
+  void gc(u64 new_tail);
   void readVlog(TOff offset, vEntry &ve);
   size_t readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
                    std::vector<TOff> &locs);

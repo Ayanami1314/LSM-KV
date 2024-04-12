@@ -237,8 +237,8 @@ void KVStore::gc(uint64_t chunk_size) {
   vStore.relocTail();
   vEntrys ves;
   std::vector<TOff> locs;
-  auto origin_tail = vStore.getTail();
-  vStore.readVlogs(origin_tail, ves, chunk_size, locs);
+  auto tail = vStore.getTail();
+  size_t read_size = vStore.readVlogs(tail, ves, chunk_size, locs);
 
   // NOTE: second, find in lsmtree(search in SSTables)
   int idx = 0;
@@ -268,8 +268,8 @@ void KVStore::gc(uint64_t chunk_size) {
   }
   // NOTE: third, compaction and de_alloc_file
   compaction();
-  auto new_tail = vStore.getTail();
-  utils::de_alloc_file(vStore.getPath(), origin_tail, new_tail - origin_tail);
+  utils::de_alloc_file(vStore.getPath(), tail, read_size);
+  vStore.gc(tail + read_size);
 }
 /**
  * @brief compaction in sstable layers

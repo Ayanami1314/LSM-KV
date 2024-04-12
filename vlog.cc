@@ -5,25 +5,55 @@
 #include <iostream>
 #include <vector>
 const u8 vLogs::magic = 0xff;
-void read_a_ventry(std::ifstream &ifs, vEntry &ve) {
+/**
+ * @brief
+ * @param  ifs
+ * @param  ve
+ * @return -1 if failed, 0 if success
+ */
+int read_a_ventry(std::ifstream &ifs, vEntry &ve) {
   // read bytes
   TMagic magic;
   TCheckSum checksum;
   TKey key;
   TLen vlen;
   TValue value;
+  auto back_loc = ifs.tellg();
+
   ifs.read(reinterpret_cast<char *>(&magic), sizeof(magic));
+  if (magic != vLogs::magic) {
+    ifs.seekg(back_loc);
+    return -1;
+  }
+  // ...
   ifs.read(reinterpret_cast<char *>(&checksum), sizeof(checksum));
   ifs.read(reinterpret_cast<char *>(&key), sizeof(key));
   ifs.read(reinterpret_cast<char *>(&vlen), sizeof(vlen));
-  TBytes data(vlen);
-  ifs.read(reinterpret_cast<char *>(data.data()), data.size());
+  // HINT: an incorrect vlen can cause a crash here
+  // SO USE next magic to act as end symbol
+  // TBytes data(vlen);
+  std::vector<u8> data;
+  unsigned char byte;
+  ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
+  while (byte != vLogs::magic && !ifs.eof() && !ifs.fail()) {
+    data.push_back(byte);
+    ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
+  }
+  if (byte == vLogs::magic) {
+    // HINT: set the ifs back 1
+    ifs.seekg(-1, std::ios_base::cur);
+  }
+  if (data.size() != vlen) {
+    ifs.seekg(back_loc);
+    return -1;
+  }
   TValue ret(data.begin(), data.end());
   ve.magic = magic;
   ve.checksum = checksum;
   ve.key = key;
   ve.vlen = vlen;
   ve.vvalue = ret;
+  return 0;
 }
 vLogs::vLogs(TPath vpath) : head(0), tail(0), vfilepath(vpath) {
   // HINT: magic number is used for find the head(because the head and the tail
@@ -77,27 +107,17 @@ void vLogs::relocTail() {
   unsigned char byte;
   vEntry ve;
   TCheckSum cal_checksum;
-  int loop_num = 0;
-  while (ifs >> byte) {
-    loop_num++;
-    if (loop_num % 10000 == 0) {
-      std::cout << "relocTail: endless loop? loop_num is: " << loop_num
-                << std::endl;
-    }
-    if (byte == magic) {
-      ifs.seekg(-1, std::ios_base::cur); // return the begin of magic
-      auto back_loc = ifs.tellg();
-      read_a_ventry(ifs, ve);
-      cal_bytes(ve, cal_checksum);
-      ifs.seekg(back_loc);
-      if (cal_checksum == ve.checksum) {
-        tail = ifs.tellg();
-        ifs.close();
-        return;
-      }
-    }
+  auto back_loc = ifs.tellg();
+  ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
+  while (byte != vLogs::magic && !ifs.eof() && !ifs.fail()) {
+    ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
   }
-  Log("reloc failure. the file reach the end");
+  if (ifs.eof() || ifs.fail()) {
+    Log("relocTail: incorrect offset");
+    ifs.seekg(back_loc);
+    return;
+  }
+  ifs.seekg(-1, std::ios_base::cur);
   return;
 }
 /**
@@ -114,7 +134,12 @@ void vLogs::readVlog(TOff offset, vEntry &ve) {
     ve = type::ve_not_found;
   }
   ifs.seekg(tail);
-  read_a_ventry(ifs, ve);
+  int suc = read_a_ventry(ifs, ve);
+  if (suc == -1) {
+    Log("readVlog: incorrect offset");
+    ifs.close();
+    return;
+  }
   ifs.close();
 }
 
@@ -145,7 +170,12 @@ size_t vLogs::readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
       std::cout << "readVlogs: endless loop? loop_num is: " << loop_num
                 << std::endl;
     }
-    read_a_ventry(ifs, ve);
+    int suc = read_a_ventry(ifs, ve);
+    if (suc == -1) {
+      Log("readVlogs: incorrect offset");
+      ifs.close();
+      return 0;
+    }
     ves.push_back(ve);
     auto cur = ifs.tellg();
     size = cur - begin;
@@ -233,8 +263,30 @@ TValue vLogs::query(kEntry ke) {
   if (!ifs.is_open()) {
     return "";
   }
+  if (ke.offset > head || ke.offset < tail) {
+    ifs.close();
+    return "";
+  }
   ifs.seekg(ke.offset);
+  if (ifs.fail()) {
+    ifs.clear();
+    ifs.close();
+    return "";
+  }
   vEntry ve;
-  read_a_ventry(ifs, ve);
+  int success = read_a_ventry(ifs, ve);
+  ifs.close();
+  if (success == -1)
+    return "";
   return ve.vvalue;
+}
+
+void vLogs::gc(u64 new_tail) {
+  if (new_tail <= tail) {
+    Log("Error vlog gc: new_tail <= tail");
+    return;
+  }
+
+  utils::de_alloc_file(vfilepath, tail, new_tail - tail);
+  tail = new_tail;
 }

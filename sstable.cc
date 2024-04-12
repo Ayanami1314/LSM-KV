@@ -124,7 +124,12 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
       right = mid;
       continue;
     }
+    // BUG here: always left = mid
     if (key > pkes->at(mid).key && key < pkes->at(right).key) {
+      if (left == mid) {
+        exist = false;
+        return -1;
+      }
       left = mid;
       continue;
     }
@@ -150,6 +155,9 @@ kEntry sstable_type::query(TKey key) const {
   // }
   bool exist = false;
   auto choose = binary_search(key, header.getNumOfKV(), exist, false);
+  if (!exist) {
+    return type::ke_not_found;
+  }
   auto total = header.getNumOfKV();
   Log("The total number of kv is %d", total);
   Log("The real key is %llu", key);

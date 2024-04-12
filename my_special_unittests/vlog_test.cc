@@ -116,9 +116,114 @@ TEST_F(vLogTest, readTest) {
   int ref_loc = 0;
   vl->readVlogs(vl->getTail(), ves, 200, locs);
   for (int i = 0; i < 10; ++i) {
-
     EXPECT_EQ(locs[i], ref_loc);
     ref_loc += (15 + 1);
   }
-  EXPECT_EQ(vl->getHead(), vl->getTail());
+}
+
+TEST_F(vLogTest, readTest2) {
+  vl->clear();
+  vEntrys ves;
+
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  system("xxd -i ./tmp/vlog");
+  std::vector<TOff> locs;
+  const int size_of_prefix = 15;
+  int ref_loc = 0;
+  vl->readVlogs(vl->getTail(), ves, 100, locs);
+  // NOTE: 16 * 7 = 112 > 100
+  for (int i = 0; i < 6; ++i) {
+    EXPECT_EQ(locs[i], ref_loc);
+    ref_loc += (15 + 1);
+  }
+}
+
+TEST_F(vLogTest, queryTest) {
+  vl->clear();
+
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  for (int i = 9; i >= 0; --i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 0);
+}
+
+TEST_F(vLogTest, gcTest) {
+  vl->clear();
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  for (int i = 0; i < 10; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 0);
+  vl->gc(5 * 16);
+  std::string not_found = "";
+  for (int i = 0; i < 5; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, not_found);
+  }
+  for (int i = 5; i < 10; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 5 * 16);
+}
+
+TEST_F(vLogTest, gcWithReloc) {
+  vl->clear();
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  for (int i = 0; i < 10; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 0);
+  vl->gc(5 * 16 - 13);
+  std::string not_found = "";
+  for (int i = 0; i < 5; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, not_found);
+  }
+  for (int i = 5; i < 10; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 5 * 16 - 13);
 }
