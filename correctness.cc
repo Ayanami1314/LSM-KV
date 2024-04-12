@@ -103,7 +103,7 @@ private:
       default:
         assert(0);
       }
-      std::cout << "idx: " << i << std::endl;
+      // std::cout << "idx: " << i << std::endl;
       if (i % gc_trigger == 0) [[unlikely]] {
         check_gc(16 * MB);
       }

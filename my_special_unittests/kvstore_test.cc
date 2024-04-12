@@ -483,7 +483,7 @@ TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
-TEST_F(KVStoreTest, gcTest) {
+TEST_F(KVStoreTest, basicGC) {
 #define KB (1024)
 
   int max = 1024;
@@ -495,7 +495,7 @@ TEST_F(KVStoreTest, gcTest) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    std::cout << "idx: " << i << std::endl;
+    // std::cout << "idx: " << i << std::endl;
     EXPECT_EQ(std::to_string(i), pStore->get(i));
     std::cout << "after get" << std::endl;
     switch (i % 3) {
@@ -518,4 +518,154 @@ TEST_F(KVStoreTest, gcTest) {
     }
   }
   std::cout << "Stage 1 end." << std::endl;
+}
+
+TEST_F(KVStoreTest, SmallPutOverride) {
+  pStore->reset();
+  uint64_t i;
+  int max = 1024;
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i) + 's');
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::to_string(i) + 'a');
+      break;
+    case 1:
+      pStore->put(i, std::to_string(i) + 'b');
+      break;
+    case 2:
+      pStore->put(i, std::to_string(i) + 'c');
+      break;
+    default:
+      assert(0);
+    }
+    std::cout << "idx: " << i << std::endl;
+  }
+  std::cout << "Stage 1 end." << std::endl;
+
+  for (i = 0; i < max; ++i) {
+    switch (i % 3) {
+    case 0:
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+  }
+}
+
+TEST_F(KVStoreTest, LargePutOverride) {
+  pStore->reset();
+  uint64_t i;
+  uint64_t gc_trigger = 1024;
+  int max = 1024 * 48;
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i) + 's');
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::to_string(i) + 'a');
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      pStore->put(i, std::to_string(i) + 'b');
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      pStore->put(i, std::to_string(i) + 'c');
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+    if (i % gc_trigger == 0) [[unlikely]] {
+      check_gc(16 * KB);
+    }
+  }
+  std::cout << "Stage 1 end." << std::endl;
+
+  for (i = 0; i < max; ++i) {
+    switch (i % 3) {
+    case 0:
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+  }
+}
+
+TEST_F(KVStoreTest, LargeGC) {
+  pStore->reset();
+  uint64_t i;
+  uint64_t gc_trigger = 1024;
+  std::string not_found = "";
+  int max = 1024 * 48;
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i) + 's');
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::to_string(i) + 'a');
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      pStore->put(i, std::to_string(i) + 'b');
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      pStore->put(i, std::to_string(i) + 'c');
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+    if (i % gc_trigger == 0) [[unlikely]] {
+      check_gc(16 * KB);
+    }
+  }
+  std::cout << "Stage 1 end." << std::endl;
+  for (i = 0; i < max; i += 2) {
+    pStore->del(i);
+  }
+  for (i = 0; i < max; ++i) {
+    switch (i % 3) {
+    case 0:
+      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'a',
+                pStore->get(i));
+      break;
+    case 1:
+      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'b',
+                pStore->get(i));
+      break;
+    case 2:
+      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'c',
+                pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+  }
 }

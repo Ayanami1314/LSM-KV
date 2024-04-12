@@ -83,6 +83,9 @@ std::string KVStore::get(uint64_t key) {
       if (ke == type::ke_not_found) {
         continue;
       }
+      if (ke == type::ke_deleted) {
+        break;
+      }
       if ((v = vStore.query(ke)) != "") {
         break;
       }
@@ -241,29 +244,55 @@ void KVStore::gc(uint64_t chunk_size) {
   size_t read_size = vStore.readVlogs(tail, ves, chunk_size, locs);
 
   // NOTE: second, find in lsmtree(search in SSTables)
+
+  // HINT: ve -> key -> find the ke with the key in the sstables
+  // -> new(loc of ve == ke.offset) ? insert to memtable : do nothing
   int idx = 0;
   for (auto &ve : ves) {
 
     kEntry ke = type::ke_not_found;
     bool found = false;
-    for (auto &layer : this->ss_layers) {
-      // NOTE：the newest SST is the last one in the layer
-      for (int i = layer.size() - 1; i >= 0; --i) {
-        const auto &sst = layer[i];
-        ke = sst.query(ve.key); // HINT: header and BF: may exist?
-        if (ke != type::ke_not_found) {
-          found = true;
+    bool mem = false;
+    // try to found
+    // in mem
+    if (pkvs->get(ve.key) != "") {
+      found = true;
+      mem = true;
+    }
+    // in sstable
+    if (!found) {
+      for (auto &layer : this->ss_layers) {
+        size_t layer_size = layer.size();
+        // NOTE：the newest SST is the last one in the layer
+        for (int i = layer_size - 1; i >= 0; --i) {
+          const auto &sst = layer[i];
+          ke = sst.query(ve.key); // HINT: header and BF: may exist?
+          if (ke != type::ke_not_found) {
+            // NOTE: because find order is from newest to oldest, so if found
+            // and the offsets not equal, breaks also.
+            found = true;
+            break;
+          }
+        }
+        if (found) {
           break;
         }
       }
     }
+
     if (!found) {
+      ++idx;
       continue;
     }
-    // NOTE: if found, insert to memtable, else do nothing
-    if (ke.offset == locs.at(idx)) {
+
+    // NOTE: if in mem, do nothing
+    // NOTE: if ** found ** and ** new ** and ** not delete **
+    // insert to memtable
+    // else do nothing
+    else if (!mem && ke.offset == locs.at(idx) && ke.len != 0) {
       this->put(ke.key, ve.vvalue);
     }
+
     ++idx;
   }
   // NOTE: third, compaction and de_alloc_file

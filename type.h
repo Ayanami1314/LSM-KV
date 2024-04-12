@@ -59,6 +59,7 @@ using TPath = std::filesystem::path;
 using vEntrys = std::list<vEntry>;
 namespace type {
 static kEntry ke_not_found = {0, 0, 0};
+static kEntry ke_deleted = {static_cast<TKey>(-1), 0, 0};
 static vEntry ve_not_found = {0, 0, 0, 0, ""};
 constexpr static size_t ve_prefix_len =
     sizeof(TMagic) + sizeof(TCheckSum) + sizeof(TKey) + sizeof(TLen);

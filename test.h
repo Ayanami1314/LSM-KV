@@ -60,7 +60,7 @@ protected:
 
     cur_offset = utils::seek_data_block(vlog.c_str());
     GC_EXPECT(cur_offset, last_offset, size);
-    std::cout << "check_gc over" << std::endl;
+    // std::cout << "check_gc over" << std::endl;
   }
 
   void phase(void) {

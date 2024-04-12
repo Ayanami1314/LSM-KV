@@ -140,9 +140,9 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
   return choose;
 }
 /**
-@brief
+@brief return the kEntry by key
  * @param  key
- * @return kEntry return ke_not_found macro if not found
+ * @return ke_not_found macro if not found, ke_deleted macro if deleted
  */
 kEntry sstable_type::query(TKey key) const {
   if (!mayKeyExist(key)) {
@@ -167,6 +167,9 @@ kEntry sstable_type::query(TKey key) const {
   }
 
   Log("The choose key is %llu", choose);
+  if (pkes->at(choose).len == 0) {
+    return type::ke_deleted;
+  }
   return pkes->at(choose);
 }
 
