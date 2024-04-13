@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <fstream>
 #include <iostream>
+#include <iterator>
 namespace SSTable {
 u64 sstable_type::ss_total_uid = 1; // the first timestamp is 1
 void sstable_type::resetID() { ss_total_uid = 1; }
@@ -23,7 +24,7 @@ sstable_type::sstable_type(const kEntrys &kes, size_t BF_size, int hash_num)
   TKey minKey = 0xffffffffffffffff;
   TKey maxKey = 0x0;
   u64 num_of_kv = 0x0;
-  for (auto &entry : *pkes) {
+  for (auto &entry : *(pkes.get())) {
     BF.insert_u64(entry.key);
     if (entry.key > maxKey) {
       maxKey = entry.key;
@@ -61,6 +62,7 @@ void sstable_type::clear() {
   pkes = std::make_unique<kEntrys>();
   BF.clear();
   header.clear();
+  bf_size = default_bf_size;
 }
 /**
 @brief calculate the generated file size of the current sstable
@@ -260,8 +262,10 @@ void sstable_type::load(const std::string &path) {
   for (int i = 0; i < header.getNumOfKV(); ++i) {
     kEntry entry;
     ifile.read(reinterpret_cast<char *>(&entry), sizeof(entry));
-    kes.push_back(entry);
+    kes.push_back(std::move(entry));
   }
+  pkes = std::make_shared<kEntrys>(std::make_move_iterator(kes.begin()),
+                                   std::make_move_iterator(kes.end()));
   ifile.close();
 }
 } // namespace SSTable

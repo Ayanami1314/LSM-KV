@@ -68,6 +68,7 @@ public:
 
   ~sstable_type() = default;
   u64 getUID() const { return ss_uid; }
+  size_t getKEntryNum() const { return pkes->size(); }
 };
 } // namespace SSTable
 #endif

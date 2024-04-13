@@ -14,14 +14,16 @@ class KVStore : public KVStoreAPI {
 private:
   std::unique_ptr<skiplist::skiplist_type> pkvs;
   size_t sst_sz;
-  size_t cal_new_size();
-  static const std::string delete_symbol;
-  static const size_t max_sz;
+  vLogs vStore;
   const std::string save_dir;
   Layers ss_layers;
+
+  static const std::string delete_symbol;
+  static const size_t max_sz;
+
   void compaction();
   void save();
-  vLogs vStore;
+  size_t cal_new_size();
   inline int level_limit(int level) { return std::pow(2, level + 1); }
 
 public:
@@ -42,4 +44,8 @@ public:
 
   void gc(uint64_t chunk_size) override;
   void convert_sst(SSTable::sstable_type &sst, vLogs &vl);
+
+  // test-only
+  void clearMem();
+  void rebuildMem();
 };

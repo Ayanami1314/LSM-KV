@@ -637,6 +637,7 @@ TEST_F(KVStoreTest, LargeGC) {
       break;
     case 2:
       pStore->put(i, std::to_string(i) + 'c');
+
       EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
@@ -667,5 +668,24 @@ TEST_F(KVStoreTest, LargeGC) {
     default:
       assert(0);
     }
+  }
+}
+
+TEST_F(KVStoreTest, simulatedPersistence) {
+  pStore->reset();
+  int max = 1000;
+  for (int i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+
+  for (int i = 0; i < max; i += 2) {
+    pStore->del(i);
+  }
+
+  pStore->clearMem();
+  pStore->rebuildMem();
+
+  for (int i = 0; i < max; ++i) {
+    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }

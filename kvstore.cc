@@ -23,22 +23,16 @@ KVStore::KVStore(const std::string &dir, const std::string &vlog)
   const std::string l0_dir = std::filesystem::path(save_dir) / "level_0";
   if (!utils::dirExists(l0_dir)) {
     utils::mkdir(l0_dir);
+    Layer l0;
+    ss_layers.push_back(l0);
+  } else {
+    rebuildMem();
   }
-  Layer l0;
-  ss_layers.push_back(l0);
 }
 
 KVStore::~KVStore() {
-  // NOTE: now only level-0
-  std::vector<std::string> save_paths;
-  Log("Remove file in %s", save_dir);
-  if (utils::dirExists(save_dir)) {
-    utils::scanDir(save_dir, save_paths);
-    for (auto &p : save_paths) {
-      utils::rmfile(p);
-    }
-    utils::rmdir(std::filesystem::path(save_dir) / "level_0");
-  }
+  // // NOTE: now only level-0
+  compaction();
 }
 size_t KVStore::cal_new_size() {
   return SSTable::sstable_type::cal_size(
@@ -118,7 +112,8 @@ void KVStore::reset() {
     std::vector<std::string> rmfiles;
     utils::scanDir(save_dir, rmfiles);
     for (auto &f : rmfiles) {
-      utils::rmfile(f);
+      auto path = std::filesystem::path(save_dir) / f;
+      utils::rmfile(path);
     }
     // NOTE: not delete the dir itself
     // NOTE: create the .gitkeep file
@@ -311,6 +306,7 @@ void KVStore::compaction() {
   auto l0_dir = std::filesystem::path(save_dir) / "level_0";
   if (!utils::dirExists(l0_dir)) {
     Log("l0_dir does not exist");
+    return;
   }
   std::vector<std::string> l0_ssts;
   utils::scanDir(l0_dir, l0_ssts);
@@ -335,7 +331,7 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
         vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second});
     kes.push_back({.key = kv.first, .offset = offset, .len = len});
   }
-  sst = SSTable::sstable_type(kes);
+  sst = std::move(SSTable::sstable_type(kes));
 }
 
 /**
@@ -354,9 +350,9 @@ void KVStore::save() {
   SSTable::sstable_type new_sstable;
   convert_sst(new_sstable, vStore);
   // NOTE: update the cache
-  ss_layers[0].push_back(new_sstable);
 
   std::string sst_filename = std::to_string(new_sstable.getUID()) + ".sst";
+
   auto sst_path = l0_dir / sst_filename;
 
   if (std::filesystem::exists(sst_path)) {
@@ -364,8 +360,44 @@ void KVStore::save() {
     return;
   }
   new_sstable.save(sst_path);
-
+  ss_layers[0].push_back(std::move(new_sstable));
   // clear the pkvs
   pkvs = std::make_unique<skiplist::skiplist_type>();
   sst_sz = 0;
+}
+
+/**
+@brief simulate the emergence and test persistence
+ */
+void KVStore::clearMem() {
+  compaction();
+  pkvs = std::make_unique<skiplist::skiplist_type>();
+  ss_layers = std::vector<Layer>();
+  sst_sz = 0;
+  vStore.clear_mem();
+}
+
+void KVStore::rebuildMem() {
+  // NOTE: if the dir exists, load the sstables into cache
+  std::vector<std::string> ssts;
+  const std::string l0_dir = std::filesystem::path(save_dir) / "level_0";
+  utils::scanDir(l0_dir, ssts);
+  // ATTENTION: ssts is filenames! NOT paths!
+  // NOTE FIX: restore the order by timeStamp
+  std::sort(ssts.begin(), ssts.end(),
+            [](const std::string &s1, const std::string &s2) {
+              u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('.')));
+              u64 timeStamp2 = std::stoull(s1.substr(0, s1.find('.')));
+              return timeStamp1 < timeStamp2;
+            });
+  Layer l0;
+  for (auto &ss_name : ssts) {
+    SSTable::sstable_type sst_cache;
+    auto ss_path = std::filesystem::path(l0_dir) / ss_name;
+    sst_cache.load(ss_path);
+    l0.push_back(std::move(sst_cache));
+  }
+  // NOTE: set the vlog head and tail
+  vStore.reload_mem();
+  ss_layers.push_back(std::move(l0));
 }

@@ -55,18 +55,13 @@ int read_a_ventry(std::ifstream &ifs, vEntry &ve) {
   ve.vvalue = ret;
   return 0;
 }
-vLogs::vLogs(TPath vpath) : head(0), tail(0), vfilepath(vpath) {
+vLogs::vLogs(TPath vpath) : vfilepath(vpath) {
   // HINT: magic number is used for find the head(because the head and the tail
   // won't be persistent), 0x7f
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
-  std::ofstream ofs(vpath, std::ios::binary | std::ios::app);
-  if (!ofs) {
-    Log("vpath: %s", vpath);
-    Log("Failed to open file, vpath=%s", vpath);
-    return;
-  }
-  ofs.close();
+  // check if can open file
+  reload_mem();
 }
 vLogs::~vLogs() {}
 /**
@@ -252,7 +247,27 @@ void vLogs::clear() {
   }
   ofs.close();
 }
-
+void vLogs::clear_mem() {
+  ves.clear();
+  head = 0;
+  tail = 0;
+}
+void vLogs::reload_mem() {
+  std::ifstream ifs(vfilepath, std::ios::binary | std::ios::ate); // move to end
+  if (!ifs.is_open()) {
+    Log("Failed to open file, vpath=%s", vpath);
+    head = 0;
+    tail = 0;
+    return;
+  }
+  head = ifs.tellg();
+  if (head == 0) {
+    tail = 0;
+    return;
+  }
+  this->relocTail();
+  ifs.close();
+}
 /**
 @brief
  * @param  ke key, off, len

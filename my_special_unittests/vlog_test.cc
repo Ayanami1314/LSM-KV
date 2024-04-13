@@ -227,3 +227,24 @@ TEST_F(vLogTest, gcWithReloc) {
   }
   EXPECT_EQ(vl->getTail(), 5 * 16 - 13);
 }
+
+TEST_F(vLogTest, persistenceTest) {
+  vl->clear();
+  for (int i = 0; i < 10; ++i) {
+    vl->addVlog({static_cast<TKey>(i),
+                 static_cast<TLen>(std::to_string(i).size()),
+                 std::to_string(i)});
+  }
+  vl->clear_mem();
+  vl->reload_mem();
+  vl = std::make_unique<vLogs>(vpath);
+  for (int i = 0; i < 10; ++i) {
+    kEntry ke = {.key = static_cast<TKey>(i),
+                 .offset = static_cast<TOff>(i * 16),
+                 .len = 1};
+    TValue v = vl->query(ke);
+    EXPECT_EQ(v, std::to_string(i));
+  }
+  EXPECT_EQ(vl->getTail(), 0);
+  EXPECT_EQ(vl->getHead(), 16 * 10);
+}

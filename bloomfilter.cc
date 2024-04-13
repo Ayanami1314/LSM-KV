@@ -16,7 +16,11 @@ BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
 
 BloomFilter::BloomFilter(const TBytes &bytes, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
-  std::copy(bytes.begin(), bytes.end(), std::back_inserter(BF));
+  for (auto byte : bytes) {
+    for (int i = 7; i >= 0; --i) {
+      BF.push_back((byte >> i) & 1);
+    }
+  }
   hashes.resize(hash_func_number);
   for (int i = 0; i < hash_func_number; i++) {
     hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
