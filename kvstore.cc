@@ -228,7 +228,7 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
  * recycle.
  */
 void KVStore::gc(uint64_t chunk_size) {
-  // TODO
+  // TODO what if interrupt in gc?
   // HINT: the size of the value to be recycled is strictly no less than
   // chunk_size
   // NOTE: first, search the vlog tail
@@ -237,7 +237,10 @@ void KVStore::gc(uint64_t chunk_size) {
   std::vector<TOff> locs;
   auto tail = vStore.getTail();
   size_t read_size = vStore.readVlogs(tail, ves, chunk_size, locs);
-
+  if (read_size == 0) {
+    // vLog has no items now
+    return;
+  }
   // NOTE: second, find in lsmtree(search in SSTables)
 
   // HINT: ve -> key -> find the ke with the key in the sstables
@@ -301,6 +304,9 @@ void KVStore::gc(uint64_t chunk_size) {
 void KVStore::compaction() {
   // called when sst_sz > max_sz
   // TODO
+  if (pkvs->size() == 0) {
+    return;
+  }
   Log("compaction start:");
   save();
   auto l0_dir = std::filesystem::path(save_dir) / "level_0";
@@ -387,7 +393,7 @@ void KVStore::rebuildMem() {
   std::sort(ssts.begin(), ssts.end(),
             [](const std::string &s1, const std::string &s2) {
               u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('.')));
-              u64 timeStamp2 = std::stoull(s1.substr(0, s1.find('.')));
+              u64 timeStamp2 = std::stoull(s2.substr(0, s2.find('.')));
               return timeStamp1 < timeStamp2;
             });
   Layer l0;

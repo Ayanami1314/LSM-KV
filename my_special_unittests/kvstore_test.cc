@@ -689,3 +689,57 @@ TEST_F(KVStoreTest, simulatedPersistence) {
     EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
+TEST_F(KVStoreTest, smallPersisWithGC) {
+  pStore->reset();
+  int max = 10;
+  for (int i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+  check_gc(60);
+  for (int i = 0; i < max; i += 2) {
+    pStore->del(i);
+  }
+  check_gc(60);
+  pStore->clearMem();
+  pStore->rebuildMem();
+
+  for (int i = 0; i < max; ++i) {
+    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+  }
+}
+TEST_F(KVStoreTest, largerPersisWithGC) {
+  pStore->reset();
+  int max = 350;
+  for (int i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+  check_gc(1 * KB);
+  for (int i = 0; i < max; i += 2) {
+    pStore->del(i);
+  }
+  check_gc(1 * KB);
+  pStore->clearMem();
+  pStore->rebuildMem();
+
+  for (int i = 0; i < max; ++i) {
+    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+  }
+}
+TEST_F(KVStoreTest, simulatedPersistenceWithGC) {
+  pStore->reset();
+  int max = 1024;
+  for (int i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i));
+  }
+  check_gc(1 * KB);
+  for (int i = 0; i < max; i += 2) {
+    pStore->del(i);
+  }
+  check_gc(1 * KB);
+  pStore->clearMem();
+  pStore->rebuildMem();
+
+  for (int i = 0; i < max; ++i) {
+    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+  }
+}
