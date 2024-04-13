@@ -52,6 +52,8 @@ private:
 
 public:
   static void resetID();
+  static u64 getBFSize() { return default_bf_size; }
+
   sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
   sstable_type(const kEntrys &kes, u64 BF_size = default_bf_size,
                int hash_num = 3);
@@ -69,6 +71,7 @@ public:
   ~sstable_type() = default;
   u64 getUID() const { return ss_uid; }
   u64 getKEntryNum() const { return pkes->size(); }
+  Header getHeader() const { return header; }
 };
 } // namespace SSTable
 #endif
