@@ -30,8 +30,8 @@ public:
   void reload_mem();
   void gc(u64 new_tail);
   void readVlog(TOff offset, vEntry &ve);
-  size_t readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
-                   std::vector<TOff> &locs);
+  u64 readVlogs(TOff offset, vEntrys &ves, u64 chunk_size,
+                std::vector<TOff> &locs);
   [[nodiscard]] u64 getHead() const { return head; }
   [[nodiscard]] u64 getTail() const { return tail; }
   [[nodiscard]] u8 getMagic() const { return magic; }

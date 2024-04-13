@@ -40,11 +40,11 @@ public:
 class sstable_type {
   // NOTE: the sstable_type in mem act as cache for the sstable on disk
 private:
-  size_t bf_size;
+  u64 bf_size;
   int hash_func_num;
   u64 ss_uid;
   static u64 ss_total_uid;
-  static const size_t default_bf_size = 8 * 1024 * 8; // 8KB = 8*8*1024 bit
+  static const u64 default_bf_size = 8 * 1024 * 8; // 8KB = 8*8*1024 bit
   BloomFilter BF;
   Header header;
   std::shared_ptr<kEntrys> pkes;
@@ -52,13 +52,13 @@ private:
 
 public:
   static void resetID();
-  sstable_type(size_t BF_size = default_bf_size, int hash_num = 3);
-  sstable_type(const kEntrys &kes, size_t BF_size = default_bf_size,
+  sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
+  sstable_type(const kEntrys &kes, u64 BF_size = default_bf_size,
                int hash_num = 3);
   sstable_type(const sstable_type &other);
   void addBF(const kEntrys &kes);
-  size_t size() const;
-  static size_t cal_size(int number_of_kv, size_t BF_size = default_bf_size);
+  u64 size() const;
+  static u64 cal_size(int number_of_kv, u64 BF_size = default_bf_size);
   void save(const std::string &path);
   void load(const std::string &path);
   bool mayKeyExist(TKey key) const;
@@ -68,7 +68,7 @@ public:
 
   ~sstable_type() = default;
   u64 getUID() const { return ss_uid; }
-  size_t getKEntryNum() const { return pkes->size(); }
+  u64 getKEntryNum() const { return pkes->size(); }
 };
 } // namespace SSTable
 #endif

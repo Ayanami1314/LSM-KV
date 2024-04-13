@@ -233,6 +233,7 @@ void KVStore::gc(uint64_t chunk_size) {
   // chunk_size
   // NOTE: first, search the vlog tail
   vStore.relocTail();
+  std::cout << "tail is " << vStore.getTail() << " now" << std::endl;
   vEntrys ves;
   std::vector<TOff> locs;
   auto tail = vStore.getTail();

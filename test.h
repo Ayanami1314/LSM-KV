@@ -53,14 +53,13 @@ protected:
   }
 
   void check_gc(uint64_t size) {
-    std::cout << "check_gc: " << size << std::endl;
     uint64_t last_offset, cur_offset;
     last_offset = utils::seek_data_block(vlog.c_str());
+    std::ifstream ifs(vlog, std::ios::binary | std::ios::ate);
+    std::cout << "current file size(head):" << ifs.tellg() << std::endl;
     store.gc(size);
-
     cur_offset = utils::seek_data_block(vlog.c_str());
     GC_EXPECT(cur_offset, last_offset, size);
-    // std::cout << "check_gc over" << std::endl;
   }
 
   void phase(void) {

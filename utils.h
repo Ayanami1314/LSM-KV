@@ -199,7 +199,7 @@ static inline std::unique_ptr<uint16_t[]> generate_crc16_table() {
 static inline uint16_t crc16(const std::vector<unsigned char> &data) {
   static const std::unique_ptr<uint16_t[]> crc16_table = generate_crc16_table();
   uint16_t crc = 0xFFFF;
-  size_t i = 0, length = data.size();
+  u64 i = 0, length = data.size();
   while (i < length) {
     crc = (crc << 8) ^ crc16_table[((crc >> 8) ^ data[i++]) & 0xFF];
   }
@@ -220,11 +220,11 @@ static inline void mergeKSorted(const std::vector<kEntrys> &src, kEntrys &dst) {
 
   std::priority_queue<kEntry> pq;
   int K = src.size();
-  std::vector<size_t> limitK(K, 0);
+  std::vector<u64> limitK(K, 0);
   for (int i = 0; i < K; ++i) {
     limitK[i] = src[i].size();
   }
-  std::vector<size_t> index(K, 0);
+  std::vector<u64> index(K, 0);
   for (int i = 0; i < src.size(); ++i) {
     if (!src[i].empty()) {
       pq.push(src[i].front());

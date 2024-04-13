@@ -8,13 +8,13 @@
 namespace SSTable {
 u64 sstable_type::ss_total_uid = 1; // the first timestamp is 1
 void sstable_type::resetID() { ss_total_uid = 1; }
-sstable_type::sstable_type(size_t BF_size, int hash_num)
+sstable_type::sstable_type(u64 BF_size, int hash_num)
     : ss_uid(ss_total_uid), bf_size(BF_size), hash_func_num(hash_num),
       BF(BF_size, hash_num), header({ss_total_uid, 0, 0, 0}) {
   // constructor implementation
   ss_total_uid++;
 }
-sstable_type::sstable_type(const kEntrys &kes, size_t BF_size, int hash_num)
+sstable_type::sstable_type(const kEntrys &kes, u64 BF_size, int hash_num)
     : ss_uid(ss_total_uid), bf_size(BF_size), hash_func_num(hash_num),
       BF(BF_size, hash_num), header({ss_total_uid, 0, 0, 0}),
       pkes(std::make_shared<kEntrys>(kes)) {
@@ -49,9 +49,9 @@ void sstable_type::addBF(const kEntrys &kes) {
 }
 /**
 @brief
- * @return size_t the generated file size of the current sstable
+ * @return u64 the generated file size of the current sstable
  */
-size_t sstable_type::size() const {
+u64 sstable_type::size() const {
   // num_of_kv: u64
   return header.getNumOfKV() * sizeof(u64) + sizeof(header) + bf_size / 8;
 }
@@ -68,9 +68,9 @@ void sstable_type::clear() {
 @brief calculate the generated file size of the current sstable
  * @param  number_of_kv
  * @param  BF_size
- * @return size_t
+ * @return u64
  */
-size_t sstable_type::cal_size(int number_of_kv, size_t BF_size) {
+u64 sstable_type::cal_size(int number_of_kv, u64 BF_size) {
   return number_of_kv * sizeof(kEntry) + sizeof(header) + BF_size / 8;
 }
 

@@ -95,10 +95,10 @@ TOff vLogs::addVlog(const vEntryProps &v) {
 @brief the tail will be set to the begin the first magic
  */
 void vLogs::relocTail() {
-  off_t tmp = utils::seek_data_block(vfilepath);
+  u64 tmp = utils::seek_data_block(vfilepath);
   std::ifstream ifs(vfilepath, std::ios::binary);
   ifs.seekg(tmp);
-  Log("reloc to %lu", tmp);
+  std::cout << "reloc to" << tmp << std::endl;
   unsigned char byte;
   vEntry ve;
   TCheckSum cal_checksum;
@@ -113,6 +113,7 @@ void vLogs::relocTail() {
     return;
   }
   ifs.seekg(-1, std::ios_base::cur);
+  tail = ifs.tellg();
   return;
 }
 /**
@@ -125,13 +126,13 @@ void vLogs::readVlog(TOff offset, vEntry &ve) {
   // Now the tail is set to the begin of the first valid entry
   std::ifstream ifs(vfilepath, std::ios::binary);
   if (!ifs.is_open()) {
-    Log("In readVlog: Failed to open file");
+    std::cerr << "In readVlog: Failed to open file" << std::endl;
     ve = type::ve_not_found;
   }
   ifs.seekg(tail);
   int suc = read_a_ventry(ifs, ve);
   if (suc == -1) {
-    Log("readVlog: incorrect offset");
+    std::cerr << "readVlog: incorrect offset" << std::endl;
     ifs.close();
     return;
   }
@@ -144,8 +145,8 @@ void vLogs::readVlog(TOff offset, vEntry &ve) {
  * @param  ves should be empty
  * @param  chunk_size
  */
-size_t vLogs::readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
-                        std::vector<TOff> &locs) {
+u64 vLogs::readVlogs(TOff offset, vEntrys &ves, u64 chunk_size,
+                     std::vector<TOff> &locs) {
   relocTail();
   // Now the tail is set to the begin of the first valid entry
   std::ifstream ifs(vfilepath, std::ios::binary);
@@ -157,7 +158,7 @@ size_t vLogs::readVlogs(TOff offset, vEntrys &ves, size_t chunk_size,
   ifs.seekg(tail);
   locs.push_back(tail);
   auto begin = ifs.tellg();
-  size_t size = 0;
+  u64 size = 0;
   int loop_num = 0;
   while (size < chunk_size && size + begin < head) {
     loop_num++;

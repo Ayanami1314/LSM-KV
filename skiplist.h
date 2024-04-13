@@ -23,7 +23,7 @@ private:
   // add something here
   size_t height;
   double p;
-  size_t ele_number;
+  uint64_t ele_number;
   typedef struct node {
     key_type key;
     value_type value;
@@ -97,7 +97,7 @@ public:
   [[nodiscard]] std::list<key_type> get_keylist() const;
   [[nodiscard]] std::list<kvpair> get_kvplist() const;
   [[nodiscard]] std::list<kvpair> scan(key_type start, key_type end) const;
-  [[nodiscard]] size_t size() const;
+  [[nodiscard]] uint64_t size() const;
 };
 
 } // namespace skiplist
