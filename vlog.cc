@@ -256,7 +256,7 @@ void vLogs::clear_mem() {
 void vLogs::reload_mem() {
   std::ifstream ifs(vfilepath, std::ios::binary | std::ios::ate); // move to end
   if (!ifs.is_open()) {
-    Log("Failed to open file, vpath=%s", vpath);
+    Log("Failed to open file, vpath=%s", vfilepath);
     head = 0;
     tail = 0;
     return;

@@ -19,6 +19,9 @@ public:
       : timeStamp(timeStamp_), num_of_kv(num_of_kv_), minKey(minKey_),
         maxKey(maxKey_) {}
   Header() : timeStamp(0), num_of_kv(0), minKey(0), maxKey(0) {}
+  Header(const Header &other)
+      : timeStamp(other.timeStamp), num_of_kv(other.num_of_kv),
+        minKey(other.minKey), maxKey(other.maxKey) {}
   // getters and setters
   [[nodiscard]] u64 getTimeStamp() const { return timeStamp; }
   [[nodiscard]] u64 getNumOfKV() const { return num_of_kv; }

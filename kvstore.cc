@@ -128,11 +128,7 @@ void KVStore::reset() {
   sst_sz = 0;
 
   // clear cache
-  for (auto &layer : ss_layers) {
-    for (auto &sst : layer) {
-      sst.clear();
-    }
-  }
+  ss_layers = std::vector<Layer>();
   // reset global state
   SSTable::sstable_type::resetID();
 }
@@ -315,7 +311,6 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   int dst_level = from + 1;
   auto dst_save_dir =
       std::filesystem::path(save_dir) / ("level_" + std::to_string(dst_level));
-
   if (from + 1 > layers.size() - 1) {
     layers.push_back(Layer());
     if (!std::filesystem::exists(dst_save_dir)) {
@@ -330,6 +325,8 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
     src_ranges.push_back(
         {sst.getHeader().getMinKey(), sst.getHeader().getMaxKey()});
   }
+
+  // from old to new
   Layer intersection;
   Layer no_intersection;
   std::vector<u64> intersection_ids;
@@ -357,55 +354,68 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   }
   // second, merge the intersection part
   std::vector<kEntrys> intersection_kes;
-  for (auto &sst : intersection) {
+  kEntrys new_dst_kes;
+  // HINT: priority: src from new to old, then dst from new to old to keep the
+  // priority
+  auto intersection_size = intersection.size();
+  auto src_size = src.size();
+  // change the order
+  for (int i = src_size - 1; i >= 0; --i) {
     kEntrys kes;
+    SSTable::sstable_type &sst = src.at(i);
+    sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
+    intersection_kes.push_back(std::move(kes));
+  }
+  for (int i = intersection_size - 1; i >= 0; --i) {
+    kEntrys kes;
+    SSTable::sstable_type &sst = intersection.at(i);
     sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
     intersection_kes.push_back(std::move(kes));
   }
 
-  kEntrys new_dst_kes;
-  for (auto &sst : src) {
-    kEntrys kes;
-    sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
-    intersection_kes.push_back(std::move(kes));
-  }
   utils::mergeKSorted(intersection_kes, new_dst_kes);
   // generate new SSTables
   Layer merged_ssts;
+  Layer invert_tmp_stack;
   kEntrys tmp;
-  int sstable_number = 0;
   int ke_num = 0;
   size_t no_intersection_size = no_intersection.size();
-  for (int i = 0; i < new_dst_kes.size(); ++i) {
+  size_t new_dst_kes_size = new_dst_kes.size();
+  // ATTENTION: new_dst_kes is from new to old, so the push order should be
+  // inverted
+  for (int i = 0; i < new_dst_kes_size; ++i) {
     tmp.push_back(std::move(new_dst_kes[i]));
     ++ke_num;
     if (cal_new_size(ke_num) > max_sz) {
       ke_num = 0;
       SSTable::sstable_type new_sst(tmp);
-      if (sstable_number + no_intersection_size > limit) {
-        new_overflow.push_back(std::move(new_sst));
-      } else {
-        merged_ssts.push_back(std::move(new_sst));
-        ++sstable_number;
-      }
+      invert_tmp_stack.push_back(std::move(new_sst));
       tmp.clear();
     }
   }
+  if (tmp.size() != 0) {
+    SSTable::sstable_type new_sst(tmp);
+    invert_tmp_stack.push_back(std::move(new_sst));
+    tmp.clear();
+  }
+  // HINT: invert_tmp_stack: from new to old
+  auto all_sst_size = invert_tmp_stack.size();
+  for (int i = all_sst_size - 1; i >= 0; --i) {
+    auto &sst = invert_tmp_stack.at(i);
+    if (i + no_intersection_size + 1 > limit) {
+      new_overflow.push_back(std::move(sst));
+    } else {
+      merged_ssts.push_back(std::move(sst));
+    }
+  }
+
   // ATTENTION：timeStamps here aren't handled specially, the intersection
   // part's order is guaranteed by the mergeKSorted(which will execute the
   // 'unique()' filter) So int the merged_ssts, the order is guaranteed
-  if (tmp.size() != 0) {
-    SSTable::sstable_type new_sst(tmp);
-    if (sstable_number + no_intersection_size > limit) {
-      new_overflow.push_back(std::move(new_sst));
-    } else {
-      merged_ssts.push_back(std::move(new_sst));
-    }
-    tmp.clear();
-  }
   // third, update the cache
   src.clear();
   dst.clear();
+  // NOTE: order matters
   for (auto &sst : no_intersection) {
     dst.push_back(std::move(sst));
   }
@@ -440,11 +450,6 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   // NOTE: if the merged_ssts.size() + no_intersection.size() > limit,
   // recursion
   if (new_overflow.size() > 0) {
-    if (dst_level == layers.size() - 1) {
-      // HINT: shouldn't overflow in the last layer
-      std::cerr << "overflow in the last layer" << std::endl;
-      return;
-    }
     mergeLayers_Helper(layers, dst_level, new_overflow);
   }
 }
@@ -473,12 +478,18 @@ void KVStore::compaction() {
     // not save file in l0
     SSTable::sstable_type new_sstable;
     convert_sst(new_sstable, vStore);
-    ss_layers[0].push_back(std::move(new_sstable));
+    ss_layers[0].push_back(new_sstable);
     // clear the pkvs
     pkvs = std::make_unique<skiplist::skiplist_type>();
     sst_sz = 0;
-    mergeLayers_Helper(ss_layers, 0, ss_layers.at(0));
+    Layer src = ss_layers.at(0);
+    mergeLayers_Helper(ss_layers, 0, src);
     ss_layers.at(0).clear();
+    // clear l0 file
+    for (auto &sst : l0_ssts) {
+      auto sst_path = l0_dir / sst;
+      utils::rmfile(sst_path);
+    }
   } else {
     save();
   }
@@ -528,6 +539,9 @@ void KVStore::save() {
     return;
   }
   new_sstable.save(sst_path);
+  if (ss_layers.size() == 0) {
+    ss_layers.push_back(Layer());
+  }
   ss_layers[0].push_back(std::move(new_sstable));
   // clear the pkvs
   pkvs = std::make_unique<skiplist::skiplist_type>();
@@ -567,10 +581,10 @@ void KVStore::rebuildMem() {
       auto ss_path = std::filesystem::path(level_dir) / ss_name;
       sst_cache.load(ss_path);
       level_layer.push_back(std::move(sst_cache));
-      level_dir = (std::filesystem::path(save_dir) / "level_").string() +
-                  std::to_string(level);
-      ss_layers.push_back(std::move(level_layer));
     }
+    level_dir = (std::filesystem::path(save_dir) / "level_").string() +
+                std::to_string(level);
+    ss_layers.push_back(std::move(level_layer));
   }
   // NOTE: set the vlog head and tail
   vStore.reload_mem();
