@@ -1,11 +1,7 @@
 #include "skiplist.h"
-#include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <list>
-#include <optional>
 #include <utility>
-#include <vector>
 namespace skiplist {
 using std::cout;
 using std::endl;

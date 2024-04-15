@@ -1,6 +1,7 @@
 #include "vlog.h"
 #include "type.h"
 #include "utils.h"
+#include <cerrno>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -61,6 +62,10 @@ vLogs::vLogs(TPath vpath) : vfilepath(vpath) {
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
   // check if can open file
+  std::fstream fs(vpath, std::ios::binary);
+  if (fs.is_open()) {
+    fs.close();
+  }
   reload_mem();
 }
 vLogs::~vLogs() {}
@@ -97,10 +102,14 @@ TOff vLogs::addVlog(const vEntryProps &v) {
  */
 void vLogs::relocTail() {
   std::ifstream ifs(vfilepath, std::ios::binary);
+  if (!ifs.is_open()) {
+    Log("relocTail: Failed to open file");
+    return;
+  }
   u64 tmp = utils::seek_data_block(vfilepath);
 
   ifs.seekg(tmp);
-  std::cout << "reloc to" << tmp << std::endl;
+  std::cout << "reloc to " << tmp << std::endl;
   unsigned char byte;
   vEntry ve;
   TCheckSum cal_checksum;
@@ -269,7 +278,10 @@ void vLogs::clear_mem() {
 void vLogs::reload_mem() {
   std::ifstream ifs(vfilepath, std::ios::binary | std::ios::ate); // move to end
   if (!ifs.is_open()) {
-    Log("Failed to open file, vpath=%s", vfilepath.c_str());
+    int errCode = errno; // get the errno
+    const char *errMsg =
+        std::strerror(errCode); // convert errno to error message
+    Log("Failed to open file, vpath=%s, error=%s", vfilepath.c_str(), errMsg);
     head = 0;
     tail = 0;
     return;

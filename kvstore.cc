@@ -4,17 +4,17 @@
 #include "type.h"
 #include "utils.h"
 #include "vlog.h"
+#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
-
 #include <string>
 #define KB (1024)
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * KB; // 16KB
 KVStore::KVStore(const std::string &dir, const std::string &vlog)
     : KVStoreAPI(dir, vlog), pkvs(std::make_unique<skiplist::skiplist_type>()),
-      sst_sz(0), save_dir(dir), vStore([dir, vlog]() {
+      sst_sz(cal_new_size(0)), save_dir(dir), vStore([dir, vlog]() {
         if (!utils::dirExists(dir)) {
           utils::mkdir(dir);
         }
@@ -50,12 +50,12 @@ void KVStore::put(uint64_t key, const std::string &s) {
   if (new_sz > max_sz) {
     // NOTE: write to sst
     // NOTE: reset sst_sz
-    sst_sz = 0;
+    new_sz = 0;
     // TODO: compaction();
     compaction();
   }
   pkvs->put(key, s);
-  sst_sz = new_sz;
+  sst_sz = new_sz > max_sz ? cal_new_size(1) : new_sz;
 }
 /**
  * Returns the (string) value of the given key.
@@ -119,11 +119,12 @@ void KVStore::reset() {
   // clear file
   if (std::filesystem::exists(save_dir)) {
     std::filesystem::remove_all(save_dir);
+    utils::mkdir(save_dir);
   }
   // clear mem
   pkvs = std::make_unique<skiplist::skiplist_type>();
   vStore.clear();
-  sst_sz = 0;
+  sst_sz = cal_new_size(0);
 
   // clear cache
   ss_layers = std::vector<Layer>();
@@ -305,6 +306,10 @@ void KVStore::gc(uint64_t chunk_size) {
 void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   // NOTE: we choose to update the cache first and then the files
   // first, choose the intersection part of src and dst
+  // NOTE: the sst order in level >= 1 is guaranteed
+  // TODO: use this to optimize merge(and completely change the
+  // get/scan/cache/... use binary search in layer and break the "the newest one
+  // in the last" rule)
   Layer new_overflow;
   int dst_level = from + 1;
   auto dst_save_dir =
@@ -319,26 +324,31 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
 
   const int limit = level_limit(dst_level);
   std::vector<std::pair<TKey, TKey>> src_ranges;
+  u64 merge_max_id = 0;
   for (auto &sst : src) {
     src_ranges.push_back(
         {sst.getHeader().getMinKey(), sst.getHeader().getMaxKey()});
+    if (sst.getUID() > merge_max_id) {
+      merge_max_id = sst.getUID();
+    }
   }
 
   // from old to new
   Layer intersection;
   Layer no_intersection;
-  std::vector<u64> intersection_ids;
-  std::vector<u64> no_intersection_ids;
+  std::vector<SSTable::Header> intersection_headers;
+
   for (auto &sst : dst) {
     bool section_flag = false;
-    u64 ID = sst.getUID();
+    auto header = sst.getHeader();
     for (auto &range : src_ranges) {
       TKey min = sst.getHeader().getMinKey();
       TKey max = sst.getHeader().getMaxKey();
 
       if ((min > range.first && min < range.second) ||
-          (max > range.first && max < range.second)) {
-        intersection_ids.push_back(ID);
+          (max > range.first && max < range.second) ||
+          (min < range.first && max > range.second)) {
+        intersection_headers.push_back(header);
         intersection.push_back(std::move(sst));
 
         section_flag = true;
@@ -346,7 +356,6 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
       }
     }
     if (!section_flag) {
-      no_intersection_ids.push_back(ID);
       no_intersection.push_back(std::move(sst));
     }
   }
@@ -374,7 +383,6 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   utils::mergeKSorted(intersection_kes, new_dst_kes);
   // generate new SSTables
   Layer merged_ssts;
-  Layer invert_tmp_stack;
   kEntrys tmp;
   int ke_num = 0;
   size_t no_intersection_size = no_intersection.size();
@@ -384,69 +392,94 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   for (int i = 0; i < new_dst_kes_size; ++i) {
     tmp.push_back(std::move(new_dst_kes[i]));
     ++ke_num;
-    if (cal_new_size(ke_num) > max_sz) {
+    if (cal_new_size(ke_num + 1) > max_sz) {
       ke_num = 0;
-      SSTable::sstable_type new_sst(tmp);
-      invert_tmp_stack.push_back(std::move(new_sst));
+      SSTable::sstable_type new_sst(tmp, merge_max_id);
+      merged_ssts.push_back(std::move(new_sst));
       tmp.clear();
     }
   }
   if (tmp.size() != 0) {
-    SSTable::sstable_type new_sst(tmp);
-    invert_tmp_stack.push_back(std::move(new_sst));
+    SSTable::sstable_type new_sst(tmp, merge_max_id);
     tmp.clear();
   }
   // HINT: invert_tmp_stack: from new to old
-  auto all_sst_size = invert_tmp_stack.size();
-  for (int i = all_sst_size - 1; i >= 0; --i) {
-    auto &sst = invert_tmp_stack.at(i);
-    if (i + no_intersection_size + 1 > limit) {
-      new_overflow.push_back(std::move(sst));
-    } else {
-      merged_ssts.push_back(std::move(sst));
-    }
-  }
 
   // ATTENTION：timeStamps here aren't handled specially, the intersection
   // part's order is guaranteed by the mergeKSorted(which will execute the
-  // 'unique()' filter) So int the merged_ssts, the order is guaranteed
+  // 'unique()' filter) So in the merged_ssts, the order is guaranteed
+
   // third, update the cache
   src.clear();
   dst.clear();
-  // NOTE: order matters
-  for (auto &sst : no_intersection) {
-    dst.push_back(std::move(sst));
+  auto merged_ssts_size = merged_ssts.size();
+  Layer final_dst;
+  if (no_intersection_size + merged_ssts_size > limit) {
+    // HINT: no_intersection is older and should be merged first
+    int overflow_size = no_intersection_size + merged_ssts_size - limit;
+    if (merged_ssts_size > limit) {
+      // all no-intersection in overflow, and part of merged in overflow
+      for (int i = 0; i < no_intersection_size; ++i) {
+        new_overflow.push_back(std::move(no_intersection[i]));
+      }
+      for (int i = 0; i < merged_ssts_size - limit; ++i) {
+        final_dst.push_back(std::move(merged_ssts[i]));
+      }
+      for (int i = merged_ssts_size - limit; i < merged_ssts_size; ++i) {
+        final_dst.push_back(std::move(merged_ssts[i]));
+      }
+    } else {
+      // no-intersection has part in dst
+      for (int i = 0; i < overflow_size; ++i) {
+        new_overflow.push_back(std::move(no_intersection[i]));
+      }
+      for (int i = overflow_size; i < no_intersection_size; ++i) {
+        final_dst.push_back(std::move(no_intersection[i]));
+      }
+      for (int i = 0; i < merged_ssts_size; ++i) {
+        final_dst.push_back(std::move(merged_ssts[i]));
+      }
+    }
+  } else {
+    for (int i = 0; i < merged_ssts_size; ++i) {
+      final_dst.push_back(std::move(merged_ssts[i]));
+    }
   }
-  for (auto &sst : merged_ssts) {
+  // NOTE: order matters
+  for (auto &sst : final_dst) {
     dst.push_back(std::move(sst));
   }
 
   // NOTE: sync to files
   if (!utils::dirExists(dst_save_dir)) {
-    perror("dst_save_dir does not exist");
+    std::cerr << "dst_save_dir does not exist" << std::endl;
+    assert(0);
     return;
   }
   std::vector<std::string> filenames;
   utils::scanDir(dst_save_dir, filenames);
   // ATTENTION: this behavior depends on the ID increments in merge(create new
   // SSTable)
-  for (auto &sst : dst) {
-    std::string sst_filename = std::to_string(sst.getUID()) + ".sst";
-    auto sst_path = dst_save_dir / sst_filename;
-    sst.save(sst_path);
-  }
-  // remove merged file
-  for (auto &ID : intersection_ids) {
-    auto sst_path = dst_save_dir / (std::to_string(ID) + ".sst");
+  // remove file in intersection
+  for (auto &header : intersection_headers) {
+    auto filename = SSTable::sstable_type::get_filename(header);
+    auto sst_path = dst_save_dir / filename;
     if (!std::filesystem::exists(sst_path)) {
       std::cerr << "file not exists: " << sst_path << "\n";
       continue;
     }
     utils::rmfile(sst_path);
   }
+  // add new merged file
+  for (auto &sst : dst) {
+    std::string sst_filename = sst.gen_filename();
+    auto sst_path = dst_save_dir / sst_filename;
+    sst.save(sst_path);
+  }
 
   // NOTE: if the merged_ssts.size() + no_intersection.size() > limit,
   // recursion
+  // TODO delete in last layer
   if (new_overflow.size() > 0) {
     mergeLayers_Helper(layers, dst_level, new_overflow);
   }
@@ -466,6 +499,10 @@ void KVStore::compaction() {
     utils::mkdir(l0_dir);
   }
   std::vector<std::string> l0_ssts;
+  if (is_empty(l0_dir)) {
+    save();
+    return;
+  }
   utils::scanDir(l0_dir, l0_ssts);
   if (l0_ssts.size() + 1 > level_limit(0)) {
     // TODO, merge
@@ -479,7 +516,7 @@ void KVStore::compaction() {
     ss_layers[0].push_back(new_sstable);
     // clear the pkvs
     pkvs = std::make_unique<skiplist::skiplist_type>();
-    sst_sz = 0;
+    sst_sz = cal_new_size(0);
     Layer src = ss_layers.at(0);
     mergeLayers_Helper(ss_layers, 0, src);
     ss_layers.at(0).clear();
@@ -508,7 +545,8 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
         vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second});
     kes.push_back({.key = kv.first, .offset = offset, .len = len});
   }
-  sst = std::move(SSTable::sstable_type(kes));
+  auto timeStamp = SSTable::sstable_type::incrTotalID();
+  sst = std::move(SSTable::sstable_type(kes, timeStamp));
 }
 
 /**
@@ -528,13 +566,13 @@ void KVStore::save() {
   convert_sst(new_sstable, vStore);
   // NOTE: update the cache
 
-  std::string sst_filename = std::to_string(new_sstable.getUID()) + ".sst";
+  std::string sst_filename = new_sstable.gen_filename();
 
   auto sst_path = l0_dir / sst_filename;
 
   if (std::filesystem::exists(sst_path)) {
     Log("sstable %s already exists", sst_path.c_str());
-    return;
+    assert(0);
   }
   new_sstable.save(sst_path);
   if (ss_layers.size() == 0) {
@@ -543,7 +581,6 @@ void KVStore::save() {
   ss_layers[0].push_back(std::move(new_sstable));
   // clear the pkvs
   pkvs = std::make_unique<skiplist::skiplist_type>();
-  sst_sz = 0;
 }
 
 /**
@@ -553,7 +590,7 @@ void KVStore::clearMem() {
   compaction();
   pkvs = std::make_unique<skiplist::skiplist_type>();
   ss_layers = std::vector<Layer>();
-  sst_sz = 0;
+  sst_sz = cal_new_size(0);
   vStore.clear_mem();
 }
 
@@ -569,8 +606,8 @@ void KVStore::rebuildMem() {
     // NOTE FIX: restore the order by timeStamp
     std::sort(ssts.begin(), ssts.end(),
               [](const std::string &s1, const std::string &s2) {
-                u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('.')));
-                u64 timeStamp2 = std::stoull(s2.substr(0, s2.find('.')));
+                u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('_')));
+                u64 timeStamp2 = std::stoull(s2.substr(0, s2.find('_')));
                 return timeStamp1 < timeStamp2;
               });
     Layer level_layer;

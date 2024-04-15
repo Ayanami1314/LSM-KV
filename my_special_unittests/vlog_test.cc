@@ -13,16 +13,16 @@ protected:
   void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
-    vpath = "./tmp/vlog";
-    utils::mkdir("./tmp");
+    vpath = "../tmp/vlog";
+    utils::mkdir("../tmp");
     vl = std::make_unique<vLogs>(vpath);
   }
 
   void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
-    if (std::filesystem::exists("./tmp")) {
-      std::filesystem::remove_all("./tmp");
+    if (std::filesystem::exists("../tmp")) {
+      std::filesystem::remove_all("../tmp");
     }
   }
   TPath vpath;

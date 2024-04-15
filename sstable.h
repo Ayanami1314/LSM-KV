@@ -55,26 +55,36 @@ private:
 
 public:
   static void resetID();
-  static u64 getBFSize() { return default_bf_size; }
+  [[nodiscard]] static u64 getBFSize() { return default_bf_size; }
 
   sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
-  sstable_type(const kEntrys &kes, u64 BF_size = default_bf_size,
+  sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size = default_bf_size,
                int hash_num = 3);
   sstable_type(const sstable_type &other);
+  void setID(u64 id) { this->ss_uid = id; }
   void addBF(const kEntrys &kes);
-  u64 size() const;
+  [[nodiscard]] u64 size() const;
   static u64 cal_size(int number_of_kv, u64 BF_size = default_bf_size);
   void save(const std::string &path);
   void load(const std::string &path);
-  bool mayKeyExist(TKey key) const;
+  [[nodiscard]] bool mayKeyExist(TKey key) const;
   void scan(TKey min, TKey max, kEntrys &res) const;
-  kEntry query(TKey key) const;
+  [[nodiscard]] kEntry query(TKey key) const;
   void clear();
-  BloomFilter getBF() const { return BF; }
+  [[nodiscard]] BloomFilter getBF() const { return BF; }
   ~sstable_type() = default;
-  u64 getUID() const { return ss_uid; }
-  u64 getKEntryNum() const { return pkes->size(); }
-  Header getHeader() const { return header; }
+  [[nodiscard]] u64 getUID() const { return ss_uid; }
+  [[nodiscard]] u64 getKEntryNum() const { return pkes->size(); }
+  [[nodiscard]] Header getHeader() const { return header; }
+  [[nodiscard]] static std::string get_filename(const Header &h) {
+    return std::to_string(h.getTimeStamp()) + "_" +
+           std::to_string(h.getMinKey()) + "~" + std::to_string(h.getMaxKey()) +
+           ".sst";
+  }
+  [[nodiscard]] std::string gen_filename() {
+    return get_filename(this->header);
+  }
+  [[nodiscard]] static u64 incrTotalID() { return ++ss_total_uid; }
 };
 } // namespace SSTable
 #endif

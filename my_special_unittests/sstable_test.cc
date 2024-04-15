@@ -10,7 +10,7 @@ protected:
       kes.push_back(
           {static_cast<TKey>(i), static_cast<TOff>(0), static_cast<TLen>(1)});
     }
-    sstable = SSTable::sstable_type(kes);
+    sstable = SSTable::sstable_type(kes, 0);
     if (!std::filesystem::exists(save_dir)) {
       std::filesystem::create_directory(save_dir);
     }

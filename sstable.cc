@@ -15,12 +15,13 @@ sstable_type::sstable_type(u64 BF_size, int hash_num)
   // constructor implementation
   ss_total_uid++;
 }
-sstable_type::sstable_type(const kEntrys &kes, u64 BF_size, int hash_num)
+sstable_type::sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size,
+                           int hash_num)
     : ss_uid(ss_total_uid), bf_size(BF_size), hash_func_num(hash_num),
       BF(BF_size, hash_num), header({ss_total_uid, 0, 0, 0}),
       pkes(std::make_shared<kEntrys>(kes)) {
   // constructor implementation
-  ss_total_uid++;
+  // ss_total_uid++;
   // gen BF
   TKey minKey = 0xffffffffffffffff;
   TKey maxKey = 0x0;
