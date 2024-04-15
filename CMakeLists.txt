@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.14)
+set(CMAKE_CXX_COMPILER "clang++")
 project(my_project)
 
 # GoogleTest requires at least C++14
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # debug on
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FALGS} -Wall")
+# link_libraries(ubsan asan)
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -34,6 +39,7 @@ foreach(src_file ${SRC_FILES})
     add_executable(${src_name}_test ${src_file} ${test_file})
 
     target_link_libraries(${src_name}_test GTest::gtest_main)
+
     gtest_discover_tests(${src_name}_test)
   endif()
 endforeach()

@@ -1,5 +1,5 @@
 #include "bloomfilter.h"
-#include <iostream>
+#include "MurmurHash3.h"
 BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
   // HINT
@@ -33,14 +33,14 @@ BloomFilter::BloomFilter(const TBytes &bytes, int hash_func_number, int seed)
   }
 }
 BloomFilter::BloomFilter(const BloomFilter &other)
-    : hash_gen_seed(other.hash_gen_seed), BF(other.BF) {
+    : BF(other.BF), hash_gen_seed(other.hash_gen_seed) {
   hashes.resize(other.hashes.size());
   int size = other.hashes.size();
-  auto gen_seed = this->hash_gen_seed;
+  // auto gen_seed = this->hash_gen_seed;
   for (int i = 0; i < size; i++) {
-    hashes[i] = [i, gen_seed](const void *key, const int len,
-                              const uint32_t seed, void *out) -> void {
-      int key_val = *(static_cast<const int *>(key)) + i * gen_seed;
+    hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
+                          void *out) -> void {
+      int key_val = *(static_cast<const int *>(key)) + i * this->hash_gen_seed;
       MurmurHash3_x64_128(&key_val, sizeof(key_val), seed, out);
     };
   }

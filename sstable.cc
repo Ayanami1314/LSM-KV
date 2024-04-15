@@ -40,9 +40,9 @@ sstable_type::sstable_type(const kEntrys &kes, u64 BF_size, int hash_num)
   header.setNumOfKV(num_of_kv);
 }
 sstable_type::sstable_type(const sstable_type &other)
-    : ss_uid(other.ss_uid), BF(other.BF), header(other.header),
-      pkes(other.pkes), bf_size(other.bf_size),
-      hash_func_num(other.hash_func_num) {}
+    : ss_uid(other.ss_uid), bf_size(other.bf_size),
+      hash_func_num(other.hash_func_num), BF(other.BF), header(other.header),
+      pkes(other.pkes) {}
 void sstable_type::addBF(const kEntrys &kes) {
   for (auto &entry : *pkes) {
     BF.insert_u64(entry.key);
@@ -209,7 +209,7 @@ void sstable_type::scan(TKey min, TKey max, kEntrys &res) const {
 void sstable_type::save(const std::string &path) {
   if (std::filesystem::exists(path)) {
     std::string msg = "Try to save to file(%s) that already exists";
-    Log(msg, path);
+    Log(msg, path.c_str());
   }
   std::ofstream ofile(path, std::ios::binary | std::ios::trunc);
   // | Header | BF | kEntrys |
@@ -231,7 +231,7 @@ void sstable_type::load(const std::string &path) {
   std::ifstream ifile(path, std::ios::binary);
   if (!std::filesystem::exists(path)) {
     std::string msg = "Try to load file(%s) that not exists";
-    Log(msg, path);
+    Log(msg, path.c_str());
   }
   ifile.read(reinterpret_cast<char *>(&header), sizeof(header));
   TBytes bytes(bf_size / 8);

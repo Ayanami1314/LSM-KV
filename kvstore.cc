@@ -7,15 +7,14 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
-#include <queue>
+
 #include <string>
 #define KB (1024)
 const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * KB; // 16KB
 KVStore::KVStore(const std::string &dir, const std::string &vlog)
-    : KVStoreAPI(dir, vlog), save_dir(dir),
-      pkvs(std::make_unique<skiplist::skiplist_type>()), sst_sz(0),
-      vStore([dir, vlog]() {
+    : KVStoreAPI(dir, vlog), pkvs(std::make_unique<skiplist::skiplist_type>()),
+      sst_sz(0), save_dir(dir), vStore([dir, vlog]() {
         if (!utils::dirExists(dir)) {
           utils::mkdir(dir);
         }
@@ -30,7 +29,6 @@ KVStore::KVStore(const std::string &dir, const std::string &vlog)
     rebuildMem();
   }
 }
-
 KVStore::~KVStore() {
   // // NOTE: now only level-0
   compaction();
@@ -519,11 +517,11 @@ void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
 void KVStore::save() {
   auto l0_dir = std::filesystem::path(save_dir) / "level_0";
   if (!std::filesystem::exists(l0_dir)) {
-    Log("l0_dir %s does not exist", l0_dir);
+    Log("l0_dir %s does not exist", l0_dir.c_str());
     return;
   }
   if (!std::filesystem::is_directory(l0_dir)) {
-    Log("l0_dir %s is not a directory", l0_dir);
+    Log("l0_dir %s is not a directory", l0_dir.c_str());
     return;
   }
   SSTable::sstable_type new_sstable;
@@ -535,7 +533,7 @@ void KVStore::save() {
   auto sst_path = l0_dir / sst_filename;
 
   if (std::filesystem::exists(sst_path)) {
-    Log("sstable %s already exists", sst_path);
+    Log("sstable %s already exists", sst_path.c_str());
     return;
   }
   new_sstable.save(sst_path);
@@ -587,5 +585,7 @@ void KVStore::rebuildMem() {
     ss_layers.push_back(std::move(level_layer));
   }
   // NOTE: set the vlog head and tail
-  vStore.reload_mem();
+  if (std::filesystem::exists(vStore.getPath())) {
+    vStore.reload_mem();
+  }
 }

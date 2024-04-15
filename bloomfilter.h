@@ -1,7 +1,7 @@
 
 #ifndef __BF__H
 #define __BF__H
-#include "MurmurHash3.h"
+
 #include "type.h"
 #include <algorithm>
 #include <cstdint>
@@ -27,7 +27,7 @@ public:
   void insert_u64(uint64_t key);
   void clear() { std::fill(BF.begin(), BF.end(), false); }
   void print() {
-    for (int i = 0; i < BF.size(); ++i) {
+    for (size_t i = 0; i < BF.size(); ++i) {
       if (BF[i]) {
         std::cout << i << " ";
       }

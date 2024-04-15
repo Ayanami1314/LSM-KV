@@ -6,7 +6,7 @@
 #include <vector>
 const u8 vLogs::magic = 0xff;
 /**
- * @brief
+ * @brief  loc back if failed
  * @param  ifs
  * @param  ve
  * @return -1 if failed, 0 if success
@@ -96,8 +96,9 @@ TOff vLogs::addVlog(const vEntryProps &v) {
 @brief the tail will be set to the begin the first magic
  */
 void vLogs::relocTail() {
-  u64 tmp = utils::seek_data_block(vfilepath);
   std::ifstream ifs(vfilepath, std::ios::binary);
+  u64 tmp = utils::seek_data_block(vfilepath);
+
   ifs.seekg(tmp);
   std::cout << "reloc to" << tmp << std::endl;
   unsigned char byte;
@@ -105,15 +106,27 @@ void vLogs::relocTail() {
   TCheckSum cal_checksum;
   auto back_loc = ifs.tellg();
   ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
-  while (byte != vLogs::magic && !ifs.eof() && !ifs.fail()) {
-    ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
+  int suc = -1;
+  while (suc != 0) {
+    while (byte != vLogs::magic && !ifs.eof() && !ifs.fail()) {
+      ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
+    }
+    if (ifs.eof() || ifs.fail()) {
+      Log("relocTail: incorrect offset");
+      ifs.seekg(back_loc);
+      return;
+    }
+    ifs.seekg(-1, std::ios_base::cur);
+    suc = read_a_ventry(ifs, ve);
+    if (suc == -1) {
+      ifs.seekg(1, std::ios_base::cur);
+    }
+    cal_bytes(ve, cal_checksum);
+    if (cal_checksum != ve.checksum) {
+      ifs.seekg(1, std::ios_base::cur);
+    }
   }
-  if (ifs.eof() || ifs.fail()) {
-    Log("relocTail: incorrect offset");
-    ifs.seekg(back_loc);
-    return;
-  }
-  ifs.seekg(-1, std::ios_base::cur);
+
   tail = ifs.tellg();
   return;
 }
@@ -242,11 +255,10 @@ void vLogs::clear() {
   ves.clear();
   head = 0;
   tail = 0;
-  std::ofstream ofs(vfilepath, std::ios::binary | std::ios::trunc);
-  if (!ofs) {
-    Log("In clear: Failed to open file");
+  if (!std::filesystem::exists(vfilepath)) {
     return;
   }
+  std::ofstream ofs(vfilepath, std::ios::binary | std::ios::trunc);
   ofs.close();
 }
 void vLogs::clear_mem() {
@@ -257,7 +269,7 @@ void vLogs::clear_mem() {
 void vLogs::reload_mem() {
   std::ifstream ifs(vfilepath, std::ios::binary | std::ios::ate); // move to end
   if (!ifs.is_open()) {
-    Log("Failed to open file, vpath=%s", vfilepath);
+    Log("Failed to open file, vpath=%s", vfilepath.c_str());
     head = 0;
     tail = 0;
     return;

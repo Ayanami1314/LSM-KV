@@ -1,11 +1,11 @@
 #pragma once
 
-#include <cstdint>
-#include <iostream>
-#include <string>
-
 #include "kvstore.h"
 #include "utils.h"
+#include <cstdint>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #define MB (1024 * 1024)
 

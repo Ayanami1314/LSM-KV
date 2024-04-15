@@ -1,7 +1,6 @@
 #ifndef __VLOG_H__
 #define __VLOG_H__
 #include "type.h"
-#include <fstream>
 class vLogs {
 private:
   // TBytes data;

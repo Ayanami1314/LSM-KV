@@ -14,8 +14,8 @@ class KVStore : public KVStoreAPI {
 private:
   std::unique_ptr<skiplist::skiplist_type> pkvs;
   size_t sst_sz;
-  vLogs vStore;
   const std::string save_dir;
+  vLogs vStore;
   Layers ss_layers;
 
   static const std::string delete_symbol;
@@ -33,7 +33,7 @@ private:
 public:
   KVStore(const std::string &dir, const std::string &vlog);
 
-  ~KVStore();
+  virtual ~KVStore();
 
   void put(uint64_t key, const std::string &s) override;
 

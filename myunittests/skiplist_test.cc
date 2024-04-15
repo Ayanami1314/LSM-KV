@@ -1,6 +1,7 @@
 #include "../skiplist.h"
 #include <gtest/gtest.h>
 #include <list>
+#include <numeric>
 #include <utility>
 class SkipListTest : public ::testing::Test {
 protected:

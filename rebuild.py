@@ -22,6 +22,10 @@ def check_file_size(proc, filename):
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    if(not os.path.exists("./log")):
+        os.makedirs("./log")
+    if(os.path.exists("./build")):
+        sh.run("sudo rm -rf build", shell=True)
     sh.run("cmake -S . -B build", shell=True)
     sh.run("sudo cmake --build build", shell=True)
     os.chdir("./build")

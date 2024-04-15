@@ -84,12 +84,6 @@ std::list<key_type> skiplist_type::get_keylist() const {
     keys.push_back(cur->key);
     cur = cur->next;
   }
-  // std::cerr << "The skiplist should has " << ele_number << "elements"
-  //           << std::endl;
-  // std::cerr << "But it has " << keys.size() << "elements: " << std::endl;
-  // for (auto &k : keys) {
-  //   std::cerr << k << " ";
-  // }
   return keys;
 }
 std::list<kvpair> skiplist_type::scan(key_type start, key_type end) const {
@@ -120,14 +114,6 @@ std::list<kvpair> skiplist_type::get_kvplist() const {
     kvps.emplace_back(make_pair(cur->key, cur->value));
     cur = cur->next;
   }
-  // if (ele_number != kvps.size()) {
-  //   std::cerr << "The skiplist should has " << ele_number << "elements"
-  //             << std::endl;
-  //   std::cerr << "But it has " << kvps.size() << "elements: " << std::endl;
-  //   for (auto &kv : kvps) {
-  //     std::cerr << kv.first << " " << kv.second << std::endl;
-  //   }
-  // }
   return kvps;
 }
 } // namespace skiplist

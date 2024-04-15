@@ -3,13 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
-// #include <optional>
-#include <cassert>
-#include <cmath>
-#include <iostream>
 #include <list>
-#include <memory>
-#include <random>
 #include <string>
 #include <vector>
 namespace skiplist {

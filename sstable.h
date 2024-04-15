@@ -43,9 +43,9 @@ public:
 class sstable_type {
   // NOTE: the sstable_type in mem act as cache for the sstable on disk
 private:
+  u64 ss_uid;
   u64 bf_size;
   int hash_func_num;
-  u64 ss_uid;
   static u64 ss_total_uid;
   static const u64 default_bf_size = 8 * 1024 * 8; // 8KB = 8*8*1024 bit
   BloomFilter BF;
