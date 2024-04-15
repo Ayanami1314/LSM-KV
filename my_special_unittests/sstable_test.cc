@@ -44,10 +44,16 @@ TEST_F(SSTableTest, defaultCalSize) {
 #include <fstream> // Include the necessary header file
 
 TEST_F(SSTableTest, saveLoadTest) {
+  auto BF1 = sstable.getBF();
+  auto bf1_size = sstable.getBFSize();
+  BF1.print();
   sstable.save(save_path);
   sstable.clear();
   sstable.load(save_path);
+  auto BF2 = sstable.getBF();
+  BF2.print();
   ASSERT_FALSE(sstable.getKEntryNum() == 0) << "sstable is empty";
+  ASSERT_EQ(bf1_size, sstable.getBFSize());
   for (int i = 0; i < 10; ++i) {
     kEntry ref = {static_cast<TKey>(i), static_cast<TOff>(0),
                   static_cast<TLen>(1)};

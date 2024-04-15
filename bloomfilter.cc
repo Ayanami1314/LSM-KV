@@ -1,14 +1,15 @@
 #include "bloomfilter.h"
-
+#include <iostream>
 BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
   // HINT
-  BF.resize(length, true);
+  BF.resize(length, false);
   hashes.resize(hash_func_number);
+  auto gen_seed = this->hash_gen_seed;
   for (int i = 0; i < hash_func_number; i++) {
-    hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
-                          void *out) -> void {
-      int key_val = *(static_cast<const int *>(key)) + i * hash_gen_seed;
+    hashes[i] = [i, gen_seed](const void *key, const int len,
+                              const uint32_t seed, void *out) -> void {
+      int key_val = *(static_cast<const int *>(key)) + i * gen_seed;
       MurmurHash3_x64_128(&key_val, sizeof(key_val), seed, out);
     };
   }
@@ -22,16 +23,28 @@ BloomFilter::BloomFilter(const TBytes &bytes, int hash_func_number, int seed)
     }
   }
   hashes.resize(hash_func_number);
+  auto gen_seed = this->hash_gen_seed;
   for (int i = 0; i < hash_func_number; i++) {
-    hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
-                          void *out) -> void {
-      int key_val = *(static_cast<const int *>(key)) + i * hash_gen_seed;
+    hashes[i] = [i, gen_seed](const void *key, const int len,
+                              const uint32_t seed, void *out) -> void {
+      int key_val = *(static_cast<const int *>(key)) + i * gen_seed;
       MurmurHash3_x64_128(&key_val, sizeof(key_val), seed, out);
     };
   }
 }
 BloomFilter::BloomFilter(const BloomFilter &other)
-    : hash_gen_seed(other.hash_gen_seed), BF(other.BF), hashes(other.hashes) {}
+    : hash_gen_seed(other.hash_gen_seed), BF(other.BF) {
+  hashes.resize(other.hashes.size());
+  int size = other.hashes.size();
+  auto gen_seed = this->hash_gen_seed;
+  for (int i = 0; i < size; i++) {
+    hashes[i] = [i, gen_seed](const void *key, const int len,
+                              const uint32_t seed, void *out) -> void {
+      int key_val = *(static_cast<const int *>(key)) + i * gen_seed;
+      MurmurHash3_x64_128(&key_val, sizeof(key_val), seed, out);
+    };
+  }
+}
 void BloomFilter::insert_u64(uint64_t key) {
   std::vector<int> results;
   for (const auto &h : hashes) {
@@ -71,21 +84,19 @@ bool BloomFilter::find_u64(uint64_t key) const {
 std::vector<uint8_t> BloomFilter::toBytes() const {
   std::vector<uint8_t> bytes;
   uint8_t byte = 0;
-  if (this->BF.size() % 8 != 0) {
+  size_t size = this->BF.size();
+  if (size % 8 != 0) {
     // NOTE: the size must be the multiple of 8
     throw("BF size is not a multiple of 8");
   }
-  for (size_t i = 0; i < this->BF.size(); ++i) {
-    byte = (byte << 1) | this->BF[i];
-    if ((i + 1) % 8 == 0) {
-      bytes.push_back(byte);
-      byte = 0;
+  // byte: HIGH 01234567 LOW
+  for (size_t i = 0; i < size; i += 8) {
+    for (int j = 0; j < 8; ++j) {
+      byte = (byte << 1) | this->BF[i + j];
     }
-  }
-  // Handle the last byte if the size of BF is not a multiple of 8
-  if (this->BF.size() % 8 != 0) {
-    byte <<= (8 - this->BF.size() % 8); // Shift remaining bits
     bytes.push_back(byte);
+    byte = 0;
   }
+
   return bytes;
 }

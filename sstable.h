@@ -70,7 +70,7 @@ public:
   void scan(TKey min, TKey max, kEntrys &res) const;
   kEntry query(TKey key) const;
   void clear();
-
+  BloomFilter getBF() const { return BF; }
   ~sstable_type() = default;
   u64 getUID() const { return ss_uid; }
   u64 getKEntryNum() const { return pkes->size(); }

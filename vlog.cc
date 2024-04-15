@@ -74,19 +74,20 @@ deleted)
 TOff vLogs::addVlog(const vEntryProps &v) {
   // HINT: add a new vEntry to the ves
   // HINT: update the tail
+
+  std::fstream fs(vfilepath, std::ios::binary | std::ios::app);
   if (v.vlen == 0) {
     // deleted element
-    return 0;
+    return fs.tellg();
   }
   TCheckSum checksum;
   TBytes bytes = cal_bytes(v, checksum);
-  std::ofstream ofs(vfilepath, std::ios::binary | std::ios::app);
   // std::printf("Checksum of v is: %x\n", checksum);
-  ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
+  fs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 
   // sync with file
-  ofs.flush();
-  ofs.close();
+  fs.flush();
+  fs.close();
   u64 ret = head;
   head += bytes.size(); // head 在前面，gc从tail开始
   return ret;
@@ -279,7 +280,7 @@ TValue vLogs::query(kEntry ke) {
   if (!ifs.is_open()) {
     return "";
   }
-  if (ke.offset > head || ke.offset < tail) {
+  if (ke.offset > head || ke.offset < tail || ke.len == 0) {
     ifs.close();
     return "";
   }

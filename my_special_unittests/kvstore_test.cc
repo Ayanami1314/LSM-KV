@@ -574,6 +574,55 @@ TEST_F(KVStoreTest, SmallPutOverride) {
     }
   }
 }
+TEST_F(KVStoreTest, MidPutOverride) {
+  pStore->reset();
+  uint64_t i;
+  uint64_t gc_trigger = 1024;
+  int max = 1024 * 3;
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i) + 's');
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::to_string(i) + 'a');
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      pStore->put(i, std::to_string(i) + 'b');
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      pStore->put(i, std::to_string(i) + 'c');
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+    if (i % gc_trigger == 0) [[unlikely]] {
+      check_gc(16 * KB);
+    }
+  }
+  std::cout << "Stage 1 end." << std::endl;
+
+  for (i = 0; i < max; ++i) {
+    switch (i % 3) {
+    case 0:
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+  }
+}
 
 TEST_F(KVStoreTest, LargePutOverride) {
   pStore->reset();

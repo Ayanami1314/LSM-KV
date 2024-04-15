@@ -82,7 +82,7 @@ std::string KVStore::get(uint64_t key) {
       if (ke == type::ke_not_found) {
         continue;
       }
-      if (ke == type::ke_deleted) {
+      if (ke.is_deleted()) {
         found = true;
         break;
       }

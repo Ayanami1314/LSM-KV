@@ -2,6 +2,7 @@
 #include "bloomfilter.h"
 #include "type.h"
 #include "utils.h"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -24,7 +25,7 @@ sstable_type::sstable_type(const kEntrys &kes, u64 BF_size, int hash_num)
   TKey minKey = 0xffffffffffffffff;
   TKey maxKey = 0x0;
   u64 num_of_kv = 0x0;
-  for (auto &entry : *(pkes.get())) {
+  for (auto &entry : kes) {
     BF.insert_u64(entry.key);
     if (entry.key > maxKey) {
       maxKey = entry.key;
@@ -89,6 +90,23 @@ bool sstable_type::mayKeyExist(TKey key) const {
   }
   return true;
 }
+
+u64 binary_search_helper(TKey key, u64 left, u64 right, const kEntrys &kes,
+                         bool &found) {
+  if (left == right) {
+    found = kes[left].key == key;
+    return found ? left : -1;
+  }
+  u64 mid = (left + right) / 2;
+  if (kes[mid].key == key) {
+    found = true;
+    return mid;
+  }
+  if (kes[mid].key > key) {
+    return binary_search_helper(key, left, mid, kes, found);
+  }
+  return binary_search_helper(key, mid + 1, right, kes, found);
+}
 /**
 @brief binary search in sstable in range [0, total)
  * @param  key
@@ -104,47 +122,13 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
     exist = false;
     return -1;
   }
-  u64 left = 0;
-  u64 right = total - 1;
-  u64 choose = 0;
-  exist = true;
-  while (left != right) {
-    u64 mid = (left + right) / 2;
-    if (key == pkes->at(left).key) {
-      choose = left;
-      break;
-    }
-    if (key == pkes->at(right).key) {
-      choose = right;
-      break;
-    }
-    if (key == pkes->at(mid).key) {
-      choose = mid;
-      break;
-    }
-    if (pkes->at(left).key < key && key < pkes->at(mid).key) {
-      right = mid;
-      continue;
-    }
-    // BUG here: always left = mid
-    if (key > pkes->at(mid).key && key < pkes->at(right).key) {
-      if (left == mid) {
-        exist = false;
-        return -1;
-      }
-      left = mid;
-      continue;
-    }
-  }
-  if (left == right) {
-    choose = left;
-  }
-  return choose;
+  exist = false;
+  return binary_search_helper(key, 0, total - 1, *pkes, exist);
 }
 /**
 @brief return the kEntry by key
  * @param  key
- * @return ke_not_found macro if not found, ke_deleted macro if deleted
+ * @return ke_not_found macro if not found
  */
 kEntry sstable_type::query(TKey key) const {
   if (!mayKeyExist(key)) {
@@ -169,9 +153,6 @@ kEntry sstable_type::query(TKey key) const {
   }
 
   Log("The choose key is %llu", choose);
-  if (pkes->at(choose).len == 0) {
-    return type::ke_deleted;
-  }
   return pkes->at(choose);
 }
 
@@ -256,8 +237,8 @@ void sstable_type::load(const std::string &path) {
   TBytes bytes(bf_size / 8);
   ifile.read(reinterpret_cast<char *>(bytes.data()), bytes.size());
 
-  BF = BloomFilter(bytes);
-
+  this->BF = BloomFilter(bytes);
+  assert(BF.default_hash_gen_seed == BF.getSeed());
   std::list<kEntry> kes;
   for (int i = 0; i < header.getNumOfKV(); ++i) {
     kEntry entry;

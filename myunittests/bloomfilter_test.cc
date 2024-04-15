@@ -8,8 +8,8 @@ protected:
     // Code here will be called immediately after each test (right
     // before the destructor).
   }
-  BloomFilter bf_l{1000, 5, 0};
-  BloomFilter bf_s{5, 1, 0};
+  BloomFilter bf_l{1000, 5};
+  BloomFilter bf_s{5, 1};
 };
 
 TEST_F(BFTest, BasicSet) {
