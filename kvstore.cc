@@ -494,7 +494,7 @@ void KVStore::compaction() {
   std::vector<std::string> l0_ssts;
   if (is_empty(l0_dir)) {
     save();
-    utils::printDir(save_dir);
+    // utils::printDir(save_dir);
     return;
   }
   utils::scanDir(l0_dir, l0_ssts);
@@ -527,7 +527,7 @@ void KVStore::compaction() {
   } else {
     save();
   }
-  utils::printDir(save_dir);
+  // utils::printDir(save_dir);
 }
 /**
 @brief convert the kvstore in mem to sstable and vlog. if deleted, the len of

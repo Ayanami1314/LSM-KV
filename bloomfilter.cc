@@ -36,11 +36,11 @@ BloomFilter::BloomFilter(const BloomFilter &other)
     : BF(other.BF), hash_gen_seed(other.hash_gen_seed) {
   hashes.resize(other.hashes.size());
   int size = other.hashes.size();
-  // auto gen_seed = this->hash_gen_seed;
+  auto gen_seed = this->hash_gen_seed;
   for (int i = 0; i < size; i++) {
-    hashes[i] = [i, this](const void *key, const int len, const uint32_t seed,
-                          void *out) -> void {
-      int key_val = *(static_cast<const int *>(key)) + i * this->hash_gen_seed;
+    hashes[i] = [i, gen_seed](const void *key, const int len,
+                              const uint32_t seed, void *out) -> void {
+      int key_val = *static_cast<const int *>(key) + i * gen_seed;
       MurmurHash3_x64_128(&key_val, sizeof(key_val), seed, out);
     };
   }
