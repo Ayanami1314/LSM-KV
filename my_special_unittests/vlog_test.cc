@@ -14,7 +14,9 @@ protected:
     // Code here will be called immediately after the constructor (right
     // before each test).
     vpath = "../tmp/vlog";
-    utils::mkdir("../tmp");
+    if (!std::filesystem::exists(vpath)) {
+      std::filesystem::create_directories("../tmp");
+    }
     vl = std::make_unique<vLogs>(vpath);
   }
 
@@ -110,7 +112,7 @@ TEST_F(vLogTest, readTest) {
                  static_cast<TLen>(std::to_string(i).size()),
                  std::to_string(i)});
   }
-  system("xxd -i ./tmp/vlog");
+  system("xxd -i ../tmp/vlog");
   std::vector<TOff> locs;
   const int size_of_prefix = 15;
   int ref_loc = 0;

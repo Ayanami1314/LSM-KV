@@ -7,7 +7,7 @@
 #include <vector>
 const u8 vLogs::magic = 0xff;
 /**
- * @brief  loc back if failed
+ * @brief  loc back if failed, read to next magic and do some check
  * @param  ifs
  * @param  ve
  * @return -1 if failed, 0 if success
@@ -62,11 +62,17 @@ vLogs::vLogs(TPath vpath) : vfilepath(vpath) {
   // HINT: checksum is the crc16 value calculated by {key, vlen, vvalue}
   // HINT: saved key for gc
   // check if can open file
-  std::fstream fs(vpath, std::ios::binary);
-  if (fs.is_open()) {
-    fs.close();
+  if (!std::filesystem::exists(vpath)) {
+    std::ofstream ofs(vpath, std::ios::binary);
+    ofs.close();
   }
-  reload_mem();
+  std::ifstream ifs(vpath, std::ios::binary | std::ios::ate);
+  if (ifs.is_open()) {
+    ifs.close();
+  }
+  if (ifs.tellg() != 0) {
+    reload_mem();
+  }
 }
 vLogs::~vLogs() {}
 /**
@@ -109,13 +115,15 @@ void vLogs::relocTail() {
   u64 tmp = utils::seek_data_block(vfilepath);
 
   ifs.seekg(tmp);
-  std::cout << "reloc to " << tmp << std::endl;
+
   unsigned char byte;
   vEntry ve;
   TCheckSum cal_checksum;
   auto back_loc = ifs.tellg();
+  auto last_loc = ifs.tellg();
   ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
   int suc = -1;
+  // check the checksum
   while (suc != 0) {
     while (byte != vLogs::magic && !ifs.eof() && !ifs.fail()) {
       ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
@@ -126,17 +134,17 @@ void vLogs::relocTail() {
       return;
     }
     ifs.seekg(-1, std::ios_base::cur);
+    last_loc = ifs.tellg();
     suc = read_a_ventry(ifs, ve);
-    if (suc == -1) {
-      ifs.seekg(1, std::ios_base::cur);
-    }
+
     cal_bytes(ve, cal_checksum);
-    if (cal_checksum != ve.checksum) {
-      ifs.seekg(1, std::ios_base::cur);
+    if (suc && cal_checksum == ve.checksum) {
+      break;
     }
   }
 
-  tail = ifs.tellg();
+  tail = last_loc;
+  std::cout << "reloc to " << tail << std::endl;
   return;
 }
 /**
@@ -182,13 +190,7 @@ u64 vLogs::readVlogs(TOff offset, vEntrys &ves, u64 chunk_size,
   locs.push_back(tail);
   auto begin = ifs.tellg();
   u64 size = 0;
-  int loop_num = 0;
   while (size < chunk_size && size + begin < head) {
-    loop_num++;
-    if (loop_num % 10000 == 0) {
-      std::cout << "readVlogs: endless loop? loop_num is: " << loop_num
-                << std::endl;
-    }
     int suc = read_a_ventry(ifs, ve);
     if (suc == -1) {
       Log("readVlogs: incorrect offset");
