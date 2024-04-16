@@ -13,7 +13,6 @@ class KVStore : public KVStoreAPI {
 
 private:
   std::unique_ptr<skiplist::skiplist_type> pkvs;
-  size_t sst_sz;
   const std::string save_dir;
   vLogs vStore;
   Layers ss_layers;
@@ -50,6 +49,7 @@ public:
   void convert_sst(SSTable::sstable_type &sst, vLogs &vl);
 
   // test-only
+  void printMem();
   void clearMem();
   void rebuildMem();
 };

@@ -1,6 +1,7 @@
 #include "../kvstore.h"
 #include "../skiplist.h"
 #include "../utils.h"
+#include <fstream>
 #include <gtest/gtest.h>
 #include <string>
 #define GC_EXPECT(cur, last, size)                                             \
@@ -24,6 +25,11 @@ protected:
     pStore->reset();
     if (!utils::dirExists(testdir))
       utils::mkdir(testdir);
+    // create file
+    std::ofstream ofs(vLog, std::ios::binary);
+    if (ofs.is_open()) {
+      ofs.close();
+    }
   }
 
   void TearDown() override {
@@ -41,7 +47,7 @@ protected:
     GC_EXPECT(cur_offset, last_offset, size);
     std::cout << "check_gc over" << std::endl;
   }
-  std::filesystem::path testdir = std::filesystem::current_path() / "tmp";
+  std::filesystem::path testdir = "../tmp";
   std::filesystem::path vLog = testdir / "vlog";
   std::unique_ptr<KVStore> pStore;
 };
@@ -487,10 +493,11 @@ TEST_F(KVStoreTest, basicGC) {
     pStore->put(i, std::to_string(i));
   }
   std::cout << "Put end." << std::endl;
+  pStore->printMem();
   for (i = 0; i < max; ++i) {
     // std::cout << "idx: " << i << std::endl;
     EXPECT_EQ(std::to_string(i), pStore->get(i));
-    std::cout << "after get" << std::endl;
+    // std::cout << "after get" << std::endl;
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i));
@@ -507,7 +514,7 @@ TEST_F(KVStoreTest, basicGC) {
 
     if (i % gc_trigger == 0) [[unlikely]] {
       std::cout << "gc_start: " << i << std::endl;
-      // check_gc(16 * KB);
+      check_gc(16 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
@@ -536,10 +543,9 @@ TEST_F(KVStoreTest, SmallPutOverride) {
     default:
       assert(0);
     }
-    std::cout << "idx: " << i << std::endl;
   }
   std::cout << "Stage 1 end." << std::endl;
-
+  pStore->printMem();
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:

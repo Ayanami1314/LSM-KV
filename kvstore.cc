@@ -14,7 +14,7 @@ const std::string KVStore::delete_symbol = "~DELETED~";
 const size_t KVStore::max_sz = 16 * KB; // 16KB
 KVStore::KVStore(const std::string &dir, const std::string &vlog)
     : KVStoreAPI(dir, vlog), pkvs(std::make_unique<skiplist::skiplist_type>()),
-      sst_sz(cal_new_size(0)), save_dir(dir), vStore([dir, vlog]() {
+      save_dir(dir), vStore([dir, vlog]() {
         if (!utils::dirExists(dir)) {
           utils::mkdir(dir);
         }
@@ -49,13 +49,10 @@ void KVStore::put(uint64_t key, const std::string &s) {
   size_t new_sz = cal_new_size();
   if (new_sz > max_sz) {
     // NOTE: write to sst
-    // NOTE: reset sst_sz
     new_sz = 0;
-    // TODO: compaction();
     compaction();
   }
-  pkvs->put(key, s);
-  sst_sz = new_sz > max_sz ? cal_new_size(1) : new_sz;
+  this->pkvs->put(key, s);
 }
 /**
  * Returns the (string) value of the given key.
@@ -124,8 +121,6 @@ void KVStore::reset() {
   // clear mem
   pkvs = std::make_unique<skiplist::skiplist_type>();
   vStore.clear();
-  sst_sz = cal_new_size(0);
-
   // clear cache
   ss_layers = std::vector<Layer>();
   // reset global state
@@ -325,13 +320,13 @@ void KVStore::mergeLayers_Helper(Layers &layers, int from, Layer &src) {
   const int limit = level_limit(dst_level);
   std::vector<std::pair<TKey, TKey>> src_ranges;
   u64 merge_max_id = 0;
-  for (auto &sst : src) {
-    src_ranges.push_back(
-        {sst.getHeader().getMinKey(), sst.getHeader().getMaxKey()});
-    if (sst.getUID() > merge_max_id) {
-      merge_max_id = sst.getUID();
-    }
-  }
+  for_each(src.begin(), src.end(),
+           [&merge_max_id, &src_ranges](SSTable::sstable_type &sst) {
+             merge_max_id =
+                 merge_max_id > sst.getUID() ? merge_max_id : sst.getUID();
+             src_ranges.push_back(
+                 {sst.getHeader().getMinKey(), sst.getHeader().getMaxKey()});
+           });
 
   // from old to new
   Layer intersection;
@@ -504,6 +499,7 @@ void KVStore::compaction() {
     return;
   }
   utils::scanDir(l0_dir, l0_ssts);
+
   if (l0_ssts.size() + 1 > level_limit(0)) {
     // TODO, merge
     Log("merge start:");
@@ -513,13 +509,16 @@ void KVStore::compaction() {
     // not save file in l0
     SSTable::sstable_type new_sstable;
     convert_sst(new_sstable, vStore);
+    this->pkvs = std::make_unique<skiplist::skiplist_type>();
     ss_layers[0].push_back(new_sstable);
     // clear the pkvs
-    pkvs = std::make_unique<skiplist::skiplist_type>();
-    sst_sz = cal_new_size(0);
-    Layer src = ss_layers.at(0);
-    mergeLayers_Helper(ss_layers, 0, src);
+    // FIXME: bugs here, the src is mess
+    Layer level_0_vec;
+    for (auto &sst : ss_layers[0]) {
+      level_0_vec.push_back(std::move(sst));
+    }
     ss_layers.at(0).clear();
+    mergeLayers_Helper(ss_layers, 0, level_0_vec);
     // clear l0 file
     for (auto &sst : l0_ssts) {
       auto sst_path = l0_dir / sst;
@@ -590,7 +589,6 @@ void KVStore::clearMem() {
   compaction();
   pkvs = std::make_unique<skiplist::skiplist_type>();
   ss_layers = std::vector<Layer>();
-  sst_sz = cal_new_size(0);
   vStore.clear_mem();
 }
 
@@ -626,3 +624,4 @@ void KVStore::rebuildMem() {
     vStore.reload_mem();
   }
 }
+void KVStore::printMem() { pkvs->print(); }

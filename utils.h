@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <vector>
 #define PAGE_SIZE (4 * 1024)
-#define DEBUG 1
+#define DEBUG 0
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args) {
   int size =
