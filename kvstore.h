@@ -25,8 +25,8 @@ private:
   size_t cal_new_size();
   size_t cal_new_size(size_t kv_num);
   inline int level_limit(int level) { return std::pow(2, level + 1); }
-  void mergeLayers_Helper(Layers &layers, int from,
-                          Layer &src); // overflow pass to the next layer
+  void mergeLayers_Helper(int from,
+                          const Layer &src); // overflow pass to the next layer
   void mergeLayers();
 
 public:

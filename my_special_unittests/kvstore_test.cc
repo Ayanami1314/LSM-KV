@@ -35,7 +35,7 @@ protected:
   void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
-    pStore->reset();
+    // pStore->reset();
   }
   void check_gc(uint64_t size) {
     std::cout << "check_gc: " << size << std::endl;
@@ -562,7 +562,56 @@ TEST_F(KVStoreTest, SmallPutOverride) {
     }
   }
 }
-TEST_F(KVStoreTest, MidPutOverride) {
+TEST_F(KVStoreTest, MidPutOverride1) {
+  uint64_t i;
+  uint64_t gc_trigger = 1024;
+  int max = 1024 * 2;
+  for (i = 0; i < max; ++i) {
+    pStore->put(i, std::to_string(i) + 's');
+  }
+  std::cout << "Put end." << std::endl;
+  for (i = 0; i < max; ++i) {
+    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    switch (i % 3) {
+    case 0:
+      pStore->put(i, std::to_string(i) + 'a');
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      pStore->put(i, std::to_string(i) + 'b');
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      pStore->put(i, std::to_string(i) + 'c');
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+    if (i % gc_trigger == 0) [[unlikely]] {
+      check_gc(16 * KB);
+    }
+  }
+  std::cout << "Stage 1 end." << std::endl;
+
+  for (i = 0; i < max; ++i) {
+    switch (i % 3) {
+    case 0:
+      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      break;
+    case 1:
+      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      break;
+    case 2:
+      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      break;
+    default:
+      assert(0);
+    }
+  }
+}
+
+TEST_F(KVStoreTest, MidPutOverride2) {
   uint64_t i;
   uint64_t gc_trigger = 1024;
   int max = 1024 * 3;
@@ -741,7 +790,7 @@ TEST_F(KVStoreTest, MultiLayers) {
   }
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 TEST_F(KVStoreTest, simulatedPersistence) {

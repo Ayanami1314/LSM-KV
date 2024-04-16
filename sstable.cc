@@ -244,7 +244,7 @@ void sstable_type::load(const std::string &path) {
   for (int i = 0; i < header.getNumOfKV(); ++i) {
     kEntry entry;
     ifile.read(reinterpret_cast<char *>(&entry), sizeof(entry));
-    kes.push_back(std::move(entry));
+    kes.push_back(entry);
   }
   pkes = std::make_shared<kEntrys>(std::make_move_iterator(kes.begin()),
                                    std::make_move_iterator(kes.end()));

@@ -67,6 +67,20 @@ static inline int scanDir(const std::string &path,
   closedir(dir);
   return ret.size();
 }
+static void printDir(const std::string &path, int depth = 0) {
+  std::vector<std::string> ret;
+  scanDir(path, ret);
+  for (auto &s : ret) {
+    std::string prefix = std::string(depth, '-');
+    printf("%s", prefix.c_str());
+    printf("%s\n", s.c_str());
+    std::string subpath = path + "/" + s;
+    if (std::filesystem::is_directory(subpath)) {
+      printDir(subpath, depth + 2);
+      printf("\n");
+    }
+  }
+}
 
 /**
  * Create directory

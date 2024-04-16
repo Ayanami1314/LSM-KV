@@ -72,6 +72,9 @@ public:
   [[nodiscard]] kEntry query(TKey key) const;
   void clear();
   [[nodiscard]] BloomFilter getBF() const { return BF; }
+  [[nodiscard]] std::shared_ptr<kEntrys> getKEntrys() const {
+    return this->pkes;
+  }
   ~sstable_type() = default;
   [[nodiscard]] u64 getUID() const { return ss_uid; }
   [[nodiscard]] u64 getKEntryNum() const { return pkes->size(); }
@@ -81,7 +84,7 @@ public:
            std::to_string(h.getMinKey()) + "~" + std::to_string(h.getMaxKey()) +
            ".sst";
   }
-  [[nodiscard]] std::string gen_filename() {
+  [[nodiscard]] std::string gen_filename() const {
     return get_filename(this->header);
   }
   [[nodiscard]] static u64 incrTotalID() { return ++ss_total_uid; }

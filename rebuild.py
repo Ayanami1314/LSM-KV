@@ -27,8 +27,8 @@ if __name__ == "__main__":
     if(os.path.exists("./build")):
         sh.run("sudo rm -rf build", shell=True)
     sh.run("cmake -S . -B build", shell=True)
-    sh.run("sudo cmake --build build", shell=True)
     os.chdir("./build")
+    sh.run("make -j8")
     sh.run("ctest", shell=True)
 
     if len(sys.argv) >= 2 and sys.argv[1] == "run":
