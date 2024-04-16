@@ -3,7 +3,7 @@
 BloomFilter::BloomFilter(size_t length, int hash_func_number, int seed)
     : hash_gen_seed(seed) {
   // HINT
-  BF.resize(length, true);
+  BF.resize(length, false);
   hashes.resize(hash_func_number);
   auto gen_seed = this->hash_gen_seed;
   for (int i = 0; i < hash_func_number; i++) {
