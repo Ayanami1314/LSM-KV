@@ -146,12 +146,13 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
   // scan in layers
   std::vector<kEntrys> layer_kvs;
   for (auto &layer : this->ss_layers) {
-    for (int i = layer.size() - 1; i >= 0; --i) {
+    size_t layer_size = layer.size();
+    for (int i = layer_size - 1; i >= 0; --i) {
       auto &sst = layer[i];
       kEntrys tmp;
       sst.scan(key1, key2, tmp);
       if (tmp.size() != 0) {
-        layer_kvs.push_back(tmp);
+        layer_kvs.push_back(std::move(tmp));
       }
       // HINT: now sorted by priority
     }
@@ -329,16 +330,16 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
            });
 
   // from old to new
-  Layer intersection;
-  Layer no_intersection;
+  std::vector<const SSTable::sstable_type *> intersection;
+  std::vector<const SSTable::sstable_type *> no_intersection;
   std::set<std::string> no_save_files;
   // HINT: file in no-intersection and won't be saved again(but may be removed
   // because of overflow)
   std::vector<std::string> remove_files;
   // FIXME: intersection judge has bug
-  for (auto &d_sst : dst) {
+  for (const auto &d_sst : dst) {
     bool section_flag = false;
-    for (auto &s_sst : src) {
+    for (const auto &s_sst : src) {
       TKey d_min = d_sst.getHeader().getMinKey();
       TKey d_max = d_sst.getHeader().getMaxKey();
       TKey s_min = s_sst.getHeader().getMinKey();
@@ -358,14 +359,14 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
       if (section_flag) {
         remove_files.push_back(d_sst.gen_filename());
         // HINT: all intersection part files shoule be deleted
-        intersection.push_back(d_sst);
+        intersection.push_back(&d_sst);
 
         section_flag = true;
         break;
       }
     }
     if (!section_flag) {
-      no_intersection.push_back(d_sst);
+      no_intersection.push_back(&d_sst);
       no_save_files.insert(d_sst.gen_filename());
     }
   }
@@ -381,13 +382,14 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     kEntrys kes;
     const SSTable::sstable_type &sst = src.at(i);
     sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
-    intersection_kes.push_back(kes);
+    intersection_kes.push_back(std::move(kes));
   }
   for (int i = intersection_size - 1; i >= 0; --i) {
     kEntrys kes;
-    SSTable::sstable_type &sst = intersection.at(i);
-    sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
-    intersection_kes.push_back(kes);
+    const SSTable::sstable_type *p_sst = intersection.at(i);
+    p_sst->scan(p_sst->getHeader().getMinKey(), p_sst->getHeader().getMaxKey(),
+                kes);
+    intersection_kes.push_back(std::move(kes));
   }
 
   utils::mergeKSorted(intersection_kes, new_dst_kes);
@@ -405,19 +407,21 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
       SSTable::sstable_type new_sst(tmp, merge_max_id);
       merged_ssts.push_back(new_sst);
       tmp.clear();
+      tmp.resize(0);
     }
   }
   if (tmp.size() != 0) {
     SSTable::sstable_type new_sst(tmp, merge_max_id);
-    merged_ssts.push_back(new_sst);
+    merged_ssts.push_back(std::move(new_sst));
     tmp.clear();
+    tmp.resize(0);
   }
   // HINT: invert_tmp_stack: from new to old
 
   auto merged_ssts_size = merged_ssts.size();
   Layer final_dst;
-  for (auto &sst : no_intersection) {
-    final_dst.push_back(sst);
+  for (const auto *const sst : no_intersection) {
+    final_dst.push_back(*sst);
   }
   for (auto &sst : merged_ssts) {
     final_dst.push_back(sst);
@@ -441,7 +445,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     }
   }
   assert(final_dst.size() <= limit);
-  ss_layers.at(dst_level) = final_dst;
+  ss_layers.at(dst_level) = std::move(final_dst);
 
   // NOTE: sync to files
   if (!utils::dirExists(dst_save_dir)) {
@@ -460,7 +464,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     utils::rmfile(sst_path);
   }
   // NOTE: add new merged file
-  for (auto &sst : final_dst) {
+  for (auto &sst : ss_layers.at(dst_level)) {
     // already exists
     if (no_save_files.find(sst.gen_filename()) != no_save_files.end()) {
       continue;
