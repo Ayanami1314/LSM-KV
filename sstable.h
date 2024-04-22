@@ -61,6 +61,7 @@ public:
   sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size = default_bf_size,
                int hash_num = 3);
   sstable_type(const sstable_type &other);
+  sstable_type(kEntrys &&kes, u64 timeStamp, u64 BF_size, int hash_num);
   void setID(u64 id) { this->ss_uid = id; }
   void addBF(const kEntrys &kes);
   [[nodiscard]] u64 size() const;

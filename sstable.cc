@@ -40,6 +40,31 @@ sstable_type::sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size,
   header.setMaxKey(maxKey);
   header.setNumOfKV(num_of_kv);
 }
+sstable_type::sstable_type(kEntrys &&kes, u64 timeStamp, u64 BF_size,
+                           int hash_num)
+    : ss_uid(ss_total_uid), bf_size(BF_size), hash_func_num(hash_num),
+      BF(BF_size, hash_num), header({ss_total_uid, 0, 0, 0}),
+      pkes(std::make_shared<kEntrys>(kes)) {
+  // constructor implementation
+  // ss_total_uid++;
+  // gen BF
+  TKey minKey = 0xffffffffffffffff;
+  TKey maxKey = 0x0;
+  u64 num_of_kv = 0x0;
+  for (auto &entry : kes) {
+    BF.insert_u64(entry.key);
+    if (entry.key > maxKey) {
+      maxKey = entry.key;
+    }
+    if (entry.key < minKey) {
+      minKey = entry.key;
+    }
+    num_of_kv++;
+  }
+  header.setMinKey(minKey);
+  header.setMaxKey(maxKey);
+  header.setNumOfKV(num_of_kv);
+}
 sstable_type::sstable_type(const sstable_type &other)
     : ss_uid(other.ss_uid), bf_size(other.bf_size),
       hash_func_num(other.hash_func_num), BF(other.BF), header(other.header),
