@@ -3,9 +3,11 @@
 #include "type.h"
 #include "utils.h"
 #include <cassert>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 namespace SSTable {
 u64 sstable_type::ss_total_uid = 1; // the first timestamp is 1
 void sstable_type::resetID() { ss_total_uid = 1; }
@@ -23,10 +25,10 @@ sstable_type::sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size,
   // constructor implementation
   // ss_total_uid++;
   // gen BF
-  TKey minKey = 0xffffffffffffffff;
+  TKey minKey = std::numeric_limits<uint64_t>::max();
   TKey maxKey = 0x0;
   u64 num_of_kv = 0x0;
-  for (auto &entry : kes) {
+  for (const auto &entry : kes) {
     BF.insert_u64(entry.key);
     if (entry.key > maxKey) {
       maxKey = entry.key;
@@ -39,13 +41,11 @@ sstable_type::sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size,
   header.setMinKey(minKey);
   header.setMaxKey(maxKey);
   header.setNumOfKV(num_of_kv);
+  header.setTimeStamp(timeStamp);
 }
-sstable_type::sstable_type(const sstable_type &other)
-    : ss_uid(other.ss_uid), bf_size(other.bf_size),
-      hash_func_num(other.hash_func_num), BF(other.BF), header(other.header),
-      pkes(other.pkes) {}
+sstable_type::sstable_type(const sstable_type &other) = default;
 void sstable_type::addBF(const kEntrys &kes) {
-  for (auto &entry : *pkes) {
+  for (const auto &entry : kes) {
     BF.insert_u64(entry.key);
   }
 }

@@ -19,7 +19,20 @@ public:
       : timeStamp(timeStamp_), num_of_kv(num_of_kv_), minKey(minKey_),
         maxKey(maxKey_) {}
   Header() : timeStamp(0), num_of_kv(0), minKey(0), maxKey(0) {}
-  Header(const Header &other)
+  Header(const Header &other) = default;
+  ~Header() = default;
+  Header &operator=(Header &&rhs) = default;
+  Header &operator=(const Header &other) {
+    if (this == &other) {
+      return *this;
+    }
+    timeStamp = other.timeStamp;
+    num_of_kv = other.num_of_kv;
+    minKey = other.minKey;
+    maxKey = other.maxKey;
+    return *this;
+  }
+  Header(const Header &&other) noexcept
       : timeStamp(other.timeStamp), num_of_kv(other.num_of_kv),
         minKey(other.minKey), maxKey(other.maxKey) {}
   // getters and setters
@@ -54,10 +67,14 @@ private:
   u64 binary_search(TKey key, u64 total, bool &exist, bool use_BF = true) const;
 
 public:
+  sstable_type &operator=(const sstable_type &other) = default;
+  sstable_type &
+  operator=(sstable_type &&other) = default; // should never move the kes
+  sstable_type(sstable_type &&other) = default;
   static void resetID();
   [[nodiscard]] static u64 getBFSize() { return default_bf_size; }
 
-  sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
+  explicit sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
   sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size = default_bf_size,
                int hash_num = 3);
   sstable_type(const sstable_type &other);
