@@ -3,6 +3,7 @@
 #include "kvstore_api.h"
 #include "skiplist.h"
 #include "sstable.h"
+#include "type.h"
 #include "vlog.h"
 #include <cmath>
 #include <memory>
@@ -17,7 +18,6 @@ private:
   vLogs vStore;
   Layers ss_layers;
 
-  static const std::string delete_symbol;
   static const size_t max_sz;
 
   void compaction();
@@ -30,6 +30,7 @@ private:
   void mergeLayers();
 
 public:
+  static const std::string delete_symbol;
   KVStore(const std::string &dir, const std::string &vlog);
 
   virtual ~KVStore();
@@ -47,7 +48,6 @@ public:
 
   void gc(uint64_t chunk_size) override;
   void convert_sst(SSTable::sstable_type &sst, vLogs &vl);
-
   // test-only
   void printMem();
   void clearMem();

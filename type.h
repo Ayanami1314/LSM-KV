@@ -63,5 +63,52 @@ static kEntry ke_not_found = {0, 0, 0};
 static vEntry ve_not_found = {0, 0, 0, 0, ""};
 constexpr static u64 ve_prefix_len =
     sizeof(TMagic) + sizeof(TCheckSum) + sizeof(TKey) + sizeof(TLen);
+
 } // namespace type
+namespace config {
+
+static int bf_default_k = 3;
+static u64 bf_default_size = 8 * 1024 * 8; // 8KB = 8*8*1024 bit
+static bool use_bf = true;
+static bool use_cache = true;
+using ConfigParam = struct ConfigParam {
+  int bf_default_size;
+  int bf_default_k;
+  bool use_bf;
+  bool use_cache;
+  friend std::ostream &operator<<(std::ostream &os, const ConfigParam &conf);
+};
+inline std::ostream &operator<<(std::ostream &os, const ConfigParam &conf) {
+  auto out_format = "use_bf: %s, use_cache: %s\nbf_size: %d, bf_func_num: %d\n";
+  char out[256];
+  auto tf_tos = [](bool cond) { return cond ? "true" : "false"; };
+
+  sprintf(out, out_format, tf_tos(conf.use_bf), tf_tos(conf.use_cache),
+          conf.bf_default_size, conf.bf_default_k);
+  os << out;
+  return os;
+}
+static inline void reConfig(const config::ConfigParam &newConfig) {
+  auto [use_bf, use_cache, bf_default_size, bf_default_k] = newConfig;
+  if (!use_cache) {
+    config::use_cache = false;
+    config::use_bf = false;
+    config::bf_default_k = 0;
+    config::bf_default_size = 0;
+  };
+  if (use_cache && !use_bf) {
+    config::use_cache = true;
+    config::use_bf = false;
+    config::bf_default_k = 0;
+    config::bf_default_size = 0;
+  }
+  if (use_cache && use_bf) {
+    config::use_cache = true;
+    config::use_bf = true;
+    config::bf_default_k = bf_default_k;
+    config::bf_default_size = bf_default_size;
+  }
+}
+} // namespace config
+
 #endif

@@ -67,7 +67,7 @@ static inline int scanDir(const std::string &path,
   closedir(dir);
   return ret.size();
 }
-static void printDir(const std::string &path, int depth = 0) {
+static inline void printDir(const std::string &path, int depth = 0) {
   std::vector<std::string> ret;
   scanDir(path, ret);
   for (auto &s : ret) {

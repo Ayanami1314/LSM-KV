@@ -48,9 +48,9 @@ sstable_type::sstable_type(kEntrys &&kes, u64 timeStamp, u64 BF_size,
   // constructor implementation
   // ss_total_uid++;
   // gen BF
-  TKey minKey = 0xffffffffffffffff;
-  TKey maxKey = 0x0;
-  u64 num_of_kv = 0x0;
+  TKey minKey = std::numeric_limits<u64>::max();
+  TKey maxKey = std::numeric_limits<u64>::min();
+  u64 num_of_kv = std::numeric_limits<u64>::min();
   for (auto &entry : kes) {
     BF.insert_u64(entry.key);
     if (entry.key > maxKey) {
@@ -70,6 +70,9 @@ sstable_type::sstable_type(const sstable_type &other)
       hash_func_num(other.hash_func_num), BF(other.BF), header(other.header),
       pkes(other.pkes) {}
 void sstable_type::addBF(const kEntrys &kes) {
+  if (!config::use_bf || !config::use_cache) [[unlikely]] {
+    throw("Try to add BF when config::use_bf is false");
+  }
   for (auto &entry : *pkes) {
     BF.insert_u64(entry.key);
   }
@@ -82,14 +85,13 @@ u64 sstable_type::size() const {
   // num_of_kv: u64
   return header.getNumOfKV() * sizeof(u64) + sizeof(header) + bf_size / 8;
 }
-/**
-@brief clear the current sstable
- */
 void sstable_type::clear() {
   pkes = std::make_unique<kEntrys>();
-  BF.clear();
   header.clear();
-  bf_size = default_bf_size;
+  if (config::use_bf) {
+    BF.clear();
+    bf_size = config::bf_default_size;
+  }
 }
 /**
 @brief calculate the generated file size of the current sstable
@@ -111,12 +113,24 @@ bool sstable_type::mayKeyExist(TKey key) const {
   if (key > header.getMaxKey() || key < header.getMinKey()) {
     return false;
   }
-  if (!BF.find_u64(key)) {
+  if (config::use_bf && !BF.find_u64(key)) {
     return false;
   }
   return true;
 }
-
+// bool sstable_type::mayKeyExist(TKey key, std::string ss_file) const {
+//   std::ifstream ifs(ss_file);
+//   if (!ifs.is_open()) {
+//     throw("Try to get size of a file that not exists");
+//   }
+//   Header file_header;
+//   ifs.read(reinterpret_cast<char *>(&file_header), sizeof(file_header));
+//   ifs.close();
+//   if (key > file_header.getMaxKey() || key < file_header.getMinKey()) {
+//     return false;
+//   }
+//   return true;
+// }
 u64 binary_search_helper(TKey key, u64 left, u64 right, const kEntrys &kes,
                          bool &found) {
   if (left == right) {
@@ -157,20 +171,27 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
  * @return ke_not_found macro if not found
  */
 kEntry sstable_type::query(TKey key) const {
-  if (!mayKeyExist(key)) {
-    return type::ke_not_found;
+  if (!config::use_cache) {
+    throw("Try to query in cache when config::use_cache is false");
   }
+  if (config::use_bf) {
+    if (!mayKeyExist(key)) {
+      return type::ke_not_found;
+    }
+  }
+
   // for (auto &entry : *pkes) {
   //   if (entry.key == key) {
   //     return entry;
   //   }
   // }
   bool exist = false;
-  auto choose = binary_search(key, header.getNumOfKV(), exist, false);
+  auto total = header.getNumOfKV();
+  auto choose = binary_search(key, total, exist, false);
   if (!exist) {
     return type::ke_not_found;
   }
-  auto total = header.getNumOfKV();
+
   Log("The total number of kv is %d", total);
   Log("The real key is %llu", key);
 
@@ -181,7 +202,6 @@ kEntry sstable_type::query(TKey key) const {
   Log("The choose key is %llu", choose);
   return pkes->at(choose);
 }
-
 /**
 @brief scan the sstable
  * @param  min minKey
@@ -198,32 +218,9 @@ void sstable_type::scan(TKey min, TKey max, kEntrys &res) const {
   if (max > header.getMaxKey()) {
     max = header.getMaxKey();
   }
-  bool exist_min = false;
-  bool exist_max = false;
-  auto min_in_this = binary_search(min, header.getNumOfKV(), exist_min);
-  auto max_in_this = binary_search(max, header.getNumOfKV(), exist_max);
-  if (exist_min) {
-    Log("min_in_this is %llu", min_in_this);
-  }
-  if (exist_max) {
-    Log("max_in_this is %llu", max_in_this);
-  }
-  if (!exist_min && !exist_max) {
-    return;
-  }
-  if (exist_min && exist_max) {
-    for (auto i = min_in_this; i <= max_in_this; ++i) {
-      res.push_back(pkes->at(i));
-    }
-  }
-  if (exist_min && !exist_max) {
-    for (auto i = min_in_this; i < header.getNumOfKV(); ++i) {
-      res.push_back(pkes->at(i));
-    }
-  }
-  if (!exist_min && exist_max) {
-    for (auto i = 0; i <= max_in_this; ++i) {
-      res.push_back(pkes->at(i));
+  for (const auto &entry : *pkes) {
+    if (entry.key >= min && entry.key <= max) {
+      res.push_back(entry);
     }
   }
   return;
@@ -240,19 +237,18 @@ void sstable_type::save(const std::string &path) {
   std::ofstream ofile(path, std::ios::binary | std::ios::trunc);
   // | Header | BF | kEntrys |
   ofile.write(reinterpret_cast<char *>(&header), sizeof(header));
-  auto bytes = BF.toBytes();
-  ofile.write(reinterpret_cast<char *>(bytes.data()), bytes.size());
+  if (config::use_bf) {
+    auto bytes = BF.toBytes();
+    ofile.write(reinterpret_cast<char *>(bytes.data()), bytes.size());
+  }
 
   for (auto &entry : *pkes) {
     ofile.write(reinterpret_cast<char *>(&entry), sizeof(entry));
   }
+  ofile.flush(); // ATTENTION: 立即刷盘
   ofile.close();
 }
 
-/**
-@brief load a sstable from path
- * @param  path
- */
 void sstable_type::load(const std::string &path) {
   std::ifstream ifile(path, std::ios::binary);
   if (!std::filesystem::exists(path)) {
@@ -260,11 +256,14 @@ void sstable_type::load(const std::string &path) {
     Log(msg, path.c_str());
   }
   ifile.read(reinterpret_cast<char *>(&header), sizeof(header));
-  TBytes bytes(bf_size / 8);
-  ifile.read(reinterpret_cast<char *>(bytes.data()), bytes.size());
+  if (config::use_bf) {
+    TBytes bytes(bf_size / 8);
+    ifile.read(reinterpret_cast<char *>(bytes.data()), bytes.size());
 
-  this->BF = BloomFilter(bytes);
-  assert(BF.default_hash_gen_seed == BF.getSeed());
+    this->BF = BloomFilter(bytes);
+    assert(BF.default_hash_gen_seed == BF.getSeed());
+  }
+
   std::list<kEntry> kes;
   for (int i = 0; i < header.getNumOfKV(); ++i) {
     kEntry entry;

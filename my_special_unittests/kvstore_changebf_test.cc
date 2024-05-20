@@ -1,5 +1,6 @@
 #include "../kvstore.h"
 #include "../skiplist.h"
+#include "../type.h"
 #include "../utils.h"
 #include <fstream>
 #include <gtest/gtest.h>
@@ -18,11 +19,15 @@ void gc_expect(const T &cur, const T &last, const T &size,
   std::cerr << ", current offset " << cur;
   std::cerr << ", last offset " << last << std::endl;
 }
-class KVStoreTest : public ::testing::Test {
+class KVStoreTestChangeBF : public ::testing::Test {
 protected:
   void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
+    // config::ConfigParam newConfig = {4096, 3, true, true};
+    config::ConfigParam newConfig = {0, 0, false, true};
+    config::reConfig(newConfig);
+    cout << "use cache:" << config::use_cache << endl;
     pStore = make_unique<KVStore>(testdir, vLog.string());
     pStore->reset();
     if (!utils::dirExists(testdir))
@@ -79,7 +84,7 @@ protected:
   }
 };
 
-TEST_F(KVStoreTest, basicCRUD) {
+TEST_F(KVStoreTestChangeBF, basicCRUD) {
   EXPECT_EQ(pStore->get(1), "");
   EXPECT_EQ(pStore->get(2), "");
 
@@ -107,7 +112,7 @@ TEST_F(KVStoreTest, basicCRUD) {
   EXPECT_EQ(pStore->get(7), "");
 }
 
-TEST_F(KVStoreTest, basicScan) {
+TEST_F(KVStoreTestChangeBF, basicScan) {
   for (int i = 0; i < 10; ++i) {
     pStore->put(i, std::to_string(i));
   }
@@ -128,7 +133,7 @@ TEST_F(KVStoreTest, basicScan) {
   EXPECT_EQ(res, ref);
   EXPECT_EQ(res2, ref2);
 }
-TEST_F(KVStoreTest, BasicScan2) {
+TEST_F(KVStoreTestChangeBF, BasicScan2) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 10;
@@ -140,7 +145,7 @@ TEST_F(KVStoreTest, BasicScan2) {
   pStore->scan(0, max / 2 - 1, list_stu);
   EXPECT_EQ(list_ans.size(), list_stu.size());
 }
-TEST_F(KVStoreTest, BasicScan3) {
+TEST_F(KVStoreTestChangeBF, BasicScan3) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 11;
@@ -152,7 +157,7 @@ TEST_F(KVStoreTest, BasicScan3) {
   pStore->scan(0, max / 2 - 1, list_stu);
   EXPECT_EQ(list_ans, list_stu);
 }
-TEST_F(KVStoreTest, ScanWithDel) {
+TEST_F(KVStoreTestChangeBF, ScanWithDel) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
   std::list<std::pair<uint64_t, std::string>> list_stu;
   int max = 11;
@@ -166,7 +171,7 @@ TEST_F(KVStoreTest, ScanWithDel) {
   list_ans.pop_front();
   EXPECT_EQ(list_ans, list_stu);
 }
-TEST_F(KVStoreTest, BasicScan4) {
+TEST_F(KVStoreTestChangeBF, BasicScan4) {
   pStore->put(1, "SE");
   pStore->del(1);
   auto res = std::list<skiplist::kvpair>();
@@ -174,7 +179,7 @@ TEST_F(KVStoreTest, BasicScan4) {
   pStore->scan(1, 2, res);
   EXPECT_EQ(res, ref);
 }
-TEST_F(KVStoreTest, RegularTest50) {
+TEST_F(KVStoreTestChangeBF, RegularTest50) {
 
   uint64_t i;
   const std::string not_found = "";
@@ -235,7 +240,7 @@ TEST_F(KVStoreTest, RegularTest50) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
-TEST_F(KVStoreTest, RegularTest200) {
+TEST_F(KVStoreTestChangeBF, RegularTest200) {
   uint64_t i;
   const std::string not_found = "";
   const int max = 200;
@@ -295,7 +300,7 @@ TEST_F(KVStoreTest, RegularTest200) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
-TEST_F(KVStoreTest, RegularTest1024) {
+TEST_F(KVStoreTestChangeBF, RegularTest1024) {
   uint64_t i;
   const std::string not_found = "";
   const int max = 1024;
@@ -355,7 +360,7 @@ TEST_F(KVStoreTest, RegularTest1024) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
-TEST_F(KVStoreTest, JustOverflow) {
+TEST_F(KVStoreTestChangeBF, JustOverflow) {
   uint64_t i;
   const std::string not_found = "";
   const int max = 350;
@@ -377,7 +382,7 @@ TEST_F(KVStoreTest, JustOverflow) {
   for (i = 0; i < max; ++i)
     EXPECT_EQ(std::to_string(i), pStore->get(i));
 }
-TEST_F(KVStoreTest, ThreeSST) {
+TEST_F(KVStoreTestChangeBF, ThreeSST) {
   uint64_t i;
   const std::string not_found = "";
   const int max = 1000;
@@ -400,7 +405,7 @@ TEST_F(KVStoreTest, ThreeSST) {
     EXPECT_EQ(std::to_string(i), pStore->get(i));
 }
 
-TEST_F(KVStoreTest, LargeScan) {
+TEST_F(KVStoreTestChangeBF, LargeScan) {
   for (int i = 0; i < 1000; ++i) {
     pStore->put(i, std::to_string(i));
   }
@@ -415,7 +420,7 @@ TEST_F(KVStoreTest, LargeScan) {
   EXPECT_EQ(ref, res);
 }
 
-TEST_F(KVStoreTest, LargeScanWithDel) {
+TEST_F(KVStoreTestChangeBF, LargeScanWithDel) {
   for (int i = 0; i < 1000; ++i) {
     pStore->put(i, std::to_string(i));
   }
@@ -433,7 +438,7 @@ TEST_F(KVStoreTest, LargeScanWithDel) {
   EXPECT_EQ(ref, res);
 }
 
-TEST_F(KVStoreTest, AnotherLargeScan) {
+TEST_F(KVStoreTestChangeBF, AnotherLargeScan) {
   // Test after all insertions
   uint64_t i;
   auto not_found = "";
@@ -482,7 +487,7 @@ TEST_F(KVStoreTest, AnotherLargeScan) {
   //   }
   // }
 }
-TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
+TEST_F(KVStoreTestChangeBF, AnotherLargeScanWithDel) {
   uint64_t i;
   auto not_found = "";
   int max = 345;
@@ -509,7 +514,7 @@ TEST_F(KVStoreTest, AnotherLargeScanWithDel) {
     EXPECT_EQ(i & 1, pStore->del(i));
 }
 
-TEST_F(KVStoreTest, basicGC) {
+TEST_F(KVStoreTestChangeBF, basicGC) {
 #define KB (1024)
 
   int max = 1024;
@@ -547,7 +552,7 @@ TEST_F(KVStoreTest, basicGC) {
   std::cout << "Stage 1 end." << std::endl;
 }
 
-TEST_F(KVStoreTest, SmallPutOverride) {
+TEST_F(KVStoreTestChangeBF, SmallPutOverride) {
 
   uint64_t i;
   int max = 1024;
@@ -589,7 +594,7 @@ TEST_F(KVStoreTest, SmallPutOverride) {
     }
   }
 }
-TEST_F(KVStoreTest, MidPutOverride1) {
+TEST_F(KVStoreTestChangeBF, MidPutOverride1) {
   uint64_t i;
   uint64_t gc_trigger = 1024;
   int max = 1024 * 2;
@@ -638,7 +643,7 @@ TEST_F(KVStoreTest, MidPutOverride1) {
   }
 }
 
-TEST_F(KVStoreTest, MidPutOverride2) {
+TEST_F(KVStoreTestChangeBF, MidPutOverride2) {
   uint64_t i;
   uint64_t gc_trigger = 1024;
   int max = 1024 * 3;
@@ -687,7 +692,7 @@ TEST_F(KVStoreTest, MidPutOverride2) {
   }
 }
 
-TEST_F(KVStoreTest, LargePutOverride) {
+TEST_F(KVStoreTestChangeBF, LargePutOverride) {
   uint64_t i;
   uint64_t gc_trigger = 1024;
   int max = 1024 * 48;
@@ -736,7 +741,7 @@ TEST_F(KVStoreTest, LargePutOverride) {
   }
 }
 
-TEST_F(KVStoreTest, LargeGC) {
+TEST_F(KVStoreTestChangeBF, LargeGC) {
   uint64_t i;
   uint64_t gc_trigger = 1024;
   std::string not_found = "";
@@ -791,7 +796,7 @@ TEST_F(KVStoreTest, LargeGC) {
     }
   }
 }
-TEST_F(KVStoreTest, largePutAndDel) {
+TEST_F(KVStoreTestChangeBF, largePutAndDel) {
   int max = 1000;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -806,7 +811,7 @@ TEST_F(KVStoreTest, largePutAndDel) {
   }
 }
 
-TEST_F(KVStoreTest, MultiLayers) {
+TEST_F(KVStoreTestChangeBF, MultiLayers) {
   int max = 10000;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -820,7 +825,7 @@ TEST_F(KVStoreTest, MultiLayers) {
     ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
-TEST_F(KVStoreTest, simulatedPersistence) {
+TEST_F(KVStoreTestChangeBF, simulatedPersistence) {
   int max = 1000;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -837,7 +842,7 @@ TEST_F(KVStoreTest, simulatedPersistence) {
     EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
-TEST_F(KVStoreTest, smallPersisWithGC) {
+TEST_F(KVStoreTestChangeBF, smallPersisWithGC) {
   int max = 10;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -854,7 +859,7 @@ TEST_F(KVStoreTest, smallPersisWithGC) {
     EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
-TEST_F(KVStoreTest, largerPersisWithGC) {
+TEST_F(KVStoreTestChangeBF, largerPersisWithGC) {
   int max = 350;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -871,7 +876,7 @@ TEST_F(KVStoreTest, largerPersisWithGC) {
     EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
-TEST_F(KVStoreTest, simulatedPersistenceWithGC) {
+TEST_F(KVStoreTestChangeBF, simulatedPersistenceWithGC) {
   int max = 1024;
   for (int i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
@@ -889,7 +894,7 @@ TEST_F(KVStoreTest, simulatedPersistenceWithGC) {
   }
 }
 
-TEST_F(KVStoreTest, randomLargeSizeSmallNumTest) {
+TEST_F(KVStoreTestChangeBF, randomLargeSizeSmallNumTest) {
   int value_size = 10000;
   int has_data_size = 10000 * 3000;
   // prebuilt
@@ -962,7 +967,7 @@ TEST_F(KVStoreTest, randomLargeSizeSmallNumTest) {
   cal_time(scan_fn, "Scan", scan_test_times);
 }
 
-TEST_F(KVStoreTest, randomSmallSizeSmallNumTest) {
+TEST_F(KVStoreTestChangeBF, randomSmallSizeSmallNumTest) {
   int value_size = 100;
   int has_data_size = 160 * 1024;
   // prebuilt

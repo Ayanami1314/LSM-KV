@@ -22,10 +22,14 @@ KVStore::KVStore(const std::string &dir, const std::string &vlog)
         return vlog;
       }()) {
   const std::string l0_dir = std::filesystem::path(save_dir) / "level_0";
+  if (!config::use_cache) {
+    // HINT: no cache banned ss_layer
+    utils::mkdir(l0_dir);
+    return;
+  }
   if (!utils::dirExists(l0_dir)) {
     utils::mkdir(l0_dir);
     Layer l0;
-    ss_layers.push_back(l0);
   } else {
     rebuildMem();
   }
@@ -40,6 +44,19 @@ size_t KVStore::cal_new_size() {
 }
 size_t KVStore::cal_new_size(size_t kv_num) {
   return SSTable::sstable_type::cal_size(kv_num);
+}
+std::vector<std::string> getSortedSSTfileNames(const std::string &dir) {
+  std::vector<std::string> ssts;
+  utils::scanDir(dir, ssts);
+  // ATTENTION: ssts is filenames! NOT paths!
+  // NOTE FIX: restore the order by timeStamp
+  std::sort(ssts.begin(), ssts.end(),
+            [](const std::string &s1, const std::string &s2) {
+              u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('_')));
+              u64 timeStamp2 = std::stoull(s2.substr(0, s2.find('_')));
+              return timeStamp1 < timeStamp2;
+            });
+  return ssts;
 }
 /**
  * Insert/Update the key-value pair.
@@ -70,25 +87,51 @@ std::string KVStore::get(uint64_t key) {
   TValue v = "";
   // query in layers
   bool found = false;
-  for (auto &layer : this->ss_layers) {
-    // NOTE：the newest SST is the last one in the layer
-    for (int i = layer.size() - 1; i >= 0; --i) {
-      const auto &sst = layer[i];
-      auto ke = sst.query(key); // HINT: header and BF: may exist?
-      if (ke == type::ke_not_found) {
-        continue;
+  if (config::use_cache) {
+    for (auto &layer : this->ss_layers) {
+      // NOTE：the newest SST is the last one in the layer
+      for (int i = layer.size() - 1; i >= 0; --i) {
+        const auto &sst = layer[i];
+        auto ke = sst.query(key); // HINT: header and BF: may exist?
+        if (ke == type::ke_not_found) {
+          continue;
+        }
+        if (ke.is_deleted()) {
+          found = true;
+          break;
+        }
+        if ((v = vStore.query(ke)) != "") {
+          found = true;
+          break;
+        }
       }
-      if (ke.is_deleted()) {
-        found = true;
-        break;
-      }
-      if ((v = vStore.query(ke)) != "") {
-        found = true;
+      if (found) {
         break;
       }
     }
-    if (found) {
-      break;
+  } else {
+    auto cur_dir = std::filesystem::path(save_dir) / "level_0";
+    for (int i = 0; utils::dirExists(cur_dir); ++i) {
+      std::vector<std::string> sst_files;
+      sst_files = getSortedSSTfileNames(cur_dir);
+      for (auto &sst_file : sst_files) {
+        SSTable::sstable_type sst;
+        sst.load(cur_dir / sst_file);
+        auto ke = sst.query(key);
+        if (ke == type::ke_not_found) {
+          continue;
+        }
+        if (ke.is_deleted()) {
+          found = true;
+          break;
+        }
+        if ((v = vStore.query(ke)) != "") {
+          found = true;
+          break;
+        }
+      }
+      cur_dir =
+          std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
     }
   }
 
@@ -123,7 +166,8 @@ void KVStore::reset() {
   pkvs = std::make_unique<skiplist::skiplist_type>();
   vStore.clear();
   // clear cache
-  ss_layers = std::vector<Layer>();
+  if (config::use_cache)
+    ss_layers = std::vector<Layer>();
   // reset global state
   SSTable::sstable_type::resetID();
 }
@@ -137,23 +181,36 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
                    std::list<std::pair<uint64_t, std::string>> &list) {
   kEntrys kvec;
   const auto mem_list = pkvs->scan(key1, key2);
-  // filter the del element
-  // for (auto &kv : mem_list) {
-  //   if (kv.second != delete_symbol) {
-  //     list.push_back(kv);
-  //   }
-  // }
-  // scan in layers
   std::vector<kEntrys> layer_kvs;
-  for (auto &layer : this->ss_layers) {
-    for (int i = layer.size() - 1; i >= 0; --i) {
-      auto &sst = layer[i];
-      kEntrys tmp;
-      sst.scan(key1, key2, tmp);
-      if (tmp.size() != 0) {
-        layer_kvs.push_back(tmp);
+  if (config::use_cache) {
+
+    for (auto &layer : this->ss_layers) {
+      for (int i = layer.size() - 1; i >= 0; --i) {
+        auto &sst = layer[i];
+        kEntrys tmp;
+        sst.scan(key1, key2, tmp);
+        if (tmp.size() != 0) {
+          layer_kvs.push_back(tmp);
+        }
+        // HINT: now sorted by priority
       }
-      // HINT: now sorted by priority
+    }
+  } else {
+    auto cur_dir = std::filesystem::path(save_dir) / "level_0";
+    for (int i = 0; utils::dirExists(cur_dir); ++i) {
+      std::vector<std::string> sst_files;
+      sst_files = getSortedSSTfileNames(cur_dir);
+      for (auto &sst_file : sst_files) {
+        SSTable::sstable_type sst;
+        sst.load(cur_dir / sst_file);
+        kEntrys tmp;
+        sst.scan(key1, key2, tmp);
+        if (tmp.size() != 0) {
+          layer_kvs.push_back(tmp);
+        }
+      }
+      cur_dir =
+          std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
     }
   }
   kEntrys merge_layers;
@@ -254,21 +311,40 @@ void KVStore::gc(uint64_t chunk_size) {
     }
     // in sstable
     if (!found) {
-      for (auto &layer : this->ss_layers) {
-        size_t layer_size = layer.size();
-        // NOTE：the newest SST is the last one in the layer
-        for (int i = layer_size - 1; i >= 0; --i) {
-          const auto &sst = layer[i];
-          ke = sst.query(ve.key); // HINT: header and BF: may exist?
-          if (ke != type::ke_not_found) {
-            // NOTE: because find order is from newest to oldest, so if found
-            // and the offsets not equal, breaks also.
-            found = true;
+      if (config::use_cache) {
+        for (auto &layer : this->ss_layers) {
+          size_t layer_size = layer.size();
+          // NOTE：the newest SST is the last one in the layer
+          for (int i = layer_size - 1; i >= 0; --i) {
+            const auto &sst = layer[i];
+            ke = sst.query(ve.key); // HINT: header and BF: may exist?
+            if (ke != type::ke_not_found) {
+              // NOTE: because find order is from newest to oldest, so if found
+              // and the offsets not equal, breaks also.
+              found = true;
+              break;
+            }
+          }
+          if (found) {
             break;
           }
         }
-        if (found) {
-          break;
+      } else {
+        auto cur_dir = std::filesystem::path(save_dir) / "level_0";
+        for (int i = 0; utils::dirExists(cur_dir); ++i) {
+          std::vector<std::string> sst_files;
+          sst_files = getSortedSSTfileNames(cur_dir);
+          for (auto &sst_file : sst_files) {
+            SSTable::sstable_type sst;
+            sst.load(cur_dir / sst_file);
+            ke = sst.query(ve.key);
+            if (ke != type::ke_not_found) {
+              found = true;
+              break;
+            }
+          }
+          cur_dir =
+              std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
         }
       }
     }
@@ -303,22 +379,43 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
   // ATTENTION: DO NOT USE PUSH/DEL TO CHANGE THE LAYERS IN THE FUNCTION!(ALWAYS
   // CONSIDER VECTOR REALLOC)
   // NOTE: we choose to update the cache first and then
-  // the files first, choose the intersection part of src and dst NOTE: the sst
-  // order in level >= 1 is guaranteed
-  // TODO: use this to optimize merge(and completely change the
-  // get/scan/cache/... use binary search in layer and break the "the newest one
-  // in the last" rule)
+  // the files, choose the intersection part of src and dst
+  // NOTE: the sst order in level >= 1 is guaranteed
+  // TODO: optimize merge(and completely change the
+  // get/scan/cache/... use binary search(for sst) in layer and break the "the
+  // newest one in the last" rule)
+
+  // TODO: no-cache version
   Layer new_overflow;
   int dst_level = from + 1;
   auto dst_save_dir =
       std::filesystem::path(save_dir) / ("level_" + std::to_string(dst_level));
   if (from + 1 > this->ss_layers.size() - 1) {
-    ss_layers.push_back(Layer());
+    if (config::use_cache) {
+      ss_layers.push_back(Layer());
+    }
     if (!std::filesystem::exists(dst_save_dir)) {
       utils::mkdir(dst_save_dir);
     }
   }
-  const Layer &dst = ss_layers.at(from + 1);
+  Layer dst;
+  if (config::use_cache) {
+    dst = ss_layers.at(from +
+                       1); // TODO: 不知道怎么兼容no-cache的同时使用引用 &dst
+  } else {
+    auto cur_dir =
+        std::filesystem::path(save_dir) / ("level_" + std::to_string(from + 1));
+    if (!utils::dirExists(cur_dir)) {
+      utils::mkdir(cur_dir);
+    }
+    std::vector<std::string> sst_files;
+    sst_files = getSortedSSTfileNames(cur_dir);
+    for (auto &sst_file : sst_files) {
+      SSTable::sstable_type sst;
+      sst.load(cur_dir / sst_file);
+      dst.push_back(sst);
+    }
+  }
 
   const int limit = level_limit(dst_level);
   u64 merge_max_id = 0;
@@ -446,7 +543,9 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     }
   }
   assert(final_dst.size() <= limit);
-  ss_layers.at(dst_level) = final_dst;
+  if (config::use_cache) {
+    ss_layers.at(dst_level) = final_dst;
+  }
 
   // NOTE: sync to files
   if (!utils::dirExists(dst_save_dir)) {
@@ -514,21 +613,31 @@ void KVStore::compaction() {
     SSTable::sstable_type new_sstable;
     convert_sst(new_sstable, vStore);
     this->pkvs = std::make_unique<skiplist::skiplist_type>();
-    ss_layers[0].push_back(new_sstable);
+    Layer level_0_vec;
+    if (config::use_cache) {
+      ss_layers[0].push_back(new_sstable);
+      for (const auto &sst : ss_layers.at(0)) {
+        level_0_vec.push_back(sst);
+      }
+      ss_layers.at(0) = Layer();
+    } else {
+      auto ssts = getSortedSSTfileNames(l0_dir);
+      for (auto &sst : ssts) {
+        SSTable::sstable_type sst_cache;
+        auto ss_path = l0_dir / sst;
+        sst_cache.load(ss_path);
+        level_0_vec.push_back(sst_cache);
+      }
+      level_0_vec.push_back(new_sstable);
+    }
     // clear the pkvs
     // FIXME: push the level0 back, refactor the ss_layers
-    Layer level_0_vec;
-    for (auto &sst : ss_layers.at(0)) {
-      level_0_vec.push_back(sst);
-    }
-    ss_layers.at(0) = Layer();
     mergeLayers_Helper(0, level_0_vec);
     // clear l0 file
     for (auto &sst : l0_ssts) {
       auto sst_path = l0_dir / sst;
       utils::rmfile(sst_path);
     }
-
   } else {
     save();
   }
@@ -580,10 +689,12 @@ void KVStore::save() {
     assert(0);
   }
   new_sstable.save(sst_path);
-  if (ss_layers.size() == 0) {
-    ss_layers.push_back(Layer());
+  if (config::use_cache) {
+    if (ss_layers.size() == 0) {
+      ss_layers.push_back(Layer());
+    }
+    ss_layers[0].push_back(new_sstable);
   }
-  ss_layers[0].push_back(new_sstable);
   // clear the pkvs
   pkvs = std::make_unique<skiplist::skiplist_type>();
 }
@@ -594,26 +705,21 @@ void KVStore::save() {
 void KVStore::clearMem() {
   compaction();
   pkvs = std::make_unique<skiplist::skiplist_type>();
-  ss_layers = std::vector<Layer>();
+  if (config::use_cache)
+    ss_layers = std::vector<Layer>();
   vStore.clear_mem();
 }
 
 void KVStore::rebuildMem() {
+  if (!config::use_cache) {
+    throw("cache is disabled, no need to rebuild mem");
+  }
   // NOTE: if the dir exists, load the sstables into cache
   int level = 0;
   std::string level_dir = std::filesystem::path(save_dir) / "level_0";
   while (utils::dirExists(level_dir)) {
     ++level;
-    std::vector<std::string> ssts;
-    utils::scanDir(level_dir, ssts);
-    // ATTENTION: ssts is filenames! NOT paths!
-    // NOTE FIX: restore the order by timeStamp
-    std::sort(ssts.begin(), ssts.end(),
-              [](const std::string &s1, const std::string &s2) {
-                u64 timeStamp1 = std::stoull(s1.substr(0, s1.find('_')));
-                u64 timeStamp2 = std::stoull(s2.substr(0, s2.find('_')));
-                return timeStamp1 < timeStamp2;
-              });
+    auto ssts = getSortedSSTfileNames(level_dir);
     Layer level_layer;
     for (auto &ss_name : ssts) {
       SSTable::sstable_type sst_cache;

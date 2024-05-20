@@ -3,7 +3,6 @@
 #define __SSTABLE_H
 #include "bloomfilter.h"
 #include "type.h"
-#include <cstddef>
 #include <memory>
 namespace SSTable {
 
@@ -47,48 +46,78 @@ private:
   u64 bf_size;
   int hash_func_num;
   static u64 ss_total_uid;
-  static const u64 default_bf_size = 8 * 1024 * 8; // 8KB = 8*8*1024 bit
   BloomFilter BF;
   Header header;
   std::shared_ptr<kEntrys> pkes;
   u64 binary_search(TKey key, u64 total, bool &exist, bool use_BF = true) const;
 
 public:
+  // static
   static void resetID();
-  [[nodiscard]] static u64 getBFSize() { return default_bf_size; }
-
-  sstable_type(u64 BF_size = default_bf_size, int hash_num = 3);
-  sstable_type(const kEntrys &kes, u64 timeStamp, u64 BF_size = default_bf_size,
-               int hash_num = 3);
-  sstable_type(const sstable_type &other);
-  sstable_type(kEntrys &&kes, u64 timeStamp, u64 BF_size, int hash_num);
-  void setID(u64 id) { this->ss_uid = id; }
-  void addBF(const kEntrys &kes);
-  [[nodiscard]] u64 size() const;
-  static u64 cal_size(int number_of_kv, u64 BF_size = default_bf_size);
-  void save(const std::string &path);
-  void load(const std::string &path);
-  [[nodiscard]] bool mayKeyExist(TKey key) const;
-  void scan(TKey min, TKey max, kEntrys &res) const;
-  [[nodiscard]] kEntry query(TKey key) const;
-  void clear();
-  [[nodiscard]] BloomFilter getBF() const { return BF; }
-  [[nodiscard]] std::shared_ptr<kEntrys> getKEntrys() const {
-    return this->pkes;
-  }
-  ~sstable_type() = default;
-  [[nodiscard]] u64 getUID() const { return ss_uid; }
-  [[nodiscard]] u64 getKEntryNum() const { return pkes->size(); }
-  [[nodiscard]] Header getHeader() const { return header; }
+  [[nodiscard]] static u64 getBFSize() { return config::bf_default_size; }
   [[nodiscard]] static std::string get_filename(const Header &h) {
     return std::to_string(h.getTimeStamp()) + "_" +
            std::to_string(h.getMinKey()) + "~" + std::to_string(h.getMaxKey()) +
            ".sst";
   }
+  [[nodiscard]] static u64 incrTotalID() { return ++ss_total_uid; }
+
+  // constructors
+  sstable_type(u64 BF_size = config::bf_default_size,
+               int hash_num = config::bf_default_k);
+  sstable_type(const kEntrys &kes, u64 timeStamp,
+               u64 BF_size = config::bf_default_size,
+               int hash_num = config::bf_default_k);
+  sstable_type(const sstable_type &other);
+  sstable_type(kEntrys &&kes, u64 timeStamp, u64 BF_size, int hash_num);
+
+  // methods
+  void setID(u64 id) { this->ss_uid = id; }
+  void addBF(const kEntrys &kes);
+  [[nodiscard]] u64 size() const;
+  [[nodiscard]] u64 size(std::string sstable_file) const;
+  static u64 cal_size(int number_of_kv, u64 BF_size = config::bf_default_size);
+  void save(const std::string &path);
+  void load(const std::string &path);
+  [[nodiscard]] bool mayKeyExist(TKey key) const;
+  // [[nodiscard]] bool mayKeyExist(TKey key, std::string ss_file) const;
+  void scan(TKey min, TKey max, kEntrys &res) const;
+  [[nodiscard]] kEntry query(TKey key) const;
+  // [[nodiscard]] kEntry query(TKey key, std::string ss_file) const;
+  void clear();
+  [[nodiscard]] BloomFilter getBF() const {
+    if (!config::use_cache || !config::use_bf) [[unlikely]] {
+      throw std::runtime_error("bf/cache is disabled");
+    }
+    return BF;
+  }
+  [[nodiscard]] std::shared_ptr<kEntrys> getKEntrys() const {
+    if (!config::use_cache) [[unlikely]] {
+      throw std::runtime_error("cache is disabled");
+    }
+    return this->pkes;
+  }
+  ~sstable_type() = default;
+  [[nodiscard]] u64 getUID() const { return ss_uid; }
+  [[nodiscard]] u64 getKEntryNum() const {
+    if (!config::use_cache) [[unlikely]] {
+      throw std::runtime_error("cache is disabled");
+    }
+    return pkes->size();
+  }
+  [[nodiscard]] Header getHeader() const {
+    if (!config::use_cache) [[unlikely]] {
+      throw std::runtime_error("cache is disabled");
+    }
+    return header;
+  }
+
   [[nodiscard]] std::string gen_filename() const {
+    if (!config::use_cache) [[unlikely]] {
+      throw std::runtime_error("cache is disabled");
+    }
     return get_filename(this->header);
   }
-  [[nodiscard]] static u64 incrTotalID() { return ++ss_total_uid; }
 };
 } // namespace SSTable
 #endif
