@@ -33,9 +33,8 @@ string random_str(int n) {
   }
   return new_str;
 }
+std::mt19937 gen(42);
 uint64_t random_key(int min, int max) {
-  static std::random_device rd;
-  static std::mt19937 gen(rd());
   static std::uniform_int_distribution<> dis(min, max);
   return dis(gen);
 }
@@ -50,6 +49,7 @@ void cal_time(std::function<void()> fn, string name, int repeat) {
 }
 void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
   // prebuilt
+  gen = std::mt19937(42); // reset seed to keep the same
   if (utils::dirExists("./data")) {
     std::string cmd = "rm -rf ./data";
     system(cmd.c_str());
@@ -69,11 +69,10 @@ void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
     kvs->put(kvpair.first, kvpair.second);
   }
 
-  std::shuffle(test_kvs.begin(), test_kvs.end(),
-               std::mt19937(std::random_device()()));
+  std::shuffle(test_kvs.begin(), test_kvs.end(), std::mt19937(17));
 
   cout << "value_size: " << value_size
-       << " prebuilt data num:" << prebuilt_data_num << endl;
+       << ", prebuilt data num:" << prebuilt_data_num << endl;
   // test api
   // get 1000 times
   const int get_test_times = 10000;
@@ -114,11 +113,6 @@ void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
       std::list<std::pair<uint64_t, std::string>> list;
       auto start = random_key(0, prebuilt_data_num - 1);
       auto end = random_key(start, prebuilt_data_num - 1);
-      if (start > end) {
-        auto tmp = start;
-        start = end;
-        end = tmp;
-      }
       kvs->scan(start, end, list);
     }
   };
@@ -151,14 +145,16 @@ int main() {
   cout << endl << endl;
   cout << "Without BF" << endl;
   const ConfigParam conf2 = {0, 0, false, true};
-  // HINT: default config
+
+  cout << conf2;
   for (auto [value_size, num] : test_params) {
     test(conf2, value_size, num);
   }
   cout << endl << endl;
+
   cout << "Without Cache and BF" << endl;
   const ConfigParam conf3 = {0, 0, false, false};
-  // HINT: default config
+  cout << conf3;
   for (auto [value_size, num] : test_params) {
     test(conf3, value_size, num);
   }
