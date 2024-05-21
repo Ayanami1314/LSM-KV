@@ -4,9 +4,11 @@
 #include <array>
 #include <cassert>
 #include <chrono>
+#include <chrono> // Include the <chrono> header
 #include <memory>
 #include <random>
 #include <string>
+#include <thread>
 #include <utility>
 using std::cout, std::endl, std::vector, std::array, std::string,
     config::ConfigParam;
@@ -49,10 +51,14 @@ void cal_time(std::function<void()> fn, string name, int repeat) {
 }
 void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
   // prebuilt
-  gen = std::mt19937(42); // reset seed to keep the same
+
+  // ...
+
   if (utils::dirExists("./data")) {
     std::string cmd = "rm -rf ./data";
     system(cmd.c_str());
+    std::this_thread::sleep_for(
+        std::chrono::seconds(1)); // Use std::chrono::seconds for sleep_for
   }
   config::reConfig(conf);
   auto kvs = std::make_shared<KVStore>("./data", "./data/vlog");

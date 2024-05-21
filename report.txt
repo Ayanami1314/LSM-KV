@@ -1,113 +1,113 @@
 use_bf: true, use_cache: true
 bf_size: 65536, bf_func_num: 3
 value_size: 10, prebuilt data num:1000
-Get: 2 us
-	throughput: 365016.790772/s
-Put: 5 us
-	throughput: 174094.707521/s
+Get: 4 us
+	throughput: 204069.138624/s
+Put: 8 us
+	throughput: 124626.121635/s
 Del: 0 us
-	throughput: 2197802.197802/s
-Scan: 60 us
-	throughput: 16537.125848/s
+	throughput: 1618122.977346/s
+Scan: 47 us
+	throughput: 21137.180300/s
 value_size: 100, prebuilt data num:1000
 Get: 5 us
-	throughput: 171036.653155/s
-Put: 10 us
-	throughput: 93773.443361/s
+	throughput: 168916.065607/s
+Put: 7 us
+	throughput: 128982.329421/s
 Del: 0 us
-	throughput: 1941747.572816/s
-Scan: 73 us
-	throughput: 13636.983499/s
+	throughput: 1594896.331738/s
+Scan: 48 us
+	throughput: 20764.119601/s
 value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 99999.000010/s
-Put: 9 us
-	throughput: 104810.816476/s
+Get: 16 us
+	throughput: 60494.603881/s
+Put: 13 us
+	throughput: 73432.222059/s
 Del: 0 us
-	throughput: 2293577.981651/s
-Scan: 47 us
-	throughput: 20951.183742/s
+	throughput: 1550387.596899/s
+Scan: 42 us
+	throughput: 23299.161230/s
 value_size: 10000, prebuilt data num:1000
-Get: 79 us
-	throughput: 12614.571849/s
-Put: 46 us
-	throughput: 21561.482568/s
+Get: 133 us
+	throughput: 7489.475415/s
+Put: 77 us
+	throughput: 12961.930809/s
 Del: 0 us
-	throughput: 2040816.326531/s
-Scan: 51 us
-	throughput: 19406.171162/s
+	throughput: 1234567.901235/s
+Scan: 45 us
+	throughput: 21939.447126/s
 value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 317087.865047/s
-Put: 5 us
-	throughput: 181061.017563/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 697 us
-	throughput: 1434.576154/s
-value_size: 100, prebuilt data num:3000
 Get: 5 us
-	throughput: 194658.568870/s
-Put: 12 us
-	throughput: 82189.529054/s
-Del: 0 us
-	throughput: 2375296.912114/s
-Scan: 1767 us
-	throughput: 565.796472/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 74537.309650/s
+	throughput: 196444.357136/s
 Put: 9 us
-	throughput: 108648.413733/s
+	throughput: 111000.111000/s
 Del: 0 us
-	throughput: 3333333.333333/s
-Scan: 2975 us
-	throughput: 336.117507/s
+	throughput: 1776198.934281/s
+Scan: 704 us
+	throughput: 1419.204678/s
+value_size: 100, prebuilt data num:3000
+Get: 12 us
+	throughput: 78575.581852/s
+Put: 20 us
+	throughput: 49838.026414/s
+Del: 0 us
+	throughput: 1436781.609195/s
+Scan: 1134 us
+	throughput: 881.569900/s
+value_size: 1000, prebuilt data num:3000
+Get: 33 us
+	throughput: 30073.469486/s
+Put: 26 us
+	throughput: 38041.617530/s
+Del: 0 us
+	throughput: 1422475.106686/s
+Scan: 4469 us
+	throughput: 223.730164/s
 value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9860.872944/s
-Put: 49 us
-	throughput: 20121.938950/s
-Del: 0 us
-	throughput: 2074688.796680/s
-Scan: 24728 us
-	throughput: 40.438924/s
+Get: 236 us
+	throughput: 4223.538371/s
+Put: 113 us
+	throughput: 8808.399690/s
+Del: 1 us
+	throughput: 807102.502018/s
+Scan: 32232 us
+	throughput: 31.024616/s
 value_size: 10, prebuilt data num:5000
-Get: 3 us
-	throughput: 295115.832964/s
-Put: 6 us
-	throughput: 159464.200287/s
+Get: 11 us
+	throughput: 90229.905800/s
+Put: 23 us
+	throughput: 42633.015007/s
 Del: 0 us
-	throughput: 3448275.862069/s
-Scan: 948 us
-	throughput: 1054.774436/s
+	throughput: 1377410.468320/s
+Scan: 1892 us
+	throughput: 528.476982/s
 value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 204834.084392/s
-Put: 6 us
-	throughput: 145687.645688/s
-Del: 0 us
-	throughput: 3134796.238245/s
-Scan: 1149 us
-	throughput: 870.026710/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 68607.810313/s
+Get: 7 us
+	throughput: 129065.565307/s
 Put: 11 us
-	throughput: 90760.573607/s
+	throughput: 85741.232959/s
 Del: 0 us
-	throughput: 3021148.036254/s
-Scan: 3542 us
-	throughput: 282.299271/s
+	throughput: 1988071.570577/s
+Scan: 1121 us
+	throughput: 891.305317/s
+value_size: 1000, prebuilt data num:5000
+Get: 24 us
+	throughput: 40465.187799/s
+Put: 17 us
+	throughput: 55648.302727/s
+Del: 0 us
+	throughput: 1862197.392924/s
+Scan: 3271 us
+	throughput: 305.645891/s
 value_size: 10000, prebuilt data num:5000
-Get: 110 us
-	throughput: 9031.473783/s
-Put: 47 us
-	throughput: 20985.478049/s
+Get: 182 us
+	throughput: 5470.812667/s
+Put: 78 us
+	throughput: 12698.896466/s
 Del: 0 us
-	throughput: 2341920.374707/s
-Scan: 28953 us
-	throughput: 34.538198/s
+	throughput: 1367989.056088/s
+Scan: 26659 us
+	throughput: 37.509574/s
 
 
 Without BF
@@ -115,1860 +115,1860 @@ use_bf: false, use_cache: true
 bf_size: 0, bf_func_num: 0
 value_size: 10, prebuilt data num:1000
 Get: 4 us
-	throughput: 235776.766557/s
-Put: 9 us
-	throughput: 109865.963525/s
+	throughput: 223893.963819/s
+Put: 8 us
+	throughput: 122294.239941/s
 Del: 0 us
-	throughput: 2155172.413793/s
-Scan: 85 us
-	throughput: 11649.580615/s
+	throughput: 1663893.510815/s
+Scan: 65 us
+	throughput: 15325.670498/s
 value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 173906.994539/s
-Put: 10 us
-	throughput: 98570.724495/s
-Del: 0 us
-	throughput: 2375296.912114/s
-Scan: 97 us
-	throughput: 10284.891494/s
-value_size: 1000, prebuilt data num:1000
-Get: 15 us
-	throughput: 65128.335385/s
-Put: 13 us
-	throughput: 71973.513747/s
-Del: 0 us
-	throughput: 2141327.623126/s
-Scan: 88 us
-	throughput: 11346.873936/s
-value_size: 10000, prebuilt data num:1000
-Get: 106 us
-	throughput: 9346.379633/s
-Put: 53 us
-	throughput: 18520.919378/s
-Del: 0 us
-	throughput: 1697792.869270/s
-Scan: 90 us
-	throughput: 11098.779134/s
-value_size: 10, prebuilt data num:3000
-Get: 6 us
-	throughput: 158866.329870/s
-Put: 11 us
-	throughput: 86348.329160/s
-Del: 0 us
-	throughput: 2475247.524752/s
-Scan: 1438 us
-	throughput: 695.274912/s
-value_size: 100, prebuilt data num:3000
 Get: 8 us
-	throughput: 123906.524918/s
-Put: 12 us
-	throughput: 80385.852090/s
-Del: 0 us
-	throughput: 2347417.840376/s
-Scan: 1785 us
-	throughput: 559.938631/s
-value_size: 1000, prebuilt data num:3000
-Get: 20 us
-	throughput: 48584.018773/s
+	throughput: 111914.407861/s
 Put: 16 us
-	throughput: 61481.709192/s
+	throughput: 61659.884079/s
 Del: 0 us
-	throughput: 2293577.981651/s
-Scan: 4642 us
-	throughput: 215.395617/s
-value_size: 10000, prebuilt data num:3000
-Get: 143 us
-	throughput: 6987.138774/s
-Put: 73 us
-	throughput: 13577.732519/s
+	throughput: 1459854.014599/s
+Scan: 73 us
+	throughput: 13698.630137/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 57551.306990/s
+Put: 15 us
+	throughput: 63828.429182/s
 Del: 0 us
-	throughput: 1610305.958132/s
-Scan: 33252 us
-	throughput: 30.072547/s
-value_size: 10, prebuilt data num:5000
-Get: 6 us
-	throughput: 159164.703635/s
-Put: 13 us
-	throughput: 73653.973632/s
+	throughput: 1451378.809869/s
+Scan: 62 us
+	throughput: 16033.349367/s
+value_size: 10000, prebuilt data num:1000
+Get: 132 us
+	throughput: 7531.368148/s
+Put: 68 us
+	throughput: 14610.271021/s
 Del: 0 us
-	throughput: 2433090.024331/s
-Scan: 1751 us
-	throughput: 570.828386/s
-value_size: 100, prebuilt data num:5000
+	throughput: 1461988.304094/s
+Scan: 60 us
+	throughput: 16570.008285/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 170948.937552/s
+Put: 9 us
+	throughput: 109194.147194/s
+Del: 0 us
+	throughput: 1984126.984127/s
+Scan: 585 us
+	throughput: 1708.379602/s
+value_size: 100, prebuilt data num:3000
 Get: 7 us
-	throughput: 137508.078600/s
-Put: 7 us
-	throughput: 136128.505309/s
+	throughput: 132053.296711/s
+Put: 9 us
+	throughput: 100150.225338/s
 Del: 0 us
-	throughput: 3448275.862069/s
-Scan: 1191 us
-	throughput: 839.475496/s
+	throughput: 1988071.570577/s
+Scan: 841 us
+	throughput: 1188.523616/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 43527.844762/s
+Put: 15 us
+	throughput: 66555.740433/s
+Del: 0 us
+	throughput: 1862197.392924/s
+Scan: 2646 us
+	throughput: 377.821857/s
+value_size: 10000, prebuilt data num:3000
+Get: 176 us
+	throughput: 5678.488523/s
+Put: 81 us
+	throughput: 12265.273332/s
+Del: 0 us
+	throughput: 1117318.435754/s
+Scan: 23400 us
+	throughput: 42.734842/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 190745.050166/s
+Put: 12 us
+	throughput: 82747.207282/s
+Del: 0 us
+	throughput: 2061855.670103/s
+Scan: 740 us
+	throughput: 1350.001350/s
+value_size: 100, prebuilt data num:5000
+Get: 13 us
+	throughput: 71475.541070/s
+Put: 24 us
+	throughput: 41330.853482/s
+Del: 0 us
+	throughput: 1451378.809869/s
+Scan: 1725 us
+	throughput: 579.401131/s
 value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 67938.013357/s
-Put: 10 us
-	throughput: 97475.387465/s
+Get: 36 us
+	throughput: 27472.301052/s
+Put: 33 us
+	throughput: 30215.131738/s
 Del: 0 us
-	throughput: 3105590.062112/s
-Scan: 3586 us
-	throughput: 278.843580/s
+	throughput: 1226993.865031/s
+Scan: 5415 us
+	throughput: 184.668455/s
 value_size: 10000, prebuilt data num:5000
-Get: 108 us
-	throughput: 9247.733843/s
-Put: 46 us
-	throughput: 21354.745024/s
+Get: 250 us
+	throughput: 3988.105873/s
+Put: 102 us
+	throughput: 9802.383940/s
 Del: 0 us
-	throughput: 2257336.343115/s
-Scan: 29221 us
-	throughput: 34.221074/s
+	throughput: 1028806.584362/s
+Scan: 40563 us
+	throughput: 24.652839/s
 
 
 Without Cache and BF
 use_bf: false, use_cache: false
 bf_size: 0, bf_func_num: 0
 value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 511325.867976/s
-Put: 4 us
-	throughput: 248880.039821/s
+Get: 6 us
+	throughput: 155082.038398/s
+Put: 16 us
+	throughput: 62297.533018/s
 Del: 0 us
-	throughput: 3030303.030303/s
-Scan: 66 us
-	throughput: 15092.061576/s
+	throughput: 1297016.861219/s
+Scan: 87 us
+	throughput: 11405.109489/s
 value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 338077.690253/s
-Put: 4 us
-	throughput: 214500.214500/s
-Del: 0 us
-	throughput: 3436426.116838/s
-Scan: 70 us
-	throughput: 14176.353842/s
-value_size: 1000, prebuilt data num:1000
 Get: 9 us
-	throughput: 100072.051877/s
-Put: 7 us
-	throughput: 131769.666623/s
+	throughput: 106144.717708/s
+Put: 16 us
+	throughput: 60371.890848/s
 Del: 0 us
-	throughput: 3267973.856209/s
-Scan: 68 us
-	throughput: 14639.145074/s
+	throughput: 1461988.304094/s
+Scan: 86 us
+	throughput: 11546.010853/s
+value_size: 1000, prebuilt data num:1000
+Get: 25 us
+	throughput: 39495.874656/s
+Put: 23 us
+	throughput: 42353.140485/s
+Del: 0 us
+	throughput: 1132502.831257/s
+Scan: 98 us
+	throughput: 10189.525168/s
 value_size: 10000, prebuilt data num:1000
-Get: 83 us
-	throughput: 12003.043972/s
-Put: 41 us
-	throughput: 24356.975838/s
+Get: 180 us
+	throughput: 5538.036899/s
+Put: 87 us
+	throughput: 11466.837905/s
 Del: 0 us
-	throughput: 2450980.392157/s
-Scan: 67 us
-	throughput: 14790.711433/s
+	throughput: 1026694.045175/s
+Scan: 100 us
+	throughput: 9923.588370/s
 value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 306946.192332/s
-Put: 5 us
-	throughput: 178348.492955/s
+Get: 10 us
+	throughput: 96175.115651/s
+Put: 19 us
+	throughput: 51316.262123/s
 Del: 0 us
-	throughput: 3436426.116838/s
-Scan: 736 us
-	throughput: 1357.257255/s
+	throughput: 1416430.594901/s
+Scan: 1385 us
+	throughput: 721.505927/s
 value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 233459.401410/s
-Put: 6 us
-	throughput: 163452.108532/s
+Get: 12 us
+	throughput: 78254.609196/s
+Put: 20 us
+	throughput: 49246.528120/s
 Del: 0 us
-	throughput: 2857142.857143/s
-Scan: 973 us
-	throughput: 1026.788923/s
+	throughput: 1485884.101040/s
+Scan: 1038 us
+	throughput: 962.834585/s
 value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 74712.729555/s
-Put: 9 us
-	throughput: 102051.229717/s
+Get: 22 us
+	throughput: 44448.197848/s
+Put: 33 us
+	throughput: 29415.225321/s
 Del: 0 us
-	throughput: 3355704.697987/s
-Scan: 2964 us
-	throughput: 337.340944/s
+	throughput: 1855287.569573/s
+Scan: 2970 us
+	throughput: 336.635730/s
 value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9830.492812/s
-Put: 45 us
-	throughput: 21904.845352/s
+Get: 176 us
+	throughput: 5672.893045/s
+Put: 76 us
+	throughput: 13024.733970/s
 Del: 0 us
-	throughput: 2169197.396963/s
-Scan: 24294 us
-	throughput: 41.161122/s
+	throughput: 1371742.112483/s
+Scan: 23648 us
+	throughput: 42.286749/s
 value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 334224.598930/s
-Put: 6 us
-	throughput: 158177.791838/s
+Get: 5 us
+	throughput: 195320.129693/s
+Put: 11 us
+	throughput: 90448.625181/s
 Del: 0 us
-	throughput: 3289473.684211/s
-Scan: 900 us
-	throughput: 1110.703853/s
+	throughput: 1992031.872510/s
+Scan: 931 us
+	throughput: 1073.088025/s
 value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 208689.845152/s
-Put: 6 us
-	throughput: 147427.392009/s
+Get: 7 us
+	throughput: 130475.059692/s
+Put: 11 us
+	throughput: 85012.326787/s
 Del: 0 us
-	throughput: 3533568.904594/s
-Scan: 1112 us
-	throughput: 898.722915/s
+	throughput: 2053388.090349/s
+Scan: 1027 us
+	throughput: 973.065546/s
 value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 67852.272033/s
-Put: 10 us
-	throughput: 91357.573543/s
+Get: 25 us
+	throughput: 39236.920373/s
+Put: 17 us
+	throughput: 58506.903815/s
 Del: 0 us
-	throughput: 2747252.747253/s
-Scan: 3621 us
-	throughput: 276.114190/s
+	throughput: 1893939.393939/s
+Scan: 3366 us
+	throughput: 297.049702/s
 value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9388.208035/s
-Put: 46 us
-	throughput: 21593.608292/s
+Get: 185 us
+	throughput: 5376.352758/s
+Put: 79 us
+	throughput: 12549.255829/s
 Del: 0 us
-	throughput: 2293577.981651/s
-Scan: 28876 us
-	throughput: 34.630212/s
+	throughput: 1162790.697674/s
+Scan: 26517 us
+	throughput: 37.711116/s
 
 
 Test with different BloomFilter size
 BloomFilter size: 1024 Bytes
 value_size: 10, prebuilt data num:1000
-Get: 2 us
-	throughput: 480954.213159/s
-Put: 4 us
-	throughput: 231267.345051/s
-Del: 0 us
-	throughput: 3039513.677812/s
-Scan: 68 us
-	throughput: 14686.444412/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 342454.025547/s
-Put: 4 us
-	throughput: 224466.891134/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 72 us
-	throughput: 13713.658804/s
-value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 99722.770697/s
-Put: 7 us
-	throughput: 128633.907898/s
-Del: 0 us
-	throughput: 3311258.278146/s
-Scan: 70 us
-	throughput: 14106.361969/s
-value_size: 10000, prebuilt data num:1000
-Get: 77 us
-	throughput: 12824.425915/s
-Put: 39 us
-	throughput: 25077.112120/s
-Del: 0 us
-	throughput: 2538071.065990/s
-Scan: 68 us
-	throughput: 14675.667743/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 312100.121719/s
-Put: 5 us
-	throughput: 191864.927091/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 735 us
-	throughput: 1359.674766/s
-value_size: 100, prebuilt data num:3000
 Get: 4 us
-	throughput: 230239.679506/s
-Put: 6 us
-	throughput: 154464.009886/s
-Del: 0 us
-	throughput: 3333333.333333/s
-Scan: 1010 us
-	throughput: 989.256673/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 72055.973080/s
-Put: 9 us
-	throughput: 108131.487889/s
-Del: 0 us
-	throughput: 2747252.747253/s
-Scan: 3033 us
-	throughput: 329.607668/s
-value_size: 10000, prebuilt data num:3000
-Get: 103 us
-	throughput: 9639.808553/s
-Put: 45 us
-	throughput: 22071.157411/s
-Del: 0 us
-	throughput: 2257336.343115/s
-Scan: 23847 us
-	throughput: 41.932396/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 341285.280366/s
-Put: 6 us
-	throughput: 156152.404747/s
-Del: 0 us
-	throughput: 3401360.544218/s
-Scan: 909 us
-	throughput: 1099.299746/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 208159.866778/s
-Put: 7 us
-	throughput: 138831.042621/s
-Del: 0 us
-	throughput: 3521126.760563/s
-Scan: 1073 us
-	throughput: 931.836183/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 66923.653496/s
-Put: 10 us
-	throughput: 94312.930303/s
-Del: 0 us
-	throughput: 3355704.697987/s
-Scan: 3619 us
-	throughput: 276.298812/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9391.505571/s
-Put: 47 us
-	throughput: 21249.468763/s
-Del: 0 us
-	throughput: 2272727.272727/s
-Scan: 29989 us
-	throughput: 33.344537/s
-BloomFilter size: 2048 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 4 us
-	throughput: 222642.769676/s
-Put: 9 us
-	throughput: 106689.427078/s
-Del: 0 us
-	throughput: 2188183.807440/s
-Scan: 99 us
-	throughput: 10054.293183/s
-value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 176469.550179/s
-Put: 9 us
-	throughput: 102030.405061/s
-Del: 0 us
-	throughput: 2386634.844869/s
-Scan: 96 us
-	throughput: 10411.244144/s
-value_size: 1000, prebuilt data num:1000
-Get: 15 us
-	throughput: 63928.400192/s
-Put: 14 us
-	throughput: 67549.310997/s
-Del: 0 us
-	throughput: 2092050.209205/s
-Scan: 97 us
-	throughput: 10234.367004/s
-value_size: 10000, prebuilt data num:1000
-Get: 78 us
-	throughput: 12751.718932/s
-Put: 39 us
-	throughput: 25102.921980/s
-Del: 0 us
-	throughput: 2506265.664160/s
-Scan: 69 us
-	throughput: 14442.518775/s
-value_size: 10, prebuilt data num:3000
-Get: 2 us
-	throughput: 341040.856695/s
-Put: 5 us
-	throughput: 187652.467630/s
-Del: 0 us
-	throughput: 3424657.534247/s
-Scan: 736 us
-	throughput: 1357.220413/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 217386.578553/s
-Put: 5 us
-	throughput: 168804.861580/s
-Del: 0 us
-	throughput: 3058103.975535/s
-Scan: 928 us
-	throughput: 1077.121930/s
-value_size: 1000, prebuilt data num:3000
-Get: 15 us
-	throughput: 62925.533923/s
-Put: 11 us
-	throughput: 88723.272114/s
-Del: 0 us
-	throughput: 2739726.027397/s
-Scan: 3028 us
-	throughput: 330.182294/s
-value_size: 10000, prebuilt data num:3000
-Get: 103 us
-	throughput: 9647.732349/s
-Put: 45 us
-	throughput: 21758.523902/s
-Del: 0 us
-	throughput: 2188183.807440/s
-Scan: 23854 us
-	throughput: 41.921392/s
-value_size: 10, prebuilt data num:5000
-Get: 3 us
-	throughput: 331917.153478/s
-Put: 6 us
-	throughput: 155400.155400/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 943 us
-	throughput: 1059.658790/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 209749.140029/s
-Put: 7 us
-	throughput: 135795.763172/s
-Del: 0 us
-	throughput: 2793296.089385/s
-Scan: 1144 us
-	throughput: 873.950167/s
-value_size: 1000, prebuilt data num:5000
-Get: 16 us
-	throughput: 60665.255188/s
-Put: 11 us
-	throughput: 88347.027123/s
-Del: 0 us
-	throughput: 2785515.320334/s
-Scan: 3719 us
-	throughput: 268.846112/s
-value_size: 10000, prebuilt data num:5000
-Get: 154 us
-	throughput: 6464.307970/s
-Put: 63 us
-	throughput: 15775.856629/s
-Del: 0 us
-	throughput: 1610305.958132/s
-Scan: 41390 us
-	throughput: 24.159929/s
-BloomFilter size: 3072 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 4 us
-	throughput: 220225.510923/s
-Put: 9 us
-	throughput: 107526.881720/s
-Del: 0 us
-	throughput: 1960784.313725/s
-Scan: 105 us
-	throughput: 9498.480243/s
-value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 169164.664885/s
-Put: 10 us
-	throughput: 98338.086341/s
-Del: 0 us
-	throughput: 2421307.506053/s
-Scan: 101 us
-	throughput: 9894.132779/s
-value_size: 1000, prebuilt data num:1000
-Get: 15 us
-	throughput: 63151.646048/s
-Put: 14 us
-	throughput: 66903.057470/s
-Del: 0 us
-	throughput: 2114164.904863/s
-Scan: 96 us
-	throughput: 10323.113451/s
-value_size: 10000, prebuilt data num:1000
-Get: 107 us
-	throughput: 9305.978719/s
-Put: 55 us
-	throughput: 18047.283884/s
-Del: 0 us
-	throughput: 1628664.495114/s
-Scan: 98 us
-	throughput: 10156.408694/s
-value_size: 10, prebuilt data num:3000
-Get: 6 us
-	throughput: 155935.692121/s
-Put: 11 us
-	throughput: 85726.532362/s
-Del: 0 us
-	throughput: 2433090.024331/s
-Scan: 1489 us
-	throughput: 671.303134/s
-value_size: 100, prebuilt data num:3000
-Get: 6 us
-	throughput: 156776.671631/s
-Put: 6 us
-	throughput: 165480.721496/s
-Del: 0 us
-	throughput: 2941176.470588/s
-Scan: 999 us
-	throughput: 1000.520271/s
-value_size: 1000, prebuilt data num:3000
-Get: 20 us
-	throughput: 48660.142964/s
-Put: 15 us
-	throughput: 63167.203588/s
-Del: 0 us
-	throughput: 2164502.164502/s
-Scan: 4674 us
-	throughput: 213.937150/s
-value_size: 10000, prebuilt data num:3000
-Get: 143 us
-	throughput: 6981.353503/s
-Put: 61 us
-	throughput: 16376.529158/s
-Del: 0 us
-	throughput: 1400560.224090/s
-Scan: 33410 us
-	throughput: 29.930755/s
-value_size: 10, prebuilt data num:5000
-Get: 6 us
-	throughput: 157539.857584/s
-Put: 13 us
-	throughput: 75740.362039/s
-Del: 0 us
-	throughput: 2380952.380952/s
-Scan: 1722 us
-	throughput: 580.669512/s
-value_size: 100, prebuilt data num:5000
-Get: 8 us
-	throughput: 118201.912507/s
-Put: 13 us
-	throughput: 76499.388005/s
-Del: 0 us
-	throughput: 2444987.775061/s
-Scan: 2086 us
-	throughput: 479.328939/s
-value_size: 1000, prebuilt data num:5000
-Get: 19 us
-	throughput: 52543.637491/s
-Put: 10 us
-	throughput: 98843.530691/s
-Del: 0 us
-	throughput: 3311258.278146/s
-Scan: 3574 us
-	throughput: 279.782888/s
-value_size: 10000, prebuilt data num:5000
-Get: 150 us
-	throughput: 6666.080052/s
-Put: 65 us
-	throughput: 15299.409443/s
-Del: 0 us
-	throughput: 1618122.977346/s
-Scan: 40671 us
-	throughput: 24.586964/s
-BloomFilter size: 4096 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 4 us
-	throughput: 226958.080842/s
-Put: 9 us
-	throughput: 103487.529753/s
-Del: 0 us
-	throughput: 2132196.162047/s
-Scan: 96 us
-	throughput: 10359.473739/s
-value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 176335.743255/s
-Put: 10 us
-	throughput: 98687.456824/s
-Del: 0 us
-	throughput: 2403846.153846/s
-Scan: 93 us
-	throughput: 10702.054795/s
-value_size: 1000, prebuilt data num:1000
-Get: 15 us
-	throughput: 65749.245527/s
-Put: 14 us
-	throughput: 69372.181755/s
-Del: 0 us
-	throughput: 2314814.814815/s
-Scan: 110 us
-	throughput: 9050.592814/s
-value_size: 10000, prebuilt data num:1000
-Get: 106 us
-	throughput: 9398.098765/s
-Put: 52 us
-	throughput: 18888.595066/s
-Del: 0 us
-	throughput: 1600000.000000/s
-Scan: 95 us
-	throughput: 10495.382032/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 325044.693645/s
-Put: 7 us
-	throughput: 132467.876540/s
-Del: 0 us
-	throughput: 3058103.975535/s
-Scan: 730 us
-	throughput: 1369.356539/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 225392.746861/s
-Put: 5 us
-	throughput: 169090.294217/s
-Del: 0 us
-	throughput: 1466275.659824/s
-Scan: 960 us
-	throughput: 1040.615212/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 74371.007207/s
-Put: 9 us
-	throughput: 109685.203466/s
-Del: 0 us
-	throughput: 3154574.132492/s
-Scan: 2966 us
-	throughput: 337.086227/s
-value_size: 10000, prebuilt data num:3000
-Get: 100 us
-	throughput: 9914.143517/s
-Put: 46 us
-	throughput: 21370.717842/s
-Del: 0 us
-	throughput: 1972386.587771/s
-Scan: 23867 us
-	throughput: 41.898856/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 333778.371162/s
-Put: 6 us
-	throughput: 158077.774265/s
-Del: 0 us
-	throughput: 3436426.116838/s
-Scan: 930 us
-	throughput: 1074.413907/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 216689.419056/s
-Put: 6 us
-	throughput: 148016.577857/s
-Del: 0 us
-	throughput: 1805054.151625/s
-Scan: 1136 us
-	throughput: 879.546154/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 68483.769347/s
-Put: 10 us
-	throughput: 94029.149036/s
-Del: 0 us
-	throughput: 3289473.684211/s
-Scan: 3572 us
-	throughput: 279.897222/s
-value_size: 10000, prebuilt data num:5000
-Get: 105 us
-	throughput: 9444.725687/s
-Put: 48 us
-	throughput: 20758.947106/s
-Del: 0 us
-	throughput: 2304147.465438/s
-Scan: 28890 us
-	throughput: 34.613610/s
-BloomFilter size: 5120 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 510855.683269/s
-Put: 4 us
-	throughput: 218102.508179/s
-Del: 0 us
-	throughput: 3086419.753086/s
-Scan: 74 us
-	throughput: 13442.667025/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 353669.319187/s
-Put: 4 us
-	throughput: 223964.165733/s
-Del: 0 us
-	throughput: 3412969.283276/s
-Scan: 69 us
-	throughput: 14332.807797/s
-value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 97928.805758/s
-Put: 7 us
-	throughput: 126903.553299/s
-Del: 0 us
-	throughput: 3289473.684211/s
-Scan: 72 us
-	throughput: 13795.006208/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13016.562274/s
-Put: 40 us
-	throughput: 24486.997404/s
-Del: 0 us
-	throughput: 2493765.586035/s
-Scan: 69 us
-	throughput: 14334.862385/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 321916.044296/s
-Put: 5 us
-	throughput: 190766.882869/s
-Del: 0 us
-	throughput: 3496503.496503/s
-Scan: 723 us
-	throughput: 1381.539864/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 238680.573788/s
-Put: 5 us
-	throughput: 169405.387091/s
-Del: 0 us
-	throughput: 3460207.612457/s
-Scan: 956 us
-	throughput: 1045.707892/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 75501.898873/s
-Put: 9 us
-	throughput: 107250.107250/s
-Del: 0 us
-	throughput: 3257328.990228/s
-Scan: 3008 us
-	throughput: 332.357311/s
-value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9858.666162/s
-Put: 45 us
-	throughput: 21971.261590/s
-Del: 0 us
-	throughput: 2109704.641350/s
-Scan: 23721 us
-	throughput: 42.156348/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 339224.532718/s
-Put: 6 us
-	throughput: 159134.309357/s
-Del: 0 us
-	throughput: 3584229.390681/s
-Scan: 931 us
-	throughput: 1073.594933/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 219799.542817/s
-Put: 7 us
-	throughput: 136649.357748/s
-Del: 0 us
-	throughput: 3424657.534247/s
-Scan: 1130 us
-	throughput: 884.243662/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 71289.048576/s
-Put: 10 us
-	throughput: 98853.301700/s
-Del: 0 us
-	throughput: 3355704.697987/s
-Scan: 3669 us
-	throughput: 272.523376/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9396.518026/s
-Put: 46 us
-	throughput: 21488.739900/s
-Del: 0 us
-	throughput: 2267573.696145/s
-Scan: 28906 us
-	throughput: 34.594738/s
-BloomFilter size: 6144 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 506611.277167/s
-Put: 4 us
-	throughput: 244558.571778/s
-Del: 0 us
-	throughput: 3021148.036254/s
-Scan: 74 us
-	throughput: 13442.667025/s
-value_size: 100, prebuilt data num:1000
-Get: 3 us
-	throughput: 330589.440973/s
-Put: 4 us
-	throughput: 209819.555183/s
-Del: 0 us
-	throughput: 3460207.612457/s
-Scan: 77 us
-	throughput: 12893.243940/s
-value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 100958.092296/s
-Put: 7 us
-	throughput: 127551.020408/s
-Del: 0 us
-	throughput: 3134796.238245/s
-Scan: 73 us
-	throughput: 13663.068725/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13001.567989/s
-Put: 39 us
-	throughput: 25073.339518/s
-Del: 0 us
-	throughput: 1776198.934281/s
-Scan: 68 us
-	throughput: 14577.259475/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 322164.948454/s
-Put: 5 us
-	throughput: 173943.294486/s
-Del: 0 us
-	throughput: 3484320.557491/s
-Scan: 744 us
-	throughput: 1343.363783/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 228874.851231/s
-Put: 5 us
-	throughput: 170765.027322/s
-Del: 0 us
-	throughput: 3278688.524590/s
-Scan: 957 us
-	throughput: 1044.462781/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 76271.832812/s
-Put: 11 us
-	throughput: 83423.709018/s
-Del: 0 us
-	throughput: 2512562.814070/s
-Scan: 3073 us
-	throughput: 325.329152/s
-value_size: 10000, prebuilt data num:3000
-Get: 102 us
-	throughput: 9785.291142/s
-Put: 46 us
-	throughput: 21537.334970/s
-Del: 0 us
-	throughput: 2232142.857143/s
-Scan: 23753 us
-	throughput: 42.099024/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 339835.519609/s
-Put: 6 us
-	throughput: 158428.390368/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 941 us
-	throughput: 1062.101048/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 219485.963873/s
-Put: 7 us
-	throughput: 138600.138600/s
-Del: 0 us
-	throughput: 3521126.760563/s
-Scan: 1098 us
-	throughput: 910.315697/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 68710.105195/s
-Put: 9 us
-	throughput: 101132.686084/s
-Del: 0 us
-	throughput: 3278688.524590/s
-Scan: 3543 us
-	throughput: 282.195708/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9346.615497/s
-Put: 46 us
-	throughput: 21451.401849/s
-Del: 0 us
-	throughput: 2386634.844869/s
-Scan: 29158 us
-	throughput: 34.294741/s
-BloomFilter size: 7168 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 510230.113781/s
-Put: 4 us
-	throughput: 242600.679282/s
-Del: 0 us
-	throughput: 3012048.192771/s
-Scan: 73 us
-	throughput: 13539.128080/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 355859.222092/s
-Put: 4 us
-	throughput: 224820.143885/s
-Del: 0 us
-	throughput: 3300330.033003/s
-Scan: 75 us
-	throughput: 13229.263130/s
-value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 100465.153661/s
-Put: 7 us
-	throughput: 126518.218623/s
-Del: 0 us
-	throughput: 3215434.083601/s
-Scan: 71 us
-	throughput: 14037.057833/s
-value_size: 10000, prebuilt data num:1000
-Get: 75 us
-	throughput: 13172.523170/s
-Put: 40 us
-	throughput: 24950.722323/s
-Del: 0 us
-	throughput: 2283105.022831/s
-Scan: 71 us
-	throughput: 13976.240391/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 332270.069112/s
-Put: 5 us
-	throughput: 190985.485103/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 726 us
-	throughput: 1375.610427/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 235449.237144/s
-Put: 5 us
-	throughput: 172473.266644/s
-Del: 0 us
-	throughput: 3389830.508475/s
-Scan: 944 us
-	throughput: 1058.525897/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 76302.095256/s
-Put: 9 us
-	throughput: 101142.914939/s
-Del: 0 us
-	throughput: 3278688.524590/s
-Scan: 2998 us
-	throughput: 333.473392/s
-value_size: 10000, prebuilt data num:3000
-Get: 103 us
-	throughput: 9630.497088/s
-Put: 46 us
-	throughput: 21325.599249/s
-Del: 0 us
-	throughput: 2288329.519451/s
-Scan: 29824 us
-	throughput: 33.529751/s
-value_size: 10, prebuilt data num:5000
-Get: 6 us
-	throughput: 154273.372416/s
-Put: 14 us
-	throughput: 69851.913942/s
-Del: 0 us
-	throughput: 2304147.465438/s
-Scan: 1782 us
-	throughput: 561.101105/s
-value_size: 100, prebuilt data num:5000
-Get: 8 us
-	throughput: 117200.318785/s
-Put: 14 us
-	throughput: 69391.437097/s
-Del: 0 us
-	throughput: 2403846.153846/s
-Scan: 2104 us
-	throughput: 475.127096/s
-value_size: 1000, prebuilt data num:5000
-Get: 13 us
-	throughput: 71981.284866/s
-Put: 10 us
-	throughput: 95574.882921/s
-Del: 0 us
-	throughput: 3225806.451613/s
-Scan: 3625 us
-	throughput: 275.852937/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9371.421288/s
-Put: 46 us
-	throughput: 21662.839565/s
-Del: 0 us
-	throughput: 2336448.598131/s
-Scan: 28968 us
-	throughput: 34.519802/s
-BloomFilter size: 8192 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 2 us
-	throughput: 489164.995353/s
-Put: 4 us
-	throughput: 209555.741827/s
-Del: 0 us
-	throughput: 2564102.564103/s
-Scan: 73 us
-	throughput: 13659.336156/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 337564.137186/s
-Put: 4 us
-	throughput: 207168.013259/s
-Del: 0 us
-	throughput: 3389830.508475/s
-Scan: 77 us
-	throughput: 12955.045990/s
-value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 98362.268234/s
-Put: 8 us
-	throughput: 121728.545344/s
-Del: 0 us
-	throughput: 3215434.083601/s
-Scan: 74 us
-	throughput: 13344.008540/s
-value_size: 10000, prebuilt data num:1000
-Get: 106 us
-	throughput: 9387.555856/s
-Put: 54 us
-	throughput: 18449.503708/s
-Del: 0 us
-	throughput: 1612903.225806/s
-Scan: 98 us
-	throughput: 10123.506783/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 312158.576557/s
-Put: 6 us
-	throughput: 159464.200287/s
-Del: 0 us
-	throughput: 2770083.102493/s
-Scan: 723 us
-	throughput: 1382.055393/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 238083.900767/s
-Put: 5 us
-	throughput: 177651.447859/s
-Del: 0 us
-	throughput: 3496503.496503/s
-Scan: 959 us
-	throughput: 1042.263797/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 73010.820204/s
-Put: 8 us
-	throughput: 113494.495517/s
-Del: 0 us
-	throughput: 3460207.612457/s
-Scan: 2928 us
-	throughput: 341.476407/s
-value_size: 10000, prebuilt data num:3000
-Get: 140 us
-	throughput: 7116.242396/s
-Put: 61 us
-	throughput: 16384.041943/s
-Del: 0 us
-	throughput: 1587301.587302/s
-Scan: 33366 us
-	throughput: 29.970521/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 340785.169029/s
-Put: 6 us
-	throughput: 149387.511204/s
-Del: 0 us
-	throughput: 3448275.862069/s
-Scan: 907 us
-	throughput: 1102.183425/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 218083.482357/s
-Put: 6 us
-	throughput: 149655.791679/s
-Del: 0 us
-	throughput: 3558718.861210/s
-Scan: 1135 us
-	throughput: 880.886524/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 69156.293223/s
-Put: 10 us
-	throughput: 96964.995637/s
-Del: 0 us
-	throughput: 3355704.697987/s
-Scan: 3594 us
-	throughput: 278.224483/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9399.644693/s
-Put: 47 us
-	throughput: 20869.420039/s
-Del: 0 us
-	throughput: 2304147.465438/s
-Scan: 28821 us
-	throughput: 34.696465/s
-BloomFilter size: 9216 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 511823.113932/s
-Put: 4 us
-	throughput: 236910.684672/s
-Del: 0 us
-	throughput: 3039513.677812/s
-Scan: 72 us
-	throughput: 13869.625520/s
-value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 188914.497299/s
-Put: 10 us
-	throughput: 96116.878124/s
-Del: 0 us
-	throughput: 2277904.328018/s
-Scan: 97 us
-	throughput: 10294.420424/s
-value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 99930.048966/s
-Put: 7 us
-	throughput: 126310.471138/s
-Del: 0 us
-	throughput: 3115264.797508/s
-Scan: 72 us
-	throughput: 13768.415255/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13122.774049/s
-Put: 39 us
-	throughput: 25153.435959/s
-Del: 0 us
-	throughput: 2450980.392157/s
-Scan: 71 us
-	throughput: 14009.526478/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 309875.739828/s
-Put: 5 us
-	throughput: 189429.816253/s
-Del: 0 us
-	throughput: 3412969.283276/s
-Scan: 754 us
-	throughput: 1326.048905/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 228195.883346/s
-Put: 6 us
-	throughput: 163398.692810/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 980 us
-	throughput: 1019.419950/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 74205.445196/s
-Put: 8 us
-	throughput: 113623.451880/s
-Del: 0 us
-	throughput: 3289473.684211/s
-Scan: 3053 us
-	throughput: 327.501621/s
-value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9893.427994/s
-Put: 45 us
-	throughput: 21953.896817/s
-Del: 0 us
-	throughput: 2222222.222222/s
-Scan: 23843 us
-	throughput: 41.939817/s
-value_size: 10, prebuilt data num:5000
-Get: 6 us
-	throughput: 158245.375279/s
-Put: 13 us
-	throughput: 74911.978425/s
-Del: 0 us
-	throughput: 2469135.802469/s
-Scan: 1794 us
-	throughput: 557.230342/s
-value_size: 100, prebuilt data num:5000
-Get: 8 us
-	throughput: 118367.008747/s
-Put: 13 us
-	throughput: 71978.694306/s
-Del: 0 us
-	throughput: 2415458.937198/s
-Scan: 2068 us
-	throughput: 483.411727/s
-value_size: 1000, prebuilt data num:5000
-Get: 21 us
-	throughput: 46643.313914/s
-Put: 18 us
-	throughput: 55105.527084/s
-Del: 0 us
-	throughput: 2304147.465438/s
-Scan: 5401 us
-	throughput: 185.143699/s
-value_size: 10000, prebuilt data num:5000
-Get: 147 us
-	throughput: 6776.454261/s
-Put: 62 us
-	throughput: 16061.160901/s
-Del: 0 us
-	throughput: 1628664.495114/s
-Scan: 40630 us
-	throughput: 24.611913/s
-BloomFilter size: 10240 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 4 us
-	throughput: 226695.683714/s
-Put: 9 us
-	throughput: 108014.689998/s
-Del: 0 us
-	throughput: 2040816.326531/s
-Scan: 96 us
-	throughput: 10334.849111/s
-value_size: 100, prebuilt data num:1000
-Get: 5 us
-	throughput: 177481.186994/s
-Put: 10 us
-	throughput: 96292.729899/s
-Del: 0 us
-	throughput: 2188183.807440/s
-Scan: 97 us
-	throughput: 10281.719103/s
-value_size: 1000, prebuilt data num:1000
-Get: 15 us
-	throughput: 63156.033296/s
-Put: 14 us
-	throughput: 71240.293510/s
-Del: 0 us
-	throughput: 2155172.413793/s
-Scan: 98 us
-	throughput: 10121.457490/s
-value_size: 10000, prebuilt data num:1000
-Get: 107 us
-	throughput: 9334.453468/s
-Put: 52 us
-	throughput: 19093.443312/s
-Del: 0 us
-	throughput: 1689189.189189/s
-Scan: 95 us
-	throughput: 10494.280617/s
-value_size: 10, prebuilt data num:3000
-Get: 6 us
-	throughput: 160431.239171/s
-Put: 11 us
-	throughput: 85969.738652/s
-Del: 0 us
-	throughput: 2450980.392157/s
-Scan: 1455 us
-	throughput: 686.940573/s
-value_size: 100, prebuilt data num:3000
-Get: 7 us
-	throughput: 125358.839679/s
-Put: 11 us
-	throughput: 83885.580069/s
-Del: 0 us
-	throughput: 2066115.702479/s
-Scan: 1562 us
-	throughput: 639.954947/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 73630.111771/s
+	throughput: 222459.512369/s
 Put: 9 us
 	throughput: 108861.310690/s
 Del: 0 us
-	throughput: 3311258.278146/s
-Scan: 3195 us
-	throughput: 312.899925/s
-value_size: 10000, prebuilt data num:3000
-Get: 100 us
-	throughput: 9907.591890/s
-Put: 45 us
-	throughput: 22187.708010/s
-Del: 0 us
-	throughput: 2247191.011236/s
-Scan: 23870 us
-	throughput: 41.893152/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 342067.455702/s
-Put: 6 us
-	throughput: 160513.643660/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 941 us
-	throughput: 1062.665377/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 213115.103467/s
-Put: 7 us
-	throughput: 142551.674982/s
-Del: 0 us
-	throughput: 3401360.544218/s
-Scan: 1129 us
-	throughput: 885.049740/s
-value_size: 1000, prebuilt data num:5000
-Get: 13 us
-	throughput: 71522.572524/s
-Put: 10 us
-	throughput: 99029.510794/s
-Del: 0 us
-	throughput: 3333333.333333/s
-Scan: 3623 us
-	throughput: 276.007496/s
-value_size: 10000, prebuilt data num:5000
-Get: 110 us
-	throughput: 9090.057931/s
-Put: 49 us
-	throughput: 20037.670821/s
-Del: 0 us
-	throughput: 2298850.574713/s
-Scan: 29652 us
-	throughput: 33.724276/s
-BloomFilter size: 11264 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 2 us
-	throughput: 495712.090418/s
-Put: 4 us
-	throughput: 220604.456210/s
-Del: 0 us
-	throughput: 3144654.088050/s
-Scan: 71 us
-	throughput: 14060.742407/s
+	throughput: 1321003.963012/s
+Scan: 104 us
+	throughput: 9604.302728/s
 value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 340448.711402/s
-Put: 4 us
-	throughput: 214776.632302/s
-Del: 0 us
-	throughput: 3436426.116838/s
-Scan: 75 us
-	throughput: 13245.033113/s
-value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 102663.080303/s
+Get: 4 us
+	throughput: 201576.326876/s
 Put: 8 us
-	throughput: 124208.172898/s
+	throughput: 113817.436831/s
 Del: 0 us
-	throughput: 3194888.178914/s
-Scan: 74 us
-	throughput: 13504.388926/s
+	throughput: 1879699.248120/s
+Scan: 67 us
+	throughput: 14854.426619/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 56963.503483/s
+Put: 12 us
+	throughput: 77208.153181/s
+Del: 0 us
+	throughput: 1879699.248120/s
+Scan: 51 us
+	throughput: 19451.468586/s
 value_size: 10000, prebuilt data num:1000
-Get: 78 us
-	throughput: 12746.306439/s
-Put: 41 us
-	throughput: 23837.334033/s
+Get: 133 us
+	throughput: 7505.986024/s
+Put: 68 us
+	throughput: 14594.705041/s
 Del: 0 us
-	throughput: 2415458.937198/s
-Scan: 74 us
-	throughput: 13484.358145/s
+	throughput: 1470588.235294/s
+Scan: 64 us
+	throughput: 15569.048731/s
 value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 331103.900404/s
-Put: 5 us
-	throughput: 186358.553858/s
-Del: 0 us
-	throughput: 3448275.862069/s
-Scan: 748 us
-	throughput: 1336.701822/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 234918.248450/s
-Put: 6 us
-	throughput: 163800.163800/s
-Del: 0 us
-	throughput: 3378378.378378/s
-Scan: 966 us
-	throughput: 1034.511297/s
-value_size: 1000, prebuilt data num:3000
-Get: 14 us
-	throughput: 69998.110051/s
+Get: 6 us
+	throughput: 166281.447979/s
 Put: 9 us
-	throughput: 108542.277217/s
+	throughput: 101978.380583/s
 Del: 0 us
-	throughput: 3174603.174603/s
-Scan: 3118 us
-	throughput: 320.708124/s
+	throughput: 2024291.497976/s
+Scan: 639 us
+	throughput: 1564.847271/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 132969.882322/s
+Put: 18 us
+	throughput: 54806.532939/s
+Del: 0 us
+	throughput: 1204819.277108/s
+Scan: 1892 us
+	throughput: 528.471396/s
+value_size: 1000, prebuilt data num:3000
+Get: 23 us
+	throughput: 42027.401866/s
+Put: 16 us
+	throughput: 59812.189724/s
+Del: 0 us
+	throughput: 1669449.081803/s
+Scan: 3008 us
+	throughput: 332.432441/s
 value_size: 10000, prebuilt data num:3000
-Get: 107 us
-	throughput: 9332.066661/s
-Put: 46 us
-	throughput: 21328.783193/s
+Get: 180 us
+	throughput: 5544.337513/s
+Put: 75 us
+	throughput: 13180.787684/s
 Del: 0 us
-	throughput: 2227171.492205/s
-Scan: 25202 us
-	throughput: 39.679233/s
+	throughput: 1379310.344828/s
+Scan: 24801 us
+	throughput: 40.319508/s
 value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 337815.012499/s
-Put: 6 us
-	throughput: 152905.198777/s
+Get: 5 us
+	throughput: 190843.336705/s
+Put: 10 us
+	throughput: 91307.523740/s
 Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 958 us
-	throughput: 1043.198865/s
+	throughput: 1968503.937008/s
+Scan: 785 us
+	throughput: 1273.804216/s
 value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 214772.019501/s
-Put: 7 us
-	throughput: 133725.595079/s
-Del: 0 us
-	throughput: 3344481.605351/s
-Scan: 1184 us
-	throughput: 843.910343/s
-value_size: 1000, prebuilt data num:5000
-Get: 16 us
-	throughput: 59513.536354/s
+Get: 7 us
+	throughput: 133090.221861/s
 Put: 11 us
-	throughput: 85477.391230/s
-Del: 0 us
-	throughput: 3311258.278146/s
-Scan: 3606 us
-	throughput: 277.314047/s
-value_size: 10000, prebuilt data num:5000
-Get: 107 us
-	throughput: 9285.818420/s
-Put: 48 us
-	throughput: 20736.132711/s
-Del: 0 us
-	throughput: 2159827.213823/s
-Scan: 28927 us
-	throughput: 34.569480/s
-BloomFilter size: 12288 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 506534.292372/s
-Put: 4 us
-	throughput: 242072.137497/s
-Del: 0 us
-	throughput: 3067484.662577/s
-Scan: 75 us
-	throughput: 13324.450366/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 346500.346500/s
-Put: 4 us
-	throughput: 224618.149146/s
-Del: 0 us
-	throughput: 3389830.508475/s
-Scan: 74 us
-	throughput: 13388.673182/s
-value_size: 1000, prebuilt data num:1000
-Get: 10 us
-	throughput: 99981.003609/s
-Put: 7 us
-	throughput: 130276.185513/s
-Del: 0 us
-	throughput: 3225806.451613/s
-Scan: 74 us
-	throughput: 13439.053891/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13056.807558/s
-Put: 40 us
-	throughput: 24991.877640/s
-Del: 0 us
-	throughput: 2531645.569620/s
-Scan: 71 us
-	throughput: 13937.282230/s
-value_size: 10, prebuilt data num:3000
-Get: 3 us
-	throughput: 327868.852459/s
-Put: 5 us
-	throughput: 186219.739292/s
-Del: 0 us
-	throughput: 3412969.283276/s
-Scan: 753 us
-	throughput: 1326.488652/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 239348.970799/s
-Put: 5 us
-	throughput: 177399.325883/s
-Del: 0 us
-	throughput: 3597122.302158/s
-Scan: 951 us
-	throughput: 1050.718166/s
-value_size: 1000, prebuilt data num:3000
-Get: 12 us
-	throughput: 77052.881392/s
-Put: 9 us
-	throughput: 107457.554266/s
-Del: 0 us
-	throughput: 3311258.278146/s
-Scan: 2991 us
-	throughput: 334.317341/s
-value_size: 10000, prebuilt data num:3000
-Get: 103 us
-	throughput: 9682.332358/s
-Put: 45 us
-	throughput: 22065.800216/s
-Del: 0 us
-	throughput: 1992031.872510/s
-Scan: 23877 us
-	throughput: 41.880045/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 346897.006279/s
-Put: 6 us
-	throughput: 159693.388694/s
-Del: 0 us
-	throughput: 3508771.929825/s
-Scan: 904 us
-	throughput: 1105.228838/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 214307.145000/s
-Put: 6 us
-	throughput: 146241.591109/s
-Del: 0 us
-	throughput: 1795332.136445/s
-Scan: 1162 us
-	throughput: 860.192855/s
-value_size: 1000, prebuilt data num:5000
-Get: 13 us
-	throughput: 72315.469002/s
-Put: 10 us
-	throughput: 96880.449525/s
-Del: 0 us
-	throughput: 3174603.174603/s
-Scan: 3698 us
-	throughput: 270.412054/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9384.190642/s
-Put: 45 us
-	throughput: 21781.746896/s
-Del: 0 us
-	throughput: 2293577.981651/s
-Scan: 28878 us
-	throughput: 34.627262/s
-BloomFilter size: 13312 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 504133.897963/s
-Put: 4 us
-	throughput: 238549.618321/s
-Del: 0 us
-	throughput: 3039513.677812/s
-Scan: 71 us
-	throughput: 14046.916702/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 341133.929181/s
-Put: 4 us
-	throughput: 208507.089241/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 73 us
-	throughput: 13588.802826/s
-value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 100115.132402/s
-Put: 7 us
-	throughput: 125786.163522/s
-Del: 0 us
-	throughput: 3257328.990228/s
-Scan: 71 us
-	throughput: 13921.759710/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13064.551951/s
-Put: 39 us
-	throughput: 25305.564694/s
-Del: 0 us
-	throughput: 2421307.506053/s
-Scan: 71 us
-	throughput: 13962.580285/s
-value_size: 10, prebuilt data num:3000
-Get: 2 us
-	throughput: 337609.723160/s
-Put: 5 us
-	throughput: 181785.129976/s
-Del: 0 us
-	throughput: 3460207.612457/s
-Scan: 754 us
-	throughput: 1325.047370/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 238180.302489/s
-Put: 6 us
-	throughput: 160333.493667/s
-Del: 0 us
-	throughput: 3401360.544218/s
-Scan: 918 us
-	throughput: 1089.241561/s
-value_size: 1000, prebuilt data num:3000
-Get: 12 us
-	throughput: 77173.594283/s
-Put: 9 us
-	throughput: 110290.062865/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 2962 us
-	throughput: 337.576672/s
-value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9858.510655/s
-Put: 45 us
-	throughput: 21933.191499/s
-Del: 0 us
-	throughput: 2257336.343115/s
-Scan: 23909 us
-	throughput: 41.824117/s
-value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 343725.294744/s
-Put: 6 us
-	throughput: 149120.190874/s
-Del: 0 us
-	throughput: 3546099.290780/s
-Scan: 963 us
-	throughput: 1037.645789/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 218459.858001/s
-Put: 6 us
-	throughput: 144990.575613/s
-Del: 0 us
-	throughput: 3484320.557491/s
-Scan: 1094 us
-	throughput: 914.018299/s
-value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 71347.541007/s
-Put: 10 us
-	throughput: 99840.255591/s
+	throughput: 84674.005080/s
 Del: 0 us
 	throughput: 1980198.019802/s
-Scan: 3570 us
-	throughput: 280.057132/s
-value_size: 10000, prebuilt data num:5000
-Get: 106 us
-	throughput: 9418.439609/s
-Put: 45 us
-	throughput: 21790.765074/s
-Del: 0 us
-	throughput: 2386634.844869/s
-Scan: 29006 us
-	throughput: 34.475590/s
-BloomFilter size: 14336 Bytes
-value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 513557.929334/s
-Put: 4 us
-	throughput: 235515.779557/s
-Del: 0 us
-	throughput: 3003003.003003/s
-Scan: 70 us
-	throughput: 14200.511218/s
-value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 341635.065423/s
-Put: 4 us
-	throughput: 206568.890725/s
-Del: 0 us
-	throughput: 3472222.222222/s
-Scan: 71 us
-	throughput: 13933.398356/s
-value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 101850.625872/s
-Put: 8 us
-	throughput: 124378.109453/s
-Del: 0 us
-	throughput: 3154574.132492/s
-Scan: 72 us
-	throughput: 13719.303059/s
-value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13054.012281/s
-Put: 39 us
-	throughput: 25443.350380/s
-Del: 0 us
-	throughput: 2457002.457002/s
-Scan: 71 us
-	throughput: 13950.892857/s
-value_size: 10, prebuilt data num:3000
-Get: 2 us
-	throughput: 338902.633273/s
-Put: 5 us
-	throughput: 193348.801237/s
-Del: 0 us
-	throughput: 3389830.508475/s
-Scan: 708 us
-	throughput: 1411.492371/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 242054.559098/s
-Put: 5 us
-	throughput: 168918.918919/s
-Del: 0 us
-	throughput: 3521126.760563/s
-Scan: 934 us
-	throughput: 1070.491891/s
-value_size: 1000, prebuilt data num:3000
-Get: 12 us
-	throughput: 76989.406258/s
-Put: 9 us
-	throughput: 107376.785139/s
-Del: 0 us
-	throughput: 3367003.367003/s
-Scan: 2928 us
-	throughput: 341.477573/s
-value_size: 10000, prebuilt data num:3000
-Get: 101 us
-	throughput: 9824.273225/s
-Put: 45 us
-	throughput: 22073.593360/s
-Del: 0 us
-	throughput: 2222222.222222/s
-Scan: 24038 us
-	throughput: 41.599224/s
-value_size: 10, prebuilt data num:5000
-Get: 3 us
-	throughput: 329489.291598/s
-Put: 6 us
-	throughput: 156298.843389/s
-Del: 0 us
-	throughput: 3558718.861210/s
-Scan: 949 us
-	throughput: 1053.319008/s
-value_size: 100, prebuilt data num:5000
-Get: 4 us
-	throughput: 214601.485042/s
-Put: 7 us
-	throughput: 137117.784177/s
-Del: 0 us
-	throughput: 3322259.136213/s
-Scan: 1176 us
-	throughput: 849.863172/s
+Scan: 730 us
+	throughput: 1369.356539/s
 value_size: 1000, prebuilt data num:5000
-Get: 14 us
-	throughput: 69242.007741/s
-Put: 9 us
-	throughput: 100090.081073/s
+Get: 24 us
+	throughput: 40964.299613/s
+Put: 18 us
+	throughput: 54540.496319/s
 Del: 0 us
-	throughput: 3257328.990228/s
-Scan: 3576 us
-	throughput: 279.589674/s
+	throughput: 1792114.695341/s
+Scan: 3255 us
+	throughput: 307.176252/s
 value_size: 10000, prebuilt data num:5000
-Get: 104 us
-	throughput: 9548.681566/s
-Put: 46 us
-	throughput: 21583.820768/s
-Del: 0 us
-	throughput: 2331002.331002/s
-Scan: 28809 us
-	throughput: 34.711315/s
-BloomFilter size: 15360 Bytes
+Get: 247 us
+	throughput: 4037.185710/s
+Put: 101 us
+	throughput: 9822.507293/s
+Del: 1 us
+	throughput: 996015.936255/s
+Scan: 47920 us
+	throughput: 20.867965/s
+BloomFilter size: 2048 Bytes
 value_size: 10, prebuilt data num:1000
-Get: 1 us
-	throughput: 502260.170768/s
-Put: 4 us
-	throughput: 235404.896422/s
+Get: 6 us
+	throughput: 146072.831914/s
+Put: 11 us
+	throughput: 90277.150853/s
 Del: 0 us
-	throughput: 3086419.753086/s
-Scan: 72 us
-	throughput: 13837.000138/s
+	throughput: 1432664.756447/s
+Scan: 77 us
+	throughput: 12966.804979/s
 value_size: 100, prebuilt data num:1000
-Get: 2 us
-	throughput: 348845.321984/s
-Put: 5 us
-	throughput: 195579.894387/s
+Get: 10 us
+	throughput: 99298.949417/s
+Put: 16 us
+	throughput: 59537.985235/s
 Del: 0 us
-	throughput: 3344481.605351/s
-Scan: 70 us
-	throughput: 14130.281193/s
+	throughput: 1412429.378531/s
+Scan: 69 us
+	throughput: 14480.162178/s
 value_size: 1000, prebuilt data num:1000
-Get: 9 us
-	throughput: 100404.630662/s
-Put: 7 us
-	throughput: 126774.847870/s
+Get: 25 us
+	throughput: 39785.951580/s
+Put: 13 us
+	throughput: 74900.756498/s
 Del: 0 us
-	throughput: 3174603.174603/s
-Scan: 73 us
-	throughput: 13570.362329/s
+	throughput: 1883239.171375/s
+Scan: 77 us
+	throughput: 12919.896641/s
 value_size: 10000, prebuilt data num:1000
-Get: 76 us
-	throughput: 13070.221070/s
-Put: 39 us
-	throughput: 25046.335721/s
+Get: 134 us
+	throughput: 7432.374681/s
+Put: 82 us
+	throughput: 12069.568996/s
 Del: 0 us
-	throughput: 2049180.327869/s
-Scan: 73 us
-	throughput: 13585.110719/s
+	throughput: 1085776.330076/s
+Scan: 56 us
+	throughput: 17765.144786/s
 value_size: 10, prebuilt data num:3000
-Get: 2 us
-	throughput: 336089.265309/s
-Put: 5 us
-	throughput: 177809.388336/s
-Del: 0 us
-	throughput: 3584229.390681/s
-Scan: 720 us
-	throughput: 1388.464636/s
-value_size: 100, prebuilt data num:3000
-Get: 4 us
-	throughput: 229457.791239/s
-Put: 5 us
-	throughput: 167280.026765/s
-Del: 0 us
-	throughput: 3496503.496503/s
-Scan: 939 us
-	throughput: 1064.316655/s
-value_size: 1000, prebuilt data num:3000
-Get: 13 us
-	throughput: 73440.850739/s
+Get: 5 us
+	throughput: 192852.872544/s
 Put: 9 us
-	throughput: 106621.174965/s
+	throughput: 103573.278094/s
 Del: 0 us
-	throughput: 3300330.033003/s
-Scan: 3025 us
-	throughput: 330.564306/s
+	throughput: 2024291.497976/s
+Scan: 602 us
+	throughput: 1658.842460/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 135029.301358/s
+Put: 9 us
+	throughput: 103188.525436/s
+Del: 0 us
+	throughput: 1923076.923077/s
+Scan: 746 us
+	throughput: 1339.530896/s
+value_size: 1000, prebuilt data num:3000
+Get: 23 us
+	throughput: 43289.293692/s
+Put: 14 us
+	throughput: 66938.884798/s
+Del: 0 us
+	throughput: 1919385.796545/s
+Scan: 2600 us
+	throughput: 384.553264/s
 value_size: 10000, prebuilt data num:3000
-Get: 100 us
-	throughput: 9969.632499/s
-Put: 44 us
-	throughput: 22237.046920/s
+Get: 175 us
+	throughput: 5706.984036/s
+Put: 76 us
+	throughput: 13153.913947/s
 Del: 0 us
-	throughput: 2173913.043478/s
-Scan: 23868 us
-	throughput: 41.895890/s
+	throughput: 1234567.901235/s
+Scan: 22756 us
+	throughput: 43.942620/s
 value_size: 10, prebuilt data num:5000
-Get: 2 us
-	throughput: 342912.008779/s
-Put: 7 us
-	throughput: 137324.910739/s
+Get: 5 us
+	throughput: 191622.274173/s
+Put: 10 us
+	throughput: 91058.095065/s
 Del: 0 us
-	throughput: 3030303.030303/s
-Scan: 922 us
-	throughput: 1084.081349/s
+	throughput: 1980198.019802/s
+Scan: 1741 us
+	throughput: 574.319862/s
+value_size: 100, prebuilt data num:5000
+Get: 13 us
+	throughput: 75458.030244/s
+Put: 13 us
+	throughput: 72833.211945/s
+Del: 0 us
+	throughput: 1375515.818432/s
+Scan: 1728 us
+	throughput: 578.666867/s
+value_size: 1000, prebuilt data num:5000
+Get: 36 us
+	throughput: 27427.091933/s
+Put: 32 us
+	throughput: 30710.644309/s
+Del: 0 us
+	throughput: 1390820.584145/s
+Scan: 4790 us
+	throughput: 208.739506/s
+value_size: 10000, prebuilt data num:5000
+Get: 247 us
+	throughput: 4033.307050/s
+Put: 104 us
+	throughput: 9539.163034/s
+Del: 1 us
+	throughput: 975609.756098/s
+Scan: 44186 us
+	throughput: 22.631490/s
+BloomFilter size: 3072 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 7 us
+	throughput: 142271.796039/s
+Put: 16 us
+	throughput: 60742.270546/s
+Del: 0 us
+	throughput: 1144164.759725/s
+Scan: 83 us
+	throughput: 12010.569301/s
+value_size: 100, prebuilt data num:1000
+Get: 9 us
+	throughput: 100808.484042/s
+Put: 15 us
+	throughput: 64184.852375/s
+Del: 0 us
+	throughput: 1264222.503161/s
+Scan: 97 us
+	throughput: 10241.704220/s
+value_size: 1000, prebuilt data num:1000
+Get: 25 us
+	throughput: 39884.017278/s
+Put: 23 us
+	throughput: 42439.417731/s
+Del: 0 us
+	throughput: 1345895.020188/s
+Scan: 83 us
+	throughput: 11986.096128/s
+value_size: 10000, prebuilt data num:1000
+Get: 183 us
+	throughput: 5447.712043/s
+Put: 91 us
+	throughput: 10882.932297/s
+Del: 1 us
+	throughput: 987166.831194/s
+Scan: 86 us
+	throughput: 11524.720526/s
+value_size: 10, prebuilt data num:3000
+Get: 11 us
+	throughput: 85881.878065/s
+Put: 20 us
+	throughput: 49823.127896/s
+Del: 0 us
+	throughput: 1438848.920863/s
+Scan: 943 us
+	throughput: 1060.175565/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 136511.316788/s
+Put: 9 us
+	throughput: 100300.902708/s
+Del: 0 us
+	throughput: 1984126.984127/s
+Scan: 1057 us
+	throughput: 946.002195/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 44026.098671/s
+Put: 15 us
+	throughput: 66379.024228/s
+Del: 0 us
+	throughput: 1872659.176030/s
+Scan: 2747 us
+	throughput: 364.003014/s
+value_size: 10000, prebuilt data num:3000
+Get: 176 us
+	throughput: 5664.204437/s
+Put: 80 us
+	throughput: 12454.540926/s
+Del: 0 us
+	throughput: 1342281.879195/s
+Scan: 19197 us
+	throughput: 52.090794/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 192733.930809/s
+Put: 10 us
+	throughput: 93118.539901/s
+Del: 0 us
+	throughput: 1953125.000000/s
+Scan: 716 us
+	throughput: 1396.550520/s
 value_size: 100, prebuilt data num:5000
 Get: 8 us
-	throughput: 119084.478529/s
-Put: 14 us
-	throughput: 68846.815835/s
+	throughput: 115145.025159/s
+Put: 11 us
+	throughput: 85667.780348/s
 Del: 0 us
-	throughput: 2304147.465438/s
-Scan: 2140 us
-	throughput: 467.156558/s
+	throughput: 1949317.738791/s
+Scan: 1160 us
+	throughput: 861.563911/s
 value_size: 1000, prebuilt data num:5000
-Get: 20 us
-	throughput: 47788.354934/s
-Put: 17 us
-	throughput: 55847.202055/s
+Get: 24 us
+	throughput: 41192.778082/s
+Put: 16 us
+	throughput: 59024.908511/s
 Del: 0 us
-	throughput: 2227171.492205/s
-Scan: 5524 us
-	throughput: 181.026930/s
+	throughput: 1926782.273603/s
+Scan: 3164 us
+	throughput: 315.966748/s
 value_size: 10000, prebuilt data num:5000
-Get: 149 us
-	throughput: 6710.913959/s
-Put: 60 us
-	throughput: 16547.798315/s
+Get: 188 us
+	throughput: 5313.397466/s
+Put: 80 us
+	throughput: 12438.275060/s
 Del: 0 us
-	throughput: 1677852.348993/s
-Scan: 39774 us
-	throughput: 25.141945/s
+	throughput: 1412429.378531/s
+Scan: 24068 us
+	throughput: 41.548755/s
+BloomFilter size: 4096 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 227915.033276/s
+Put: 9 us
+	throughput: 109098.843552/s
+Del: 0 us
+	throughput: 1655629.139073/s
+Scan: 82 us
+	throughput: 12147.716229/s
+value_size: 100, prebuilt data num:1000
+Get: 6 us
+	throughput: 163190.704657/s
+Put: 7 us
+	throughput: 130395.097144/s
+Del: 0 us
+	throughput: 1915708.812261/s
+Scan: 52 us
+	throughput: 19094.901661/s
+value_size: 1000, prebuilt data num:1000
+Get: 19 us
+	throughput: 51884.712170/s
+Put: 24 us
+	throughput: 41419.873255/s
+Del: 0 us
+	throughput: 1362397.820163/s
+Scan: 98 us
+	throughput: 10189.525168/s
+value_size: 10000, prebuilt data num:1000
+Get: 177 us
+	throughput: 5639.372293/s
+Put: 86 us
+	throughput: 11530.833449/s
+Del: 1 us
+	throughput: 993048.659384/s
+Scan: 92 us
+	throughput: 10793.308149/s
+value_size: 10, prebuilt data num:3000
+Get: 7 us
+	throughput: 131565.098411/s
+Put: 11 us
+	throughput: 85711.836805/s
+Del: 0 us
+	throughput: 1547987.616099/s
+Scan: 797 us
+	throughput: 1253.839885/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 135734.936815/s
+Put: 9 us
+	throughput: 103971.719692/s
+Del: 0 us
+	throughput: 2049180.327869/s
+Scan: 978 us
+	throughput: 1022.108200/s
+value_size: 1000, prebuilt data num:3000
+Get: 28 us
+	throughput: 34549.474848/s
+Put: 27 us
+	throughput: 36712.067257/s
+Del: 0 us
+	throughput: 1344086.021505/s
+Scan: 4759 us
+	throughput: 210.096834/s
+value_size: 10000, prebuilt data num:3000
+Get: 235 us
+	throughput: 4251.554262/s
+Put: 102 us
+	throughput: 9757.715914/s
+Del: 1 us
+	throughput: 953288.846520/s
+Scan: 34776 us
+	throughput: 28.755331/s
+value_size: 10, prebuilt data num:5000
+Get: 10 us
+	throughput: 97588.586039/s
+Put: 22 us
+	throughput: 43605.284961/s
+Del: 0 us
+	throughput: 1428571.428571/s
+Scan: 1144 us
+	throughput: 873.568440/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 130062.690217/s
+Put: 11 us
+	throughput: 84774.499830/s
+Del: 0 us
+	throughput: 1926782.273603/s
+Scan: 1145 us
+	throughput: 872.866931/s
+value_size: 1000, prebuilt data num:5000
+Get: 23 us
+	throughput: 41983.114391/s
+Put: 16 us
+	throughput: 59605.412171/s
+Del: 0 us
+	throughput: 1945525.291829/s
+Scan: 3786 us
+	throughput: 264.075209/s
+value_size: 10000, prebuilt data num:5000
+Get: 182 us
+	throughput: 5470.130353/s
+Put: 79 us
+	throughput: 12502.969455/s
+Del: 0 us
+	throughput: 1366120.218579/s
+Scan: 28043 us
+	throughput: 35.658302/s
+BloomFilter size: 5120 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 5 us
+	throughput: 172063.732406/s
+Put: 7 us
+	throughput: 138523.341183/s
+Del: 0 us
+	throughput: 1805054.151625/s
+Scan: 75 us
+	throughput: 13180.440227/s
+value_size: 100, prebuilt data num:1000
+Get: 5 us
+	throughput: 168041.808802/s
+Put: 7 us
+	throughput: 129433.083096/s
+Del: 0 us
+	throughput: 1976284.584980/s
+Scan: 54 us
+	throughput: 18497.965224/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 56236.643797/s
+Put: 14 us
+	throughput: 68418.171866/s
+Del: 0 us
+	throughput: 1655629.139073/s
+Scan: 87 us
+	throughput: 11492.931847/s
+value_size: 10000, prebuilt data num:1000
+Get: 131 us
+	throughput: 7601.678146/s
+Put: 69 us
+	throughput: 14425.643023/s
+Del: 0 us
+	throughput: 1451378.809869/s
+Scan: 64 us
+	throughput: 15559.358954/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 195297.242403/s
+Put: 9 us
+	throughput: 104712.041885/s
+Del: 0 us
+	throughput: 1779359.430605/s
+Scan: 675 us
+	throughput: 1480.428732/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 132320.639373/s
+Put: 9 us
+	throughput: 106507.615294/s
+Del: 0 us
+	throughput: 2061855.670103/s
+Scan: 811 us
+	throughput: 1232.620057/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 44024.935724/s
+Put: 15 us
+	throughput: 65759.189847/s
+Del: 0 us
+	throughput: 1908396.946565/s
+Scan: 3466 us
+	throughput: 288.448780/s
+value_size: 10000, prebuilt data num:3000
+Get: 176 us
+	throughput: 5659.011722/s
+Put: 80 us
+	throughput: 12354.983383/s
+Del: 0 us
+	throughput: 1242236.024845/s
+Scan: 18407 us
+	throughput: 54.324768/s
+value_size: 10, prebuilt data num:5000
+Get: 7 us
+	throughput: 126649.611186/s
+Put: 25 us
+	throughput: 39695.141315/s
+Del: 0 us
+	throughput: 1355013.550136/s
+Scan: 1570 us
+	throughput: 636.727729/s
+value_size: 100, prebuilt data num:5000
+Get: 14 us
+	throughput: 69357.747260/s
+Put: 24 us
+	throughput: 40789.688367/s
+Del: 0 us
+	throughput: 1390820.584145/s
+Scan: 1719 us
+	throughput: 581.608380/s
+value_size: 1000, prebuilt data num:5000
+Get: 36 us
+	throughput: 27520.461463/s
+Put: 29 us
+	throughput: 33421.342870/s
+Del: 0 us
+	throughput: 1349527.665317/s
+Scan: 4603 us
+	throughput: 217.226024/s
+value_size: 10000, prebuilt data num:5000
+Get: 248 us
+	throughput: 4029.830417/s
+Put: 103 us
+	throughput: 9688.608135/s
+Del: 0 us
+	throughput: 1017293.997965/s
+Scan: 31986 us
+	throughput: 31.263443/s
+BloomFilter size: 6144 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 8 us
+	throughput: 124784.746313/s
+Put: 15 us
+	throughput: 64168.377823/s
+Del: 0 us
+	throughput: 1338688.085676/s
+Scan: 99 us
+	throughput: 10017.028949/s
+value_size: 100, prebuilt data num:1000
+Get: 9 us
+	throughput: 103886.389844/s
+Put: 16 us
+	throughput: 62123.377027/s
+Del: 0 us
+	throughput: 1453488.372093/s
+Scan: 77 us
+	throughput: 12886.597938/s
+value_size: 1000, prebuilt data num:1000
+Get: 25 us
+	throughput: 38886.447684/s
+Put: 24 us
+	throughput: 41260.934148/s
+Del: 0 us
+	throughput: 1283697.047497/s
+Scan: 89 us
+	throughput: 11142.061281/s
+value_size: 10000, prebuilt data num:1000
+Get: 180 us
+	throughput: 5544.340587/s
+Put: 88 us
+	throughput: 11243.787807/s
+Del: 1 us
+	throughput: 852514.919011/s
+Scan: 108 us
+	throughput: 9231.905465/s
+value_size: 10, prebuilt data num:3000
+Get: 10 us
+	throughput: 91187.627663/s
+Put: 20 us
+	throughput: 49046.054245/s
+Del: 0 us
+	throughput: 1340482.573727/s
+Scan: 1295 us
+	throughput: 771.878908/s
+value_size: 100, prebuilt data num:3000
+Get: 13 us
+	throughput: 75971.100593/s
+Put: 21 us
+	throughput: 46589.638464/s
+Del: 0 us
+	throughput: 1394700.139470/s
+Scan: 1683 us
+	throughput: 594.081758/s
+value_size: 1000, prebuilt data num:3000
+Get: 23 us
+	throughput: 43111.438758/s
+Put: 15 us
+	throughput: 66002.244076/s
+Del: 0 us
+	throughput: 1845018.450185/s
+Scan: 3549 us
+	throughput: 281.714741/s
+value_size: 10000, prebuilt data num:3000
+Get: 175 us
+	throughput: 5705.727124/s
+Put: 76 us
+	throughput: 12990.555866/s
+Del: 0 us
+	throughput: 1317523.056653/s
+Scan: 19288 us
+	throughput: 51.844256/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 198672.865260/s
+Put: 12 us
+	throughput: 81037.277147/s
+Del: 0 us
+	throughput: 2053388.090349/s
+Scan: 923 us
+	throughput: 1083.165443/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 130446.125750/s
+Put: 12 us
+	throughput: 81241.368105/s
+Del: 0 us
+	throughput: 1945525.291829/s
+Scan: 757 us
+	throughput: 1320.376043/s
+value_size: 1000, prebuilt data num:5000
+Get: 24 us
+	throughput: 41156.328197/s
+Put: 17 us
+	throughput: 58424.865623/s
+Del: 0 us
+	throughput: 1879699.248120/s
+Scan: 3128 us
+	throughput: 319.644044/s
+value_size: 10000, prebuilt data num:5000
+Get: 186 us
+	throughput: 5363.650114/s
+Put: 92 us
+	throughput: 10774.933195/s
+Del: 0 us
+	throughput: 1277139.208174/s
+Scan: 30239 us
+	throughput: 33.069264/s
+BloomFilter size: 7168 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 3 us
+	throughput: 291953.754525/s
+Put: 7 us
+	throughput: 140944.326991/s
+Del: 0 us
+	throughput: 1782531.194296/s
+Scan: 66 us
+	throughput: 15140.045420/s
+value_size: 100, prebuilt data num:1000
+Get: 5 us
+	throughput: 196216.937446/s
+Put: 8 us
+	throughput: 121847.203607/s
+Del: 0 us
+	throughput: 1934235.976789/s
+Scan: 62 us
+	throughput: 15933.715743/s
+value_size: 1000, prebuilt data num:1000
+Get: 19 us
+	throughput: 50831.346675/s
+Put: 16 us
+	throughput: 58875.478363/s
+Del: 0 us
+	throughput: 1739130.434783/s
+Scan: 55 us
+	throughput: 18011.527378/s
+value_size: 10000, prebuilt data num:1000
+Get: 132 us
+	throughput: 7560.544843/s
+Put: 66 us
+	throughput: 14980.151300/s
+Del: 0 us
+	throughput: 1349527.665317/s
+Scan: 46 us
+	throughput: 21514.629948/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 168370.009934/s
+Put: 9 us
+	throughput: 109015.589229/s
+Del: 0 us
+	throughput: 2024291.497976/s
+Scan: 677 us
+	throughput: 1474.969763/s
+value_size: 100, prebuilt data num:3000
+Get: 13 us
+	throughput: 75371.581899/s
+Put: 20 us
+	throughput: 48388.657699/s
+Del: 0 us
+	throughput: 1375515.818432/s
+Scan: 1639 us
+	throughput: 609.982981/s
+value_size: 1000, prebuilt data num:3000
+Get: 33 us
+	throughput: 29551.438712/s
+Put: 29 us
+	throughput: 33946.635888/s
+Del: 0 us
+	throughput: 1326259.946950/s
+Scan: 4345 us
+	throughput: 230.119409/s
+value_size: 10000, prebuilt data num:3000
+Get: 236 us
+	throughput: 4225.294387/s
+Put: 101 us
+	throughput: 9828.106419/s
+Del: 1 us
+	throughput: 971817.298348/s
+Scan: 26131 us
+	throughput: 38.268137/s
+value_size: 10, prebuilt data num:5000
+Get: 9 us
+	throughput: 100059.034831/s
+Put: 22 us
+	throughput: 44241.914790/s
+Del: 0 us
+	throughput: 1451378.809869/s
+Scan: 1541 us
+	throughput: 648.925056/s
+value_size: 100, prebuilt data num:5000
+Get: 13 us
+	throughput: 73300.348177/s
+Put: 23 us
+	throughput: 42154.961639/s
+Del: 0 us
+	throughput: 1464128.843338/s
+Scan: 2262 us
+	throughput: 441.986997/s
+value_size: 1000, prebuilt data num:5000
+Get: 35 us
+	throughput: 28112.709475/s
+Put: 29 us
+	throughput: 33431.398770/s
+Del: 0 us
+	throughput: 1246882.793017/s
+Scan: 4705 us
+	throughput: 212.534882/s
+value_size: 10000, prebuilt data num:5000
+Get: 182 us
+	throughput: 5491.871207/s
+Put: 78 us
+	throughput: 12756.729175/s
+Del: 0 us
+	throughput: 1408450.704225/s
+Scan: 28170 us
+	throughput: 35.497523/s
+BloomFilter size: 8192 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 222657.641610/s
+Put: 8 us
+	throughput: 113726.828159/s
+Del: 0 us
+	throughput: 1386962.552011/s
+Scan: 67 us
+	throughput: 14845.605701/s
+value_size: 100, prebuilt data num:1000
+Get: 5 us
+	throughput: 168279.343711/s
+Put: 7 us
+	throughput: 133226.751932/s
+Del: 0 us
+	throughput: 1956947.162427/s
+Scan: 74 us
+	throughput: 13397.642015/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 57517.542851/s
+Put: 13 us
+	throughput: 75889.807999/s
+Del: 0 us
+	throughput: 1890359.168242/s
+Scan: 65 us
+	throughput: 15271.838729/s
+value_size: 10000, prebuilt data num:1000
+Get: 131 us
+	throughput: 7623.281808/s
+Put: 68 us
+	throughput: 14700.261665/s
+Del: 0 us
+	throughput: 1470588.235294/s
+Scan: 60 us
+	throughput: 16488.046167/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 181461.856718/s
+Put: 8 us
+	throughput: 112841.345069/s
+Del: 0 us
+	throughput: 2016129.032258/s
+Scan: 649 us
+	throughput: 1540.309910/s
+value_size: 100, prebuilt data num:3000
+Get: 8 us
+	throughput: 117888.383279/s
+Put: 9 us
+	throughput: 101481.631825/s
+Del: 0 us
+	throughput: 2008032.128514/s
+Scan: 870 us
+	throughput: 1149.213938/s
+value_size: 1000, prebuilt data num:3000
+Get: 24 us
+	throughput: 41496.014308/s
+Put: 16 us
+	throughput: 61595.318756/s
+Del: 0 us
+	throughput: 1912045.889101/s
+Scan: 2405 us
+	throughput: 415.713989/s
+value_size: 10000, prebuilt data num:3000
+Get: 172 us
+	throughput: 5794.202668/s
+Put: 76 us
+	throughput: 13094.489839/s
+Del: 0 us
+	throughput: 1396648.044693/s
+Scan: 22024 us
+	throughput: 45.403899/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 194924.174496/s
+Put: 11 us
+	throughput: 90277.150853/s
+Del: 0 us
+	throughput: 1976284.584980/s
+Scan: 929 us
+	throughput: 1076.368333/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 134605.806895/s
+Put: 11 us
+	throughput: 86813.091414/s
+Del: 0 us
+	throughput: 2066115.702479/s
+Scan: 1034 us
+	throughput: 966.772045/s
+value_size: 1000, prebuilt data num:5000
+Get: 23 us
+	throughput: 42067.004324/s
+Put: 16 us
+	throughput: 59626.736629/s
+Del: 0 us
+	throughput: 1841620.626151/s
+Scan: 3254 us
+	throughput: 307.243260/s
+value_size: 10000, prebuilt data num:5000
+Get: 181 us
+	throughput: 5500.108352/s
+Put: 78 us
+	throughput: 12698.735206/s
+Del: 0 us
+	throughput: 1312335.958005/s
+Scan: 31733 us
+	throughput: 31.512420/s
+BloomFilter size: 9216 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 227092.085841/s
+Put: 8 us
+	throughput: 113597.637169/s
+Del: 0 us
+	throughput: 1715265.866209/s
+Scan: 60 us
+	throughput: 16614.055491/s
+value_size: 100, prebuilt data num:1000
+Get: 5 us
+	throughput: 167022.982362/s
+Put: 7 us
+	throughput: 129366.106080/s
+Del: 0 us
+	throughput: 1886792.452830/s
+Scan: 64 us
+	throughput: 15564.202335/s
+value_size: 1000, prebuilt data num:1000
+Get: 25 us
+	throughput: 39239.075841/s
+Put: 23 us
+	throughput: 42016.806723/s
+Del: 0 us
+	throughput: 1373626.373626/s
+Scan: 77 us
+	throughput: 12841.916014/s
+value_size: 10000, prebuilt data num:1000
+Get: 180 us
+	throughput: 5544.220704/s
+Put: 94 us
+	throughput: 10541.184407/s
+Del: 1 us
+	throughput: 885739.592560/s
+Scan: 102 us
+	throughput: 9800.078401/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 169439.831916/s
+Put: 8 us
+	throughput: 112752.283234/s
+Del: 0 us
+	throughput: 2020202.020202/s
+Scan: 748 us
+	throughput: 1336.076744/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 130730.916554/s
+Put: 10 us
+	throughput: 99176.832292/s
+Del: 0 us
+	throughput: 1996007.984032/s
+Scan: 863 us
+	throughput: 1158.037358/s
+value_size: 1000, prebuilt data num:3000
+Get: 33 us
+	throughput: 29705.411435/s
+Put: 19 us
+	throughput: 52167.562210/s
+Del: 0 us
+	throughput: 1941747.572816/s
+Scan: 2955 us
+	throughput: 338.407185/s
+value_size: 10000, prebuilt data num:3000
+Get: 172 us
+	throughput: 5808.786370/s
+Put: 75 us
+	throughput: 13167.597177/s
+Del: 0 us
+	throughput: 1369863.013699/s
+Scan: 21225 us
+	throughput: 47.113742/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 191285.052986/s
+Put: 11 us
+	throughput: 89686.098655/s
+Del: 0 us
+	throughput: 1988071.570577/s
+Scan: 706 us
+	throughput: 1415.708704/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 131804.402267/s
+Put: 11 us
+	throughput: 85360.648741/s
+Del: 0 us
+	throughput: 1980198.019802/s
+Scan: 1012 us
+	throughput: 987.488520/s
+value_size: 1000, prebuilt data num:5000
+Get: 23 us
+	throughput: 42132.405297/s
+Put: 17 us
+	throughput: 58737.151248/s
+Del: 0 us
+	throughput: 1926782.273603/s
+Scan: 3480 us
+	throughput: 287.302659/s
+value_size: 10000, prebuilt data num:5000
+Get: 181 us
+	throughput: 5513.697403/s
+Put: 79 us
+	throughput: 12550.200803/s
+Del: 0 us
+	throughput: 1422475.106686/s
+Scan: 36470 us
+	throughput: 27.419338/s
+BloomFilter size: 10240 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 223189.376186/s
+Put: 8 us
+	throughput: 113096.584483/s
+Del: 0 us
+	throughput: 1589825.119237/s
+Scan: 59 us
+	throughput: 16702.856188/s
+value_size: 100, prebuilt data num:1000
+Get: 6 us
+	throughput: 164948.453608/s
+Put: 8 us
+	throughput: 124054.087582/s
+Del: 0 us
+	throughput: 1992031.872510/s
+Scan: 59 us
+	throughput: 16914.749662/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 57236.725372/s
+Put: 17 us
+	throughput: 56053.811659/s
+Del: 0 us
+	throughput: 1908396.946565/s
+Scan: 53 us
+	throughput: 18566.654289/s
+value_size: 10000, prebuilt data num:1000
+Get: 129 us
+	throughput: 7702.510556/s
+Put: 65 us
+	throughput: 15168.982465/s
+Del: 0 us
+	throughput: 1488095.238095/s
+Scan: 66 us
+	throughput: 14990.256333/s
+value_size: 10, prebuilt data num:3000
+Get: 6 us
+	throughput: 152373.986713/s
+Put: 14 us
+	throughput: 69900.740948/s
+Del: 0 us
+	throughput: 1540832.049307/s
+Scan: 673 us
+	throughput: 1484.141943/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 133365.341015/s
+Put: 9 us
+	throughput: 104788.850466/s
+Del: 0 us
+	throughput: 2008032.128514/s
+Scan: 814 us
+	throughput: 1227.762158/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 44345.111395/s
+Put: 15 us
+	throughput: 66480.521207/s
+Del: 0 us
+	throughput: 1934235.976789/s
+Scan: 3247 us
+	throughput: 307.949090/s
+value_size: 10000, prebuilt data num:3000
+Get: 176 us
+	throughput: 5659.870106/s
+Put: 75 us
+	throughput: 13174.362690/s
+Del: 0 us
+	throughput: 1364256.480218/s
+Scan: 22468 us
+	throughput: 44.505942/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 191157.073768/s
+Put: 10 us
+	throughput: 91324.200913/s
+Del: 0 us
+	throughput: 2008032.128514/s
+Scan: 775 us
+	throughput: 1289.191419/s
+value_size: 100, prebuilt data num:5000
+Get: 9 us
+	throughput: 106892.423465/s
+Put: 24 us
+	throughput: 40990.326283/s
+Del: 0 us
+	throughput: 1438848.920863/s
+Scan: 1786 us
+	throughput: 559.882201/s
+value_size: 1000, prebuilt data num:5000
+Get: 35 us
+	throughput: 28053.795959/s
+Put: 30 us
+	throughput: 33079.722130/s
+Del: 0 us
+	throughput: 1303780.964798/s
+Scan: 4775 us
+	throughput: 209.423645/s
+value_size: 10000, prebuilt data num:5000
+Get: 245 us
+	throughput: 4068.189363/s
+Put: 102 us
+	throughput: 9748.964173/s
+Del: 0 us
+	throughput: 1006036.217304/s
+Scan: 42135 us
+	throughput: 23.732810/s
+BloomFilter size: 11264 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 7 us
+	throughput: 135308.842433/s
+Put: 15 us
+	throughput: 63295.145262/s
+Del: 0 us
+	throughput: 1298701.298701/s
+Scan: 69 us
+	throughput: 14363.688595/s
+value_size: 100, prebuilt data num:1000
+Get: 9 us
+	throughput: 101664.243669/s
+Put: 16 us
+	throughput: 59637.404580/s
+Del: 0 us
+	throughput: 1388888.888889/s
+Scan: 99 us
+	throughput: 10083.694666/s
+value_size: 1000, prebuilt data num:1000
+Get: 25 us
+	throughput: 39711.062311/s
+Put: 23 us
+	throughput: 42007.981516/s
+Del: 0 us
+	throughput: 1312335.958005/s
+Scan: 94 us
+	throughput: 10565.240359/s
+value_size: 10000, prebuilt data num:1000
+Get: 177 us
+	throughput: 5637.293175/s
+Put: 87 us
+	throughput: 11424.523883/s
+Del: 0 us
+	throughput: 1004016.064257/s
+Scan: 76 us
+	throughput: 13003.901170/s
+value_size: 10, prebuilt data num:3000
+Get: 10 us
+	throughput: 97819.601092/s
+Put: 19 us
+	throughput: 52094.186289/s
+Del: 0 us
+	throughput: 1445086.705202/s
+Scan: 819 us
+	throughput: 1219.779952/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 133816.858248/s
+Put: 9 us
+	throughput: 101533.150574/s
+Del: 0 us
+	throughput: 2004008.016032/s
+Scan: 712 us
+	throughput: 1404.099972/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 44435.359882/s
+Put: 15 us
+	throughput: 66515.897299/s
+Del: 0 us
+	throughput: 1661129.568106/s
+Scan: 2911 us
+	throughput: 343.505682/s
+value_size: 10000, prebuilt data num:3000
+Get: 172 us
+	throughput: 5795.962417/s
+Put: 76 us
+	throughput: 13154.086975/s
+Del: 0 us
+	throughput: 1385041.551247/s
+Scan: 21944 us
+	throughput: 45.570169/s
+value_size: 10, prebuilt data num:5000
+Get: 6 us
+	throughput: 149441.090322/s
+Put: 10 us
+	throughput: 93650.496348/s
+Del: 0 us
+	throughput: 2032520.325203/s
+Scan: 784 us
+	throughput: 1274.518551/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 133730.960055/s
+Put: 11 us
+	throughput: 86994.345368/s
+Del: 0 us
+	throughput: 1976284.584980/s
+Scan: 924 us
+	throughput: 1081.455206/s
+value_size: 1000, prebuilt data num:5000
+Get: 24 us
+	throughput: 40030.583366/s
+Put: 16 us
+	throughput: 59262.771127/s
+Del: 0 us
+	throughput: 1988071.570577/s
+Scan: 3330 us
+	throughput: 300.264233/s
+value_size: 10000, prebuilt data num:5000
+Get: 181 us
+	throughput: 5499.415687/s
+Put: 77 us
+	throughput: 12921.566094/s
+Del: 0 us
+	throughput: 1483679.525223/s
+Scan: 22724 us
+	throughput: 44.005001/s
+BloomFilter size: 12288 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 216670.638962/s
+Put: 8 us
+	throughput: 121036.068748/s
+Del: 0 us
+	throughput: 1724137.931034/s
+Scan: 63 us
+	throughput: 15735.641227/s
+value_size: 100, prebuilt data num:1000
+Get: 6 us
+	throughput: 162382.475683/s
+Put: 7 us
+	throughput: 129315.918790/s
+Del: 0 us
+	throughput: 1851851.851852/s
+Scan: 63 us
+	throughput: 15743.073048/s
+value_size: 1000, prebuilt data num:1000
+Get: 18 us
+	throughput: 55476.655423/s
+Put: 12 us
+	throughput: 77035.667514/s
+Del: 0 us
+	throughput: 1818181.818182/s
+Scan: 61 us
+	throughput: 16342.539631/s
+value_size: 10000, prebuilt data num:1000
+Get: 131 us
+	throughput: 7602.100004/s
+Put: 67 us
+	throughput: 14879.181050/s
+Del: 0 us
+	throughput: 1461988.304094/s
+Scan: 40 us
+	throughput: 24402.147389/s
+value_size: 10, prebuilt data num:3000
+Get: 4 us
+	throughput: 205010.455533/s
+Put: 9 us
+	throughput: 111074.086416/s
+Del: 0 us
+	throughput: 2044989.775051/s
+Scan: 734 us
+	throughput: 1362.008145/s
+value_size: 100, prebuilt data num:3000
+Get: 12 us
+	throughput: 77781.666861/s
+Put: 20 us
+	throughput: 48638.132296/s
+Del: 0 us
+	throughput: 1508295.625943/s
+Scan: 1306 us
+	throughput: 765.550239/s
+value_size: 1000, prebuilt data num:3000
+Get: 33 us
+	throughput: 30031.112232/s
+Put: 26 us
+	throughput: 37940.585044/s
+Del: 0 us
+	throughput: 1088139.281828/s
+Scan: 4275 us
+	throughput: 233.876551/s
+value_size: 10000, prebuilt data num:3000
+Get: 237 us
+	throughput: 4212.347824/s
+Put: 97 us
+	throughput: 10218.053256/s
+Del: 1 us
+	throughput: 956937.799043/s
+Scan: 28884 us
+	throughput: 34.620153/s
+value_size: 10, prebuilt data num:5000
+Get: 10 us
+	throughput: 95297.996836/s
+Put: 22 us
+	throughput: 45252.964069/s
+Del: 0 us
+	throughput: 1470588.235294/s
+Scan: 1486 us
+	throughput: 672.630659/s
+value_size: 100, prebuilt data num:5000
+Get: 13 us
+	throughput: 72959.150172/s
+Put: 23 us
+	throughput: 41750.167001/s
+Del: 0 us
+	throughput: 1396648.044693/s
+Scan: 1764 us
+	throughput: 566.835584/s
+value_size: 1000, prebuilt data num:5000
+Get: 23 us
+	throughput: 41857.116547/s
+Put: 16 us
+	throughput: 59389.476185/s
+Del: 0 us
+	throughput: 1937984.496124/s
+Scan: 3828 us
+	throughput: 261.175709/s
+value_size: 10000, prebuilt data num:5000
+Get: 184 us
+	throughput: 5414.120676/s
+Put: 78 us
+	throughput: 12690.677428/s
+Del: 0 us
+	throughput: 1340482.573727/s
+Scan: 24959 us
+	throughput: 40.065018/s
+BloomFilter size: 13312 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 218871.063057/s
+Put: 8 us
+	throughput: 118371.212121/s
+Del: 0 us
+	throughput: 1600000.000000/s
+Scan: 61 us
+	throughput: 16347.882949/s
+value_size: 100, prebuilt data num:1000
+Get: 6 us
+	throughput: 164910.371213/s
+Put: 7 us
+	throughput: 131734.949282/s
+Del: 0 us
+	throughput: 1934235.976789/s
+Scan: 69 us
+	throughput: 14480.162178/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 58611.150185/s
+Put: 12 us
+	throughput: 77160.493827/s
+Del: 0 us
+	throughput: 1934235.976789/s
+Scan: 65 us
+	throughput: 15195.259079/s
+value_size: 10000, prebuilt data num:1000
+Get: 131 us
+	throughput: 7624.694250/s
+Put: 66 us
+	throughput: 15016.593336/s
+Del: 0 us
+	throughput: 1430615.164521/s
+Scan: 47 us
+	throughput: 20981.955518/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 176270.469408/s
+Put: 9 us
+	throughput: 109890.109890/s
+Del: 0 us
+	throughput: 1972386.587771/s
+Scan: 1128 us
+	throughput: 886.218417/s
+value_size: 100, prebuilt data num:3000
+Get: 13 us
+	throughput: 76102.342430/s
+Put: 18 us
+	throughput: 53430.220133/s
+Del: 0 us
+	throughput: 1464128.843338/s
+Scan: 1354 us
+	throughput: 738.323415/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 44402.410163/s
+Put: 14 us
+	throughput: 67897.881586/s
+Del: 0 us
+	throughput: 1945525.291829/s
+Scan: 2076 us
+	throughput: 481.570304/s
+value_size: 10000, prebuilt data num:3000
+Get: 174 us
+	throughput: 5735.724213/s
+Put: 77 us
+	throughput: 12880.622392/s
+Del: 0 us
+	throughput: 1373626.373626/s
+Scan: 18803 us
+	throughput: 53.182380/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 167159.788041/s
+Put: 12 us
+	throughput: 81247.968801/s
+Del: 0 us
+	throughput: 1754385.964912/s
+Scan: 844 us
+	throughput: 1184.539392/s
+value_size: 100, prebuilt data num:5000
+Get: 8 us
+	throughput: 113847.239774/s
+Put: 13 us
+	throughput: 76834.421821/s
+Del: 0 us
+	throughput: 1919385.796545/s
+Scan: 1054 us
+	throughput: 948.487636/s
+value_size: 1000, prebuilt data num:5000
+Get: 24 us
+	throughput: 41182.429928/s
+Put: 18 us
+	throughput: 54827.567301/s
+Del: 1 us
+	throughput: 999000.999001/s
+Scan: 4290 us
+	throughput: 233.079044/s
+value_size: 10000, prebuilt data num:5000
+Get: 229 us
+	throughput: 4348.155034/s
+Put: 105 us
+	throughput: 9444.832732/s
+Del: 1 us
+	throughput: 896860.986547/s
+Scan: 40900 us
+	throughput: 24.449447/s
+BloomFilter size: 14336 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 7 us
+	throughput: 134305.706649/s
+Put: 15 us
+	throughput: 62719.518314/s
+Del: 0 us
+	throughput: 1326259.946950/s
+Scan: 78 us
+	throughput: 12719.409819/s
+value_size: 100, prebuilt data num:1000
+Get: 9 us
+	throughput: 101046.845317/s
+Put: 17 us
+	throughput: 58004.640371/s
+Del: 0 us
+	throughput: 1430615.164521/s
+Scan: 77 us
+	throughput: 12985.326581/s
+value_size: 1000, prebuilt data num:1000
+Get: 24 us
+	throughput: 40915.525805/s
+Put: 21 us
+	throughput: 46133.973058/s
+Del: 0 us
+	throughput: 1345895.020188/s
+Scan: 101 us
+	throughput: 9865.824783/s
+value_size: 10000, prebuilt data num:1000
+Get: 176 us
+	throughput: 5660.152020/s
+Put: 86 us
+	throughput: 11520.073728/s
+Del: 0 us
+	throughput: 1011122.345804/s
+Scan: 72 us
+	throughput: 13817.880337/s
+value_size: 10, prebuilt data num:3000
+Get: 10 us
+	throughput: 91941.341424/s
+Put: 19 us
+	throughput: 51861.840058/s
+Del: 0 us
+	throughput: 1406469.760900/s
+Scan: 1471 us
+	throughput: 679.518629/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 136662.430131/s
+Put: 9 us
+	throughput: 106666.666667/s
+Del: 0 us
+	throughput: 2032520.325203/s
+Scan: 711 us
+	throughput: 1406.430199/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 43613.462604/s
+Put: 14 us
+	throughput: 68362.045392/s
+Del: 0 us
+	throughput: 1996007.984032/s
+Scan: 2702 us
+	throughput: 370.019537/s
+value_size: 10000, prebuilt data num:3000
+Get: 173 us
+	throughput: 5766.756609/s
+Put: 78 us
+	throughput: 12798.034222/s
+Del: 0 us
+	throughput: 1381215.469613/s
+Scan: 21679 us
+	throughput: 46.127121/s
+value_size: 10, prebuilt data num:5000
+Get: 5 us
+	throughput: 191769.263222/s
+Put: 10 us
+	throughput: 92755.774047/s
+Del: 0 us
+	throughput: 1964636.542240/s
+Scan: 770 us
+	throughput: 1298.077547/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 134698.275862/s
+Put: 11 us
+	throughput: 87085.256466/s
+Del: 0 us
+	throughput: 2008032.128514/s
+Scan: 1450 us
+	throughput: 689.312893/s
+value_size: 1000, prebuilt data num:5000
+Get: 24 us
+	throughput: 40591.993635/s
+Put: 16 us
+	throughput: 59154.096421/s
+Del: 0 us
+	throughput: 1872659.176030/s
+Scan: 3125 us
+	throughput: 319.931407/s
+value_size: 10000, prebuilt data num:5000
+Get: 179 us
+	throughput: 5567.411048/s
+Put: 77 us
+	throughput: 12854.296549/s
+Del: 0 us
+	throughput: 1477104.874446/s
+Scan: 24872 us
+	throughput: 40.205110/s
+BloomFilter size: 15360 Bytes
+value_size: 10, prebuilt data num:1000
+Get: 4 us
+	throughput: 213492.741247/s
+Put: 8 us
+	throughput: 119645.848289/s
+Del: 0 us
+	throughput: 1326259.946950/s
+Scan: 64 us
+	throughput: 15448.787270/s
+value_size: 100, prebuilt data num:1000
+Get: 5 us
+	throughput: 169540.376041/s
+Put: 7 us
+	throughput: 127975.428718/s
+Del: 0 us
+	throughput: 1968503.937008/s
+Scan: 56 us
+	throughput: 17583.963425/s
+value_size: 1000, prebuilt data num:1000
+Get: 17 us
+	throughput: 56625.141563/s
+Put: 13 us
+	throughput: 73959.026699/s
+Del: 0 us
+	throughput: 1904761.904762/s
+Scan: 56 us
+	throughput: 17667.844523/s
+value_size: 10000, prebuilt data num:1000
+Get: 130 us
+	throughput: 7640.423341/s
+Put: 67 us
+	throughput: 14839.437289/s
+Del: 0 us
+	throughput: 1459854.014599/s
+Scan: 40 us
+	throughput: 24521.824424/s
+value_size: 10, prebuilt data num:3000
+Get: 5 us
+	throughput: 177462.289264/s
+Put: 8 us
+	throughput: 111856.823266/s
+Del: 0 us
+	throughput: 2061855.670103/s
+Scan: 621 us
+	throughput: 1610.254098/s
+value_size: 100, prebuilt data num:3000
+Get: 7 us
+	throughput: 136677.373061/s
+Put: 9 us
+	throughput: 100633.994163/s
+Del: 0 us
+	throughput: 2000000.000000/s
+Scan: 814 us
+	throughput: 1228.048631/s
+value_size: 1000, prebuilt data num:3000
+Get: 22 us
+	throughput: 43627.542940/s
+Put: 14 us
+	throughput: 67177.213489/s
+Del: 0 us
+	throughput: 1926782.273603/s
+Scan: 3248 us
+	throughput: 307.827752/s
+value_size: 10000, prebuilt data num:3000
+Get: 173 us
+	throughput: 5755.836274/s
+Put: 77 us
+	throughput: 12905.557133/s
+Del: 0 us
+	throughput: 1369863.013699/s
+Scan: 23604 us
+	throughput: 42.364480/s
+value_size: 10, prebuilt data num:5000
+Get: 4 us
+	throughput: 203012.708596/s
+Put: 11 us
+	throughput: 87958.483596/s
+Del: 0 us
+	throughput: 1996007.984032/s
+Scan: 742 us
+	throughput: 1347.182368/s
+value_size: 100, prebuilt data num:5000
+Get: 7 us
+	throughput: 135710.989876/s
+Put: 11 us
+	throughput: 86154.906522/s
+Del: 0 us
+	throughput: 2036659.877800/s
+Scan: 816 us
+	throughput: 1224.199985/s
+value_size: 1000, prebuilt data num:5000
+Get: 23 us
+	throughput: 41785.756071/s
+Put: 16 us
+	throughput: 59182.103332/s
+Del: 0 us
+	throughput: 1879699.248120/s
+Scan: 3930 us
+	throughput: 254.397257/s
+value_size: 10000, prebuilt data num:5000
+Get: 183 us
+	throughput: 5461.708237/s
+Put: 79 us
+	throughput: 12650.061353/s
+Del: 0 us
+	throughput: 1443001.443001/s
+Scan: 34431 us
+	throughput: 29.043417/s

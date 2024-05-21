@@ -22,7 +22,6 @@ if __name__=="__main__":
     default_single_data ={"value_size": 0, "prebuilt_data_num": 0,"Get": [], "Put":[], "Del": [], "Scan": []} 
     single_data = default_single_data.copy()
     last_operation = "Get"
-    # FIXME: 135->513->513 error
     for line in lines:
         if line.startswith("Test with different BloomFilter size"):
             if len(single_data['Get']) > 0:
@@ -40,6 +39,7 @@ if __name__=="__main__":
             single_config['bf_size'] = int(bf_size.split()[0])
             if len(single_data['Get']) > 0:
                 data.append(single_data.copy())
+                single_data = default_single_data.copy()
             if len(data) > 0:
                 change_bf_data.append(data.copy())
             data = []
@@ -53,6 +53,7 @@ if __name__=="__main__":
                     single_data = default_single_data.copy()
                     all_data.append(data.copy())
                 else:
+                    assert(0)
                     change_bf_data.append(data.copy())
                 data = []
             test_mode = "nochange-bf"
@@ -116,16 +117,16 @@ if __name__=="__main__":
     # 1024 * 1~15
     print(len(change_bf_data))
     print(len(change_bf_data[0]))
-    for i in range(12):
-        get_throughput = []
-        put_throughput = []
-        del_throughput = []
-        scan_throughput = []
-        for j in range(15):
-            get_throughput.append(change_bf_data[j][i]['Get'][0])
-            put_throughput.append(change_bf_data[j][i]['Put'][0])
-            del_throughput.append(change_bf_data[j][i]['Del'][0])
-            scan_throughput.append(change_bf_data[j][i]['Scan'][0])
+    print(change_bf_data[0][0]['Get'][0])
+    print(change_bf_data[0][1]['Get'][0])
+    print(change_bf_data[1][0]['Get'][0])
+    for i in range(len(change_bf_data[0])): # 12
+        print(len(change_bf_data[i]))
+        x_data_num = len(change_bf_data) # 15
+        get_throughput = [change_bf_data[j][i]['Get'][0] for j in range(x_data_num)]
+        put_throughput = [change_bf_data[j][i]['Put'][0] for j in range(x_data_num)]
+        del_throughput = [change_bf_data[j][i]['Del'][0] for j in range(x_data_num)]
+        scan_throughput = [change_bf_data[j][i]['Scan'][0] for j in range(x_data_num)]
         plt.xlabel("BloomFilter Size (KB)")
         plt.xticks(range(len(get_throughput)), [str(i+1) for i in range(len(get_throughput))])
         plt.ylabel('Throughput (ops/s)')
