@@ -55,8 +55,7 @@ void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
   // ...
 
   if (utils::dirExists("./data")) {
-    std::string cmd = "rm -rf ./data";
-    system(cmd.c_str());
+    utils::rmDirRecursively("./data");
     std::this_thread::sleep_for(
         std::chrono::seconds(1)); // Use std::chrono::seconds for sleep_for
   }
@@ -89,7 +88,8 @@ void test(config::ConfigParam conf, int value_size, int prebuilt_data_num) {
     for (int i = 0; i < get_test_times; ++i) {
       int choose = i % prebuilt_data_num;
       string value = kvs->get(test_kvs[choose].first);
-      Assert((value == test_kvs[choose].second), "get error: get %s\n",
+      Assert((value == test_kvs[choose].second),
+             "get error: choose %s,get %s\n", std::to_string(choose).c_str(),
              value.c_str());
     }
   };

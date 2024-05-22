@@ -1,5 +1,6 @@
 #include "kvstore.h"
 #include "utils.h"
+#include <chrono>
 #include <future>
 #include <memory>
 #include <thread>
@@ -30,21 +31,28 @@ string random_str(int n) {
   return new_str;
 };
 int main(int argc, const char *argv[]) {
-  if (argc != 3) {
-    cout << "Usage: ./put-plot-test <put-size> <max_seconds>" << endl;
+  if (argc != 4) {
+    cout << "Usage: ./put-plot-test <put-size> <max_seconds> <bf_size>(bytes)"
+         << endl;
     return 0;
   }
 
   string sst_path = "./put-plot/data";
   string vlog_path = "./put-plot/vlog";
   if (utils::dirExists(sst_path)) {
-    std::string cmd = "sudo rm -rf " + sst_path;
-    system(cmd.c_str());
+    std::vector<std::string> files;
+    utils::scanDir(sst_path, files);
+    for (auto &file : files) {
+      utils::rmfile(sst_path + "/" + file);
+    }
+    utils::rmdir(sst_path);
   }
   if (utils::dirExists(vlog_path)) {
-    std::string cmd = "sudo rm -rf " + vlog_path;
-    system(cmd.c_str());
+    utils::rmfile(vlog_path);
   }
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  config::ConfigParam config = {atoi(argv[3]) * 8, 3, true, true};
+  config::reConfig(config);
   std::shared_ptr<KVStore> kvs = std::make_shared<KVStore>(sst_path, vlog_path);
   const int put_size = atoi(argv[1]);
   const int max_seconds = atoi(argv[2]);

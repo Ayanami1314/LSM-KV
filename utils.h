@@ -128,7 +128,19 @@ static inline int rmdir(const std::string &path) {
 static inline int rmfile(const std::string &path) {
   return ::unlink(path.c_str());
 }
-
+static inline void rmDirRecursively(const std::string &path) {
+  std::vector<std::string> ret;
+  scanDir(path, ret);
+  for (auto &s : ret) {
+    std::string subpath = path + "/" + s;
+    if (std::filesystem::is_directory(subpath)) {
+      rmDirRecursively(subpath);
+    } else {
+      rmfile(subpath);
+    }
+  }
+  rmdir(path);
+}
 /**
  * Reclaim space of a file
  * @param path file to be reclaimed.

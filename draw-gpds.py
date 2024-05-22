@@ -1,13 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+import os
+from copy import deepcopy
 
 if __name__=="__main__":
     # 读取日志文件
     log_file = 'report.txt'
+    savepath = "./imgs/gpds"
     with open(log_file, 'r') as f:
         lines = f.readlines()
-
+    if not os.path.exists(savepath):
+        os.makedirs(savepath)
     # 初始化数据存储
     data = [] # list of single_data
     all_data = [] # list of data
@@ -20,15 +24,16 @@ if __name__=="__main__":
     # 解析日志文件
     first_flag = True
     default_single_data ={"value_size": 0, "prebuilt_data_num": 0,"Get": [], "Put":[], "Del": [], "Scan": []} 
-    single_data = default_single_data.copy()
+    single_data = deepcopy(default_single_data)
     last_operation = "Get"
+    # FIXME bug in change_bf
     for line in lines:
         if line.startswith("Test with different BloomFilter size"):
             if len(single_data['Get']) > 0:
-                data.append(single_data.copy())
-                single_data = default_single_data.copy()
+                data.append(deepcopy(single_data))
+                single_data = deepcopy(default_single_data)
             if len(data) > 0:
-                all_data.append(data.copy())
+                all_data.append(deepcopy(data))
                 data = []
         
             test_mode = "change-bf"
@@ -36,12 +41,14 @@ if __name__=="__main__":
         if line.startswith("BloomFilter size"):
             parttern = "\d+ Bytes"
             bf_size = re.findall(parttern, line)[0]
+            single_config = {"use_bf": True, "use_cache": True,
+"bf_size": 65536, "bf_func_num": 3}
             single_config['bf_size'] = int(bf_size.split()[0])
             if len(single_data['Get']) > 0:
-                data.append(single_data.copy())
-                single_data = default_single_data.copy()
+                data.append(deepcopy(single_data))
+                single_data = deepcopy(default_single_data)
             if len(data) > 0:
-                change_bf_data.append(data.copy())
+                change_bf_data.append(deepcopy(data))
             data = []
             continue
 
@@ -49,12 +56,12 @@ if __name__=="__main__":
             if not first_flag:
                 if test_mode == "nochange-bf":
                     if single_data['Get'] != []:
-                        data.append(single_data.copy())
-                    single_data = default_single_data.copy()
-                    all_data.append(data.copy())
+                        data.append(deepcopy(single_data))
+                    single_data = deepcopy(default_single_data)
+                    all_data.append(deepcopy(data))
                 else:
                     assert(0)
-                    change_bf_data.append(data.copy())
+                    # change_bf_data.append(deepcopy(data))
                 data = []
             test_mode = "nochange-bf"
             substr = line.strip().split(',')
@@ -67,20 +74,20 @@ if __name__=="__main__":
             single_config['bf_func_num'] = int(substr[1].split(":")[1])
             first_flag = False
             if not first_flag:
-                config.append(single_config.copy())
+                config.append(deepcopy(single_config))
             continue
         else:
             operation = None
             if line.startswith('value_size'):
                 if len(single_data['Get']) > 0:
-                    data.append(single_data.copy())
-                single_data = {"value_size": 0, "prebuilt_data_num": 0,"Get": [],  "Put":[],"Del": [], "Scan": []}
+                    data.append(deepcopy(single_data))
+                single_data = deepcopy(default_single_data)
                 single_data['value_size'] = int(line.split(',')[0].strip().split(":")[1])
                 single_data['prebuilt_data_num'] = int(line.split(',')[1].strip().split(":")[1])
                 continue
             if line.startswith('Get') or line.startswith('Put') or line.startswith('Del') or line.startswith('Scan'):
                 operation, time = line.split(':')
-                time = int(time.strip().split()[0])
+                # time = int(time.strip().split()[0])
                 last_operation = operation #暂时用不到time
                 continue
             if line.strip().startswith('throughput'):
@@ -89,8 +96,8 @@ if __name__=="__main__":
                 assert len(single_data[last_operation]) < 2
                 single_data[last_operation].append(throughput)
 
-    data.append(single_data.copy())
-    change_bf_data.append(data.copy())
+    data.append(deepcopy(single_data))
+    change_bf_data.append(deepcopy(data))
     # 绘制数据
     # 在相同配置下的数据
     for single_config, data in zip(config, all_data):
@@ -110,11 +117,14 @@ if __name__=="__main__":
             plt.ylabel('Throughput (ops/s)')
             plt.xlabel("value size (bytes)")
             plt.xticks(range(4), ["10", "100", "1000", "10000"])
-            plt.title(f'Thourghput with prebuilt_data_num={data[it]["prebuilt_data_num"]}')
+            title = f'Thourghput with prebuilt_data_num={data[it]["prebuilt_data_num"]}'
+            plt.title(title)
             plt.legend()
-            plt.show()
+            plt.savefig(os.path.join(savepath, title))
+            plt.close()
 
     # 1024 * 1~15
+    
     print(len(change_bf_data))
     print(len(change_bf_data[0]))
     print(change_bf_data[0][0]['Get'][0])
@@ -133,23 +143,39 @@ if __name__=="__main__":
         plt.plot(get_throughput, marker='o', label='Get')
         value_size = pow(10, i%4+1)
         pn = (i//4 * 2 + 1) * 1000
-        plt.title(f'GET Thourghput with value_size={value_size} bytes, prebuilt num={pn} ')
+        title = f'GET Thourghput with value_size={value_size} bytes, prebuilt num={pn} '
+        plt.title(title)
         plt.legend()
-        plt.show()
+        plt.savefig(os.path.join(savepath, title))
+        plt.close()
 
+        plt.xlabel("BloomFilter Size (KB)")
+        plt.xticks(range(len(get_throughput)), [str(i+1) for i in range(len(get_throughput))])
+        plt.ylabel('Throughput (ops/s)')
         plt.plot(put_throughput, marker='o', label='Put')
-        plt.title(f'PUT Thourghput with value_size={value_size} bytes, prebuilt num={pn} ')
+        title = f'PUT Thourghput with value_size={value_size} bytes, prebuilt num={pn} '
+        plt.title(title)
         plt.legend()
-        plt.show()
+        plt.savefig(os.path.join(savepath, title))
+        plt.close()
 
+        plt.xlabel("BloomFilter Size (KB)")
+        plt.xticks(range(len(get_throughput)), [str(i+1) for i in range(len(get_throughput))])
+        plt.ylabel('Throughput (ops/s)')
         plt.plot(del_throughput, marker='o', label='Del')
-        plt.title(f'DEL Thourghput with value_size={value_size} bytes, prebuilt num={pn} ')
+        title = f'DEL Thourghput with value_size={value_size} bytes, prebuilt num={pn} '
+        plt.title(title)
         plt.legend()
-        plt.show()
+        plt.savefig(os.path.join(savepath, title))
+        plt.close()
 
-
+        plt.xlabel("BloomFilter Size (KB)")
+        plt.xticks(range(len(get_throughput)), [str(i+1) for i in range(len(get_throughput))])
+        plt.ylabel('Throughput (ops/s)')
         plt.plot(scan_throughput, marker='o', label='Scan')
-        plt.title(f'SCAN Thourghput with value_size={value_size} bytes, prebuilt num={pn} ')
+        title = f'SCAN Thourghput with value_size={value_size} bytes, prebuilt num={pn} '
+        plt.title(title)
         plt.legend()
-        plt.show()
+        plt.savefig(os.path.join(savepath, title))
+        plt.close()
 

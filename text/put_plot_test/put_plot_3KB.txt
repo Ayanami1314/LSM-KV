@@ -1,0 +1,22 @@
+reloc to 0
+reloc to 0
+put throughput: 90440 ops/s
+put throughput: 66640 ops/s
+put throughput: 41480 ops/s
+put throughput: 39780 ops/s
+put throughput: 61200 ops/s
+put throughput: 79560 ops/s
+put throughput: 74120 ops/s
+put throughput: 72355 ops/s
+put throughput: 78246 ops/s
+put throughput: 75140 ops/s
+put throughput: 66300 ops/s
+put throughput: 43860 ops/s
+put throughput: 51000 ops/s
+put throughput: 76840 ops/s
+put throughput: 76500 ops/s
+put throughput: 76087 ops/s
+put throughput: 74524 ops/s
+put throughput: 78540 ops/s
+put throughput: 74460 ops/s
+put throughput: 70380 ops/s
