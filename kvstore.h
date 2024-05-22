@@ -23,8 +23,8 @@ private:
   void compaction();
   void save();
   size_t cal_new_size();
-  size_t cal_new_size(size_t kv_num);
-  inline int level_limit(int level) { return std::pow(2, level + 1); }
+  static size_t cal_new_size(size_t kv_num);
+  static int level_limit(int level) { return std::pow(2, level + 1); }
   void mergeLayers_Helper(int from,
                           const Layer &src); // overflow pass to the next layer
   void mergeLayers();
@@ -32,7 +32,10 @@ private:
 public:
   static const std::string delete_symbol;
   KVStore(const std::string &dir, const std::string &vlog);
-
+  KVStore(const KVStore &other) = delete;
+  KVStore(KVStore &&rOther) = delete;
+  KVStore &operator=(KVStore &other) = delete;
+  KVStore &operator=(KVStore &&rOther) = delete;
   virtual ~KVStore();
 
   void put(uint64_t key, const std::string &s) override;

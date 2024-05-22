@@ -33,12 +33,12 @@ if __name__ == "__main__":
 
     if len(sys.argv) >= 2 and sys.argv[1] == "run":
         print(sys.argv[1])
-        # with open("../log/correctness.log", "w") as cf:
-        #     proc = sh.Popen(["./correctness", "-v"], stdout=cf, stderr=cf, preexec_fn=os.setpgrp)
-        #     threading.Thread(target=check_file_size, args=(proc, cf.name)).start()
-        #     proc.wait()
-        with open("../log/persistence.log", "w") as pf:
-            proc = sh.Popen(["./persistence", "-v"])
-            threading.Thread(target=check_file_size, args=(proc, pf.name)).start()
+        with open("../log/correctness.log", "w") as cf:
+            proc = sh.Popen(["./correctness", "-v"], stdout=cf, stderr=cf, preexec_fn=os.setpgrp)
+            threading.Thread(target=check_file_size, args=(proc, cf.name)).start()
             proc.wait()
+        # with open("../log/persistence.log", "w") as pf:
+        #     proc = sh.Popen(["./persistence", "-v"])
+        #     threading.Thread(target=check_file_size, args=(proc, pf.name)).start()
+        #     proc.wait()
     os.chdir("..")

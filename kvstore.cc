@@ -236,7 +236,7 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
         continue;
       }
 
-      list.push_back({it2->key, vStore.query(*it2)});
+      list.emplace_back(it2->key, vStore.query(*it2));
       it2++;
     } else {
       // key equal
@@ -268,7 +268,7 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
       it2++;
       continue;
     }
-    list.push_back({it2->key, vStore.query(*it2)});
+    list.emplace_back(it2->key, vStore.query(*it2));
     it2++;
   }
 }
@@ -358,7 +358,7 @@ void KVStore::gc(uint64_t chunk_size) {
     // NOTE: if ** found ** and ** new ** and ** not delete **
     // insert to memtable
     // else do nothing
-    else if (!mem && ke.offset == locs.at(idx) && ke.len != 0) {
+    if (!mem && ke.offset == locs.at(idx) && ke.len != 0) {
       this->put(ke.key, ve.vvalue);
     }
 
@@ -449,7 +449,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
       }
       // NOTE: iterate all pairs
       for (const auto &ke : *(d_sst.getKEntrys())) {
-        if (s_sst.query(ke.key) != type::ke_not_found) {
+        if (!(s_sst.query(ke.key) == type::ke_not_found)) {
           section_flag = true;
           break;
         }
@@ -482,6 +482,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     const SSTable::sstable_type &sst = src.at(i);
     sst.scan(sst.getHeader().getMinKey(), sst.getHeader().getMaxKey(), kes);
     intersection_kes.push_back(std::move(kes));
+    intersection_kes.push_back(std::move(kes));
   }
   for (int i = intersection_size - 1; i >= 0; --i) {
     kEntrys kes;
@@ -506,12 +507,14 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
       merged_ssts.push_back(new_sst);
       tmp.clear();
       tmp.resize(0);
+      tmp.resize(0);
     }
   }
   if (tmp.size() != 0) {
     SSTable::sstable_type new_sst(tmp, merge_max_id);
-    merged_ssts.push_back(new_sst);
+    merged_ssts.push_back(std::move(new_sst));
     tmp.clear();
+    tmp.resize(0);
     tmp.resize(0);
   }
   // HINT: invert_tmp_stack: from new to old
@@ -534,7 +537,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
       });
   if (no_intersection_size + merged_ssts_size > limit) {
     // HINT: no_intersection is older and should be merged first
-    int overflow_size = no_intersection_size + merged_ssts_size - limit;
+    size_t overflow_size = no_intersection_size + merged_ssts_size - limit;
     for (int i = 0; i < overflow_size; ++i) {
       auto &sst = final_dst.back();
       new_overflow.push_back(sst);
@@ -564,7 +567,7 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     utils::rmfile(sst_path);
   }
   // NOTE: add new merged file
-  for (auto &sst : final_dst) {
+  for (auto &sst : ss_layers.at(dst_level)) {
     // already exists
     if (no_save_files.find(sst.gen_filename()) != no_save_files.end()) {
       continue;
@@ -649,15 +652,13 @@ the kEntry to be saved in sst will be 0
  * @param  sst
  * @param  vl
  */
-void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vl) {
+void KVStore::convert_sst(SSTable::sstable_type &sst, vLogs &vlog) {
   auto kvplist = pkvs->get_kvplist();
   kEntrys kes;
-  for (auto kv : kvplist) {
-    TLen len =
-        kv.second == delete_symbol ? 0 : static_cast<TLen>(kv.second.size());
-    TOff offset =
-        vl.addVlog({.key = kv.first, .vlen = len, .vvalue = kv.second});
-    kes.push_back({.key = kv.first, .offset = offset, .len = len});
+  for (const auto &[key, value] : kvplist) {
+    TLen len = value == delete_symbol ? 0 : static_cast<TLen>(value.size());
+    TOff offset = vlog.addVlog({.key = key, .vlen = len, .vvalue = value});
+    kes.push_back({.key = key, .offset = offset, .len = len});
   }
   auto timeStamp = SSTable::sstable_type::incrTotalID();
   sst = SSTable::sstable_type(std::move(kes), timeStamp);

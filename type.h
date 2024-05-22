@@ -32,7 +32,10 @@ using kEntry = struct kEntry {
   bool operator>(const kEntry &rhs) const {
     return key < rhs.key || (key == rhs.key && offset > rhs.offset);
   }
-  bool is_deleted() { return len == 0; }
+  bool operator!=(const kEntry &rhs) const {
+    return key != rhs.key || offset != rhs.offset || len != rhs.len;
+  }
+  [[nodiscard]] bool is_deleted() const { return len == 0; }
 };
 using kEntrys = std::vector<kEntry>;
 using vEntryPrefix = struct prefix {
@@ -59,8 +62,8 @@ using TPath = std::filesystem::path;
 
 using vEntrys = std::list<vEntry>;
 namespace type {
-static kEntry ke_not_found = {0, 0, 0};
-static vEntry ve_not_found = {0, 0, 0, 0, ""};
+static const kEntry ke_not_found = {0, 0, 0};
+static const vEntry ve_not_found = {0, 0, 0, 0, ""};
 constexpr static u64 ve_prefix_len =
     sizeof(TMagic) + sizeof(TCheckSum) + sizeof(TKey) + sizeof(TLen);
 
