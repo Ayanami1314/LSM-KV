@@ -39,7 +39,7 @@ if __name__=="__main__":
             test_mode = "change-bf"
             continue
         if line.startswith("BloomFilter size"):
-            parttern = "\d+ Bytes"
+            parttern = r"\d+ Bytes"
             bf_size = re.findall(parttern, line)[0]
             single_config = {"use_bf": True, "use_cache": True,
 "bf_size": 65536, "bf_func_num": 3}
@@ -117,7 +117,7 @@ if __name__=="__main__":
             plt.ylabel('Throughput (ops/s)')
             plt.xlabel("value size (bytes)")
             plt.xticks(range(4), ["10", "100", "1000", "10000"])
-            title = f'Thourghput with prebuilt_data_num={data[it]["prebuilt_data_num"]}'
+            title = f"Thourghput with prebuilt_data_num={data[it]['prebuilt_data_num']}"
             plt.title(title)
             plt.legend()
             plt.savefig(os.path.join(savepath, title))

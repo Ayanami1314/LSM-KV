@@ -174,9 +174,6 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
  * @return ke_not_found macro if not found
  */
 kEntry sstable_type::query(TKey key) const {
-  if (!config::use_cache) {
-    throw("Try to query in cache when config::use_cache is false");
-  }
   if (config::use_bf) {
     if (!mayKeyExist(key)) {
       return type::ke_not_found;

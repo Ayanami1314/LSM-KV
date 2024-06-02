@@ -18,7 +18,7 @@ private:
   size_t height;
   double p;
   uint64_t ele_number;
-  typedef struct node {
+  using Node = struct node {
     key_type key;
     value_type value;
     node *next;
@@ -29,7 +29,7 @@ private:
     node(node *next, node *prev)
         : key(0), next(next), prev(prev), down(nullptr) {}
     node() : key(0), next(nullptr), prev(nullptr), down(nullptr) {}
-  } Node;
+  };
 
   vector<Node *> head;
   vector<Node *> tail;
