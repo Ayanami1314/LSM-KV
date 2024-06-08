@@ -3,7 +3,6 @@
 #include "kvstore_api.h"
 #include "skiplist.h"
 #include "sstable.h"
-#include "type.h"
 #include "vlog.h"
 #include <cmath>
 #include <memory>

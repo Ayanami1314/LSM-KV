@@ -2,6 +2,7 @@
 #ifndef __SSTABLE_H
 #define __SSTABLE_H
 #include "bloomfilter.h"
+#include "config.h"
 #include "type.h"
 #include <memory>
 namespace SSTable {
@@ -98,37 +99,24 @@ public:
   [[nodiscard]] kEntry query(TKey key) const;
   // [[nodiscard]] kEntry query(TKey key, std::string ss_file) const;
   void clear();
-  [[nodiscard]] BloomFilter getBF() const {
-    if (!config::use_cache || !config::use_bf) [[unlikely]] {
-      throw std::runtime_error("bf/cache is disabled");
+  BloomFilter getBF() const {
+    if (!config::use_bf) [[unlikely]] {
+      std::cerr << "bf is disabled" << std::endl;
+      throw std::runtime_error("bf is disabled");
     }
     return BF;
   }
   [[nodiscard]] std::shared_ptr<kEntrys> getKEntrys() const {
-    if (!config::use_cache) [[unlikely]] {
-      throw std::runtime_error("cache is disabled");
-    }
+    // HINT: no cache is just no-cache in kvstore, loaded sstable can do
+    // operations
     return this->pkes;
   }
   ~sstable_type() = default;
   [[nodiscard]] u64 getUID() const { return ss_uid; }
-  [[nodiscard]] u64 getKEntryNum() const {
-    if (!config::use_cache) [[unlikely]] {
-      throw std::runtime_error("cache is disabled");
-    }
-    return pkes->size();
-  }
-  [[nodiscard]] Header getHeader() const {
-    if (!config::use_cache) [[unlikely]] {
-      throw std::runtime_error("cache is disabled");
-    }
-    return header;
-  }
+  [[nodiscard]] u64 getKEntryNum() const { return pkes->size(); }
+  [[nodiscard]] Header getHeader() const { return header; }
 
   [[nodiscard]] std::string gen_filename() const {
-    if (!config::use_cache) [[unlikely]] {
-      throw std::runtime_error("cache is disabled");
-    }
     return get_filename(this->header);
   }
 };

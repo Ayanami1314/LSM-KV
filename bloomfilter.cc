@@ -87,6 +87,7 @@ std::vector<uint8_t> BloomFilter::toBytes() const {
   size_t size = this->BF.size();
   if (size % 8 != 0) {
     // NOTE: the size must be the multiple of 8
+    std::cerr << "BF size " << size << " is not a multiple of 8" << std::endl;
     throw("BF size is not a multiple of 8");
   }
   // byte: HIGH 01234567 LOW

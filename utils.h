@@ -1,9 +1,11 @@
 #pragma once
 
 #include "type.h"
+#include <cassert>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
+#include <iostream>
 #include <memory>
 #include <queue>
 #include <sstream>
@@ -13,12 +15,21 @@
 #include <vector>
 #define PAGE_SIZE (4 * 1024)
 #define DEBUG 0
+#define Assert(cond, msg, ...)                                                 \
+  do {                                                                         \
+    if (!cond) {                                                               \
+      printf(msg, ##__VA_ARGS__);                                              \
+      fflush(stdout);                                                          \
+      assert(0);                                                               \
+    }                                                                          \
+  } while (0)
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args) {
   int size =
       snprintf(nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
   if (size <= 0) {
-    throw std::runtime_error("Error during formatting.");
+    std::cerr << "Error during formatting." << std::endl;
+    // throw std::runtime_error("Error during formatting.");
   }
   std::unique_ptr<char[]> buf(new char[size]);
   snprintf(buf.get(), size, format.c_str(), args...);

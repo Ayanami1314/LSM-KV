@@ -104,6 +104,7 @@ if __name__=="__main__":
     change_bf_data.append(deepcopy(data))
     # 绘制数据
     # 在相同配置下的数据
+
     get_cache_bf = []
     get_cache_nobf = []
     get_nocache_nobf = []
@@ -123,6 +124,88 @@ if __name__=="__main__":
         else:
             get_nocache_nobf.append(deepcopy(data))
     
+    # 生成3种config下scan操作的对比图
+    scan_cache_bf = []
+    scan_cache_nobf = []
+    scan_nocache_nobf = []
+    for single_config, data in zip(config, all_data):
+        if single_config["use_cache"] and single_config["use_bf"]:
+            scan_cache_bf.append(deepcopy(data))
+        elif single_config["use_cache"]:
+            scan_cache_nobf.append(deepcopy(data))
+        else:
+            scan_nocache_nobf.append(deepcopy(data))
+    
+    for scan1, scan2, scan3 in zip(scan_cache_bf, scan_cache_nobf, scan_nocache_nobf):
+        for i in range(3):
+            it = 4 * i
+            scan1_throughput = [d['Scan'][0] for d in scan1[it: it+4]]
+            scan2_throughput = [d['Scan'][0] for d in scan2[it: it+4]]
+            scan3_throughput = [d['Scan'][0] for d in scan3[it: it+4]]
+            plt.plot(scan1_throughput, marker='o', label="use_bf, use_cache")
+            plt.plot(scan2_throughput, marker='o', label="no_bf, use_cache")
+            plt.plot(scan3_throughput, marker='o', label="no_bf, no_cache")
+            title = f"SCAN Throughput with prebuilt_data_size={i*2000 + 1000}"
+            plt.title(title)
+            plt.ylabel('Throughput (ops/s)')
+            plt.xlabel("value size (bytes)")
+            plt.xticks(range(4), ["10", "100", "1000", "10000"])
+            plt.legend()
+            plt.savefig(os.path.join(savepath, title))
+            plt.close()
+    # 四种操作对比 use_bf, use_cache and prebuilt_data_size=XX
+    cache_data_bf = []
+    cache_data_nobf = []
+    nocache_data_nobf = []
+
+    for config, data in zip(config, all_data):
+        if config["use_cache"] and config["use_bf"]:
+            cache_data_bf.append(deepcopy(data))
+        elif config["use_cache"]:
+            cache_data_nobf.append(deepcopy(data))
+        else:
+            nocache_data_nobf.append(deepcopy(data))
+        get_throughput = [sd['Get'] for sd in data]
+        put_throughput = [sd['Put'] for sd in data]
+        del_throughput = [sd['Del'] for sd in data]
+        scan_throughput = [sd['Scan'] for sd in data]
+        print(config)
+        for i in range(3):
+            # 3 prebuilt num 1000, 3000, 5000
+            pn = i * 2000 + 1000
+            get_with_pn = get_throughput[4*i:4*(i+1)]
+    
+            put_with_pn = put_throughput[4*i:4*(i+1)]
+    
+            del_with_pn = del_throughput[4*i:4*(i+1)]
+
+            scan_with_pn = scan_throughput[4*i:4*(i+1)]
+
+            # 画图
+            title = f"{gen_title(config)} with prebuilt_data_size={pn}"
+            plt.plot(get_with_pn, marker='o', label="Get")
+            plt.plot(put_with_pn, marker='o', label="Put")
+            plt.plot(del_with_pn, marker='o', label="Del")
+            plt.plot(scan_with_pn, marker='o', label="Scan")
+            plt.title(title)
+            plt.ylabel('Throughput (ops/s)')
+            plt.xlabel("value size (bytes)")
+            plt.xticks(range(4), ["10", "100", "1000", "10000"])
+            plt.legend()
+            plt.savefig(os.path.join(savepath, title))
+            plt.close()
+
+
+
+    # # 生成3种config下get操作的对比图
+    # for i in range(3):
+    #     x_data_num = len(config)
+    #     get_throughput = [all_data[j][i]['Get'][0] for j in range(x_data_num)]
+    #     put_throughput = [all_data[j][i]['Put'][0] for j in range(x_data_num)]
+    #     del_throughput = [all_data[j][i]['Del'][0] for j in range(x_data_num)]
+    #     scan_throughput = [all_data[j][i]['Scan'][0] for j in range(x_data_num)]
+
+
     for get1, get2, get3 in zip(get_cache_bf, get_cache_nobf, get_nocache_nobf):
         # print(single_config)
         # print(len(config))
@@ -200,4 +283,3 @@ if __name__=="__main__":
         plt.legend()
         plt.savefig(os.path.join(savepath, title))
         plt.close()
-

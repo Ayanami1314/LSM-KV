@@ -1,4 +1,6 @@
 #include "kvstore.h"
+
+#include "config.h"
 #include "skiplist.h"
 #include "sstable.h"
 #include "type.h"
@@ -110,6 +112,7 @@ std::string KVStore::get(uint64_t key) {
       }
     }
   } else {
+    // std::cout << "no cache" << std::endl;
     auto cur_dir = std::filesystem::path(save_dir) / "level_0";
     for (int i = 0; utils::dirExists(cur_dir); ++i) {
       std::vector<std::string> sst_files;
@@ -130,8 +133,12 @@ std::string KVStore::get(uint64_t key) {
           break;
         }
       }
+      if (found) {
+        break;
+      }
       cur_dir =
-          std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
+          std::filesystem::path(save_dir) / ("level_" + std::to_string(i + 1));
+      // std::cout << cur_dir << std::endl;
     }
   }
 
@@ -210,7 +217,7 @@ void KVStore::scan(uint64_t key1, uint64_t key2,
         }
       }
       cur_dir =
-          std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
+          std::filesystem::path(save_dir) / ("level_" + std::to_string(i + 1));
     }
   }
   kEntrys merge_layers;
@@ -343,8 +350,11 @@ void KVStore::gc(uint64_t chunk_size) {
               break;
             }
           }
-          cur_dir =
-              std::filesystem::path(save_dir) / ("level_" + std::to_string(i));
+          if (found) {
+            break;
+          }
+          cur_dir = std::filesystem::path(save_dir) /
+                    ("level_" + std::to_string(i + 1));
         }
       }
     }
@@ -366,7 +376,7 @@ void KVStore::gc(uint64_t chunk_size) {
   }
   // NOTE: third, compaction and de_alloc_file
   compaction();
-  utils::de_alloc_file(vStore.getPath(), tail, read_size);
+  // utils::de_alloc_file(vStore.getPath(), tail, read_size);
   vStore.gc(tail + read_size);
 }
 /**
@@ -567,7 +577,8 @@ void KVStore::mergeLayers_Helper(int from, const Layer &src) {
     utils::rmfile(sst_path);
   }
   // NOTE: add new merged file
-  for (auto &sst : ss_layers.at(dst_level)) {
+  auto &to_save_ssts = config::use_cache ? ss_layers.at(dst_level) : final_dst;
+  for (auto &sst : to_save_ssts) {
     // already exists
     if (no_save_files.find(sst.gen_filename()) != no_save_files.end()) {
       continue;
@@ -618,10 +629,10 @@ void KVStore::compaction() {
     this->pkvs = std::make_unique<skiplist::skiplist_type>();
     Layer level_0_vec;
     if (config::use_cache) {
-      ss_layers[0].push_back(new_sstable);
       for (const auto &sst : ss_layers.at(0)) {
         level_0_vec.push_back(sst);
       }
+      ss_layers[0].push_back(new_sstable);
       ss_layers.at(0) = Layer();
     } else {
       auto ssts = getSortedSSTfileNames(l0_dir);
@@ -712,26 +723,26 @@ void KVStore::clearMem() {
 }
 
 void KVStore::rebuildMem() {
-  if (!config::use_cache) {
-    throw("cache is disabled, no need to rebuild mem");
-  }
-  // NOTE: if the dir exists, load the sstables into cache
-  int level = 0;
-  std::string level_dir = std::filesystem::path(save_dir) / "level_0";
-  while (utils::dirExists(level_dir)) {
-    ++level;
-    auto ssts = getSortedSSTfileNames(level_dir);
-    Layer level_layer;
-    for (auto &ss_name : ssts) {
-      SSTable::sstable_type sst_cache;
-      auto ss_path = std::filesystem::path(level_dir) / ss_name;
-      sst_cache.load(ss_path);
-      level_layer.push_back(sst_cache);
+  if (config::use_cache) {
+    // NOTE: if the dir exists, load the sstables into cache
+    int level = 0;
+    std::string level_dir = std::filesystem::path(save_dir) / "level_0";
+    while (utils::dirExists(level_dir)) {
+      ++level;
+      auto ssts = getSortedSSTfileNames(level_dir);
+      Layer level_layer;
+      for (auto &ss_name : ssts) {
+        SSTable::sstable_type sst_cache;
+        auto ss_path = std::filesystem::path(level_dir) / ss_name;
+        sst_cache.load(ss_path);
+        level_layer.push_back(sst_cache);
+      }
+      level_dir = (std::filesystem::path(save_dir) / "level_").string() +
+                  std::to_string(level);
+      ss_layers.push_back(level_layer);
     }
-    level_dir = (std::filesystem::path(save_dir) / "level_").string() +
-                std::to_string(level);
-    ss_layers.push_back(level_layer);
   }
+
   // NOTE: set the vlog head and tail
   if (std::filesystem::exists(vStore.getPath())) {
     vStore.reload_mem();

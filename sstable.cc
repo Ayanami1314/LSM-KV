@@ -74,7 +74,9 @@ sstable_type::sstable_type(const sstable_type &other)
       pkes(other.pkes) {}
 void sstable_type::addBF(const kEntrys &kes) {
   if (!config::use_bf || !config::use_cache) [[unlikely]] {
-    throw("Try to add BF when config::use_bf is false");
+    std::string msg = "Try to add BF when config::use_bf is false";
+    std::cerr << msg << std::endl;
+    throw(msg);
   }
   for (auto &entry : *pkes) {
     BF.insert_u64(entry.key);
@@ -121,19 +123,6 @@ bool sstable_type::mayKeyExist(TKey key) const {
   }
   return true;
 }
-// bool sstable_type::mayKeyExist(TKey key, std::string ss_file) const {
-//   std::ifstream ifs(ss_file);
-//   if (!ifs.is_open()) {
-//     throw("Try to get size of a file that not exists");
-//   }
-//   Header file_header;
-//   ifs.read(reinterpret_cast<char *>(&file_header), sizeof(file_header));
-//   ifs.close();
-//   if (key > file_header.getMaxKey() || key < file_header.getMinKey()) {
-//     return false;
-//   }
-//   return true;
-// }
 u64 binary_search_helper(TKey key, u64 left, u64 right, const kEntrys &kes,
                          bool &found) {
   if (left == right) {
@@ -174,15 +163,12 @@ u64 sstable_type::binary_search(TKey key, u64 total, bool &exist,
  * @return ke_not_found macro if not found
  */
 kEntry sstable_type::query(TKey key) const {
-  if (!config::use_cache) {
-    throw("Try to query in cache when config::use_cache is false");
-  }
   if (config::use_bf) {
     if (!mayKeyExist(key)) {
       return type::ke_not_found;
     }
   }
-
+  // std::cout << "config" << std::endl;
   // for (auto &entry : *pkes) {
   //   if (entry.key == key) {
   //     return entry;

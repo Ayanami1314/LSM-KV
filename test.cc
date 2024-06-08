@@ -1,5 +1,4 @@
 #include "kvstore.h"
-#include "type.h"
 #include "utils.h"
 #include <array>
 #include <cassert>

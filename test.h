@@ -48,6 +48,7 @@ protected:
     if (verbose) {
       std::cerr << "TEST Error @" << file << ":" << line;
       std::cerr << ", current offset " << cur;
+      std::cerr << ", min size " << size;
       std::cerr << ", last offset " << last << std::endl;
     }
   }

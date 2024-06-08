@@ -40,14 +40,15 @@ int read_a_ventry(std::ifstream &ifs, vEntry &ve) {
     data.push_back(byte);
     ifs.read(reinterpret_cast<char *>(&byte), sizeof(byte));
   }
+  if (data.size() != vlen || (ifs.fail() && !ifs.eof())) {
+    ifs.seekg(back_loc);
+    return -1;
+  }
   if (byte == vLogs::magic) {
     // HINT: set the ifs back 1
     ifs.seekg(-1, std::ios_base::cur);
   }
-  if (data.size() != vlen) {
-    ifs.seekg(back_loc);
-    return -1;
-  }
+
   TValue ret(data.begin(), data.end());
   ve.magic = magic;
   ve.checksum = checksum;
@@ -198,11 +199,18 @@ u64 vLogs::readVlogs(TOff offset, vEntrys &ves, u64 chunk_size,
       return 0;
     }
     ves.push_back(ve);
+
     auto cur = ifs.tellg();
+    if (ifs.eof()) {
+      ifs.clear();
+      cur = ifs.seekg(0, std::ios::end).tellg();
+    }
+    // ATTENTION：when read to the end of file, cur's offset will be -1
+    Assert((cur != (uint64_t)(-1)), "Uncaught error in readVlogs");
     size = cur - begin;
     locs.push_back(cur);
   }
-  tail = size + begin;
+  // tail = size + begin;
   ifs.close();
   return size;
 }
@@ -325,11 +333,13 @@ TValue vLogs::query(kEntry ke) {
 }
 
 void vLogs::gc(u64 new_tail) {
+  // HINT
   if (new_tail <= tail) {
     Log("Error vlog gc: new_tail <= tail");
     return;
   }
 
   utils::de_alloc_file(vfilepath, tail, new_tail - tail);
+  std::cout << "gc done, new tail is " << new_tail << std::endl;
   tail = new_tail;
 }
