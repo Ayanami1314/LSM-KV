@@ -7,8 +7,8 @@
 using std::cout, std::endl, std::string;
 using kvpair = std::pair<std::string, std::string>;
 std::atomic<bool> stop_flag(false);
-void run(std::function<void(std::atomic<int> &, std::atomic<bool> &flag)> fn,
-         string name, int max_seconds) {
+void run(const std::function<void(std::atomic<int> &, std::atomic<bool> &flag)> &fn,
+         const string& name, int max_seconds) {
   // NOTE：每隔1s统计吞吐量
   std::atomic<int> number(0);
 

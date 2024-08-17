@@ -17,6 +17,7 @@ void gc_expect(const T &cur, const T &last, const T &size,
   }
   std::cerr << "TEST Error @" << file << ":" << line;
   std::cerr << ", current offset " << cur;
+  std::cerr << ", min size " << size;
   std::cerr << ", last offset " << last << std::endl;
 }
 class KVStoreTestChangeBF : public ::testing::Test {
@@ -25,7 +26,7 @@ protected:
     // Code here will be called immediately after the constructor (right
     // before each test).
     // config::ConfigParam newConfig = {4096, 3, true, true};
-    config::ConfigParam newConfig = {0, 0, false, true};
+    config::ConfigParam newConfig = {0, 0, false, false};
     config::reConfig(newConfig);
     cout << "use cache:" << config::use_cache << endl;
     pStore = make_unique<KVStore>(testdir, vLog.string());
@@ -85,31 +86,31 @@ protected:
 };
 
 TEST_F(KVStoreTestChangeBF, basicCRUD) {
-  EXPECT_EQ(pStore->get(1), "");
-  EXPECT_EQ(pStore->get(2), "");
+  ASSERT_EQ(pStore->get(1), "");
+  ASSERT_EQ(pStore->get(2), "");
 
   pStore->put(1, "1");
   pStore->put(2, "2");
   pStore->put(5, "5");
 
-  EXPECT_EQ(pStore->get(1), "1");
-  EXPECT_EQ(pStore->get(5), "5");
-  EXPECT_EQ(pStore->get(2), "2");
-  EXPECT_EQ(pStore->get(3), "");
+  ASSERT_EQ(pStore->get(1), "1");
+  ASSERT_EQ(pStore->get(5), "5");
+  ASSERT_EQ(pStore->get(2), "2");
+  ASSERT_EQ(pStore->get(3), "");
 
   pStore->del(1);
-  EXPECT_EQ(pStore->get(1), "");
+  ASSERT_EQ(pStore->get(1), "");
   pStore->put(6, "6");
   pStore->put(7, "7");
   pStore->put(8, "8");
   pStore->del(6);
-  EXPECT_EQ(pStore->get(6), "");
-  EXPECT_EQ(pStore->get(7), "7");
-  EXPECT_EQ(pStore->get(5), "5");
+  ASSERT_EQ(pStore->get(6), "");
+  ASSERT_EQ(pStore->get(7), "7");
+  ASSERT_EQ(pStore->get(5), "5");
 
   pStore->reset();
-  EXPECT_EQ(pStore->get(8), "");
-  EXPECT_EQ(pStore->get(7), "");
+  ASSERT_EQ(pStore->get(8), "");
+  ASSERT_EQ(pStore->get(7), "");
 }
 
 TEST_F(KVStoreTestChangeBF, basicScan) {
@@ -130,8 +131,8 @@ TEST_F(KVStoreTestChangeBF, basicScan) {
   ;
   pStore->scan(1, 3, res);
   pStore->scan(5, 9, res2);
-  EXPECT_EQ(res, ref);
-  EXPECT_EQ(res2, ref2);
+  ASSERT_EQ(res, ref);
+  ASSERT_EQ(res2, ref2);
 }
 TEST_F(KVStoreTestChangeBF, BasicScan2) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -143,7 +144,7 @@ TEST_F(KVStoreTestChangeBF, BasicScan2) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans.size(), list_stu.size());
+  ASSERT_EQ(list_ans.size(), list_stu.size());
 }
 TEST_F(KVStoreTestChangeBF, BasicScan3) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -155,7 +156,7 @@ TEST_F(KVStoreTestChangeBF, BasicScan3) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans, list_stu);
+  ASSERT_EQ(list_ans, list_stu);
 }
 TEST_F(KVStoreTestChangeBF, ScanWithDel) {
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -167,9 +168,9 @@ TEST_F(KVStoreTestChangeBF, ScanWithDel) {
   }
   pStore->del(0);
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans.size(), list_stu.size() + 1);
+  ASSERT_EQ(list_ans.size(), list_stu.size() + 1);
   list_ans.pop_front();
-  EXPECT_EQ(list_ans, list_stu);
+  ASSERT_EQ(list_ans, list_stu);
 }
 TEST_F(KVStoreTestChangeBF, BasicScan4) {
   pStore->put(1, "SE");
@@ -177,7 +178,7 @@ TEST_F(KVStoreTestChangeBF, BasicScan4) {
   auto res = std::list<skiplist::kvpair>();
   auto ref = std::list<skiplist::kvpair>();
   pStore->scan(1, 2, res);
-  EXPECT_EQ(res, ref);
+  ASSERT_EQ(res, ref);
 }
 TEST_F(KVStoreTestChangeBF, RegularTest50) {
 
@@ -185,22 +186,22 @@ TEST_F(KVStoreTestChangeBF, RegularTest50) {
   const std::string not_found = "";
   const int max = 50;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -211,18 +212,18 @@ TEST_F(KVStoreTestChangeBF, RegularTest50) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans.size(), list_stu.size());
+  ASSERT_EQ(list_ans.size(), list_stu.size());
 
   auto ap = list_ans.begin();
   auto sp = list_stu.begin();
   while (ap != list_ans.end()) {
     if (sp == list_stu.end()) {
-      EXPECT_EQ((*ap).first, -1);
-      EXPECT_EQ((*ap).second, not_found);
+      ASSERT_EQ((*ap).first, -1);
+      ASSERT_EQ((*ap).second, not_found);
       ap++;
     } else {
-      EXPECT_EQ((*ap).first, (*sp).first);
-      EXPECT_EQ((*ap).second, (*sp).second);
+      ASSERT_EQ((*ap).first, (*sp).first);
+      ASSERT_EQ((*ap).second, (*sp).second);
       ap++;
       sp++;
     }
@@ -230,14 +231,14 @@ TEST_F(KVStoreTestChangeBF, RegularTest50) {
 
   // Test deletions
   for (i = 0; i < max; i += 2) {
-    EXPECT_EQ(true, pStore->del(i));
+    ASSERT_EQ(true, pStore->del(i));
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+    ASSERT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
-    EXPECT_EQ(i & 1, pStore->del(i));
+    ASSERT_EQ(i & 1, pStore->del(i));
 }
 
 TEST_F(KVStoreTestChangeBF, RegularTest200) {
@@ -245,22 +246,22 @@ TEST_F(KVStoreTestChangeBF, RegularTest200) {
   const std::string not_found = "";
   const int max = 200;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -271,18 +272,18 @@ TEST_F(KVStoreTestChangeBF, RegularTest200) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans.size(), list_stu.size());
+  ASSERT_EQ(list_ans.size(), list_stu.size());
 
   auto ap = list_ans.begin();
   auto sp = list_stu.begin();
   while (ap != list_ans.end()) {
     if (sp == list_stu.end()) {
-      EXPECT_EQ((*ap).first, -1);
-      EXPECT_EQ((*ap).second, not_found);
+      ASSERT_EQ((*ap).first, -1);
+      ASSERT_EQ((*ap).second, not_found);
       ap++;
     } else {
-      EXPECT_EQ((*ap).first, (*sp).first);
-      EXPECT_EQ((*ap).second, (*sp).second);
+      ASSERT_EQ((*ap).first, (*sp).first);
+      ASSERT_EQ((*ap).second, (*sp).second);
       ap++;
       sp++;
     }
@@ -290,14 +291,14 @@ TEST_F(KVStoreTestChangeBF, RegularTest200) {
 
   // Test deletions
   for (i = 0; i < max; i += 2) {
-    EXPECT_EQ(true, pStore->del(i));
+    ASSERT_EQ(true, pStore->del(i));
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+    ASSERT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
-    EXPECT_EQ(i & 1, pStore->del(i));
+    ASSERT_EQ(i & 1, pStore->del(i));
 }
 
 TEST_F(KVStoreTestChangeBF, RegularTest1024) {
@@ -305,22 +306,22 @@ TEST_F(KVStoreTestChangeBF, RegularTest1024) {
   const std::string not_found = "";
   const int max = 1024;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -331,18 +332,18 @@ TEST_F(KVStoreTestChangeBF, RegularTest1024) {
   }
 
   pStore->scan(0, max / 2 - 1, list_stu);
-  EXPECT_EQ(list_ans.size(), list_stu.size());
+  ASSERT_EQ(list_ans.size(), list_stu.size());
 
   auto ap = list_ans.begin();
   auto sp = list_stu.begin();
   while (ap != list_ans.end()) {
     if (sp == list_stu.end()) {
-      EXPECT_EQ((*ap).first, -1);
-      EXPECT_EQ((*ap).second, not_found);
+      ASSERT_EQ((*ap).first, -1);
+      ASSERT_EQ((*ap).second, not_found);
       ap++;
     } else {
-      EXPECT_EQ((*ap).first, (*sp).first);
-      EXPECT_EQ((*ap).second, (*sp).second);
+      ASSERT_EQ((*ap).first, (*sp).first);
+      ASSERT_EQ((*ap).second, (*sp).second);
       ap++;
       sp++;
     }
@@ -350,14 +351,14 @@ TEST_F(KVStoreTestChangeBF, RegularTest1024) {
 
   // Test deletions
   for (i = 0; i < max; i += 2) {
-    EXPECT_EQ(true, pStore->del(i));
+    ASSERT_EQ(true, pStore->del(i));
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+    ASSERT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
-    EXPECT_EQ(i & 1, pStore->del(i));
+    ASSERT_EQ(i & 1, pStore->del(i));
 }
 
 TEST_F(KVStoreTestChangeBF, JustOverflow) {
@@ -365,44 +366,44 @@ TEST_F(KVStoreTestChangeBF, JustOverflow) {
   const std::string not_found = "";
   const int max = 350;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
 }
 TEST_F(KVStoreTestChangeBF, ThreeSST) {
   uint64_t i;
   const std::string not_found = "";
   const int max = 1000;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // // Test after all insertions
   for (i = 0; i < max; ++i)
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
 }
 
 TEST_F(KVStoreTestChangeBF, LargeScan) {
@@ -417,7 +418,7 @@ TEST_F(KVStoreTestChangeBF, LargeScan) {
     ref.push_back({i, std::to_string(i)});
   }
 
-  EXPECT_EQ(ref, res);
+  ASSERT_EQ(ref, res);
 }
 
 TEST_F(KVStoreTestChangeBF, LargeScanWithDel) {
@@ -435,7 +436,7 @@ TEST_F(KVStoreTestChangeBF, LargeScanWithDel) {
     ref.push_back({i, std::to_string(i)});
   }
 
-  EXPECT_EQ(ref, res);
+  ASSERT_EQ(ref, res);
 }
 
 TEST_F(KVStoreTestChangeBF, AnotherLargeScan) {
@@ -444,21 +445,21 @@ TEST_F(KVStoreTestChangeBF, AnotherLargeScan) {
   auto not_found = "";
   int max = 500;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
 
   // Test multiple key-value pairs
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
-    // EXPECT_EQ(std::to_string(i), pStore->get(i));
+    // ASSERT_EQ(std::to_string(i), pStore->get(i));
   }
 
   // for (i = 0; i < max; ++i)
-  //   EXPECT_EQ(std::to_string(i), pStore->get(i));
+  //   ASSERT_EQ(std::to_string(i), pStore->get(i));
 
   // Test scan
   std::list<std::pair<uint64_t, std::string>> list_ans;
@@ -470,18 +471,18 @@ TEST_F(KVStoreTestChangeBF, AnotherLargeScan) {
 
   pStore->scan(0, max / 2 - 1, list_stu);
 
-  EXPECT_EQ(list_ans.size(), list_stu.size());
+  ASSERT_EQ(list_ans.size(), list_stu.size());
 
   // auto ap = list_ans.begin();
   // auto sp = list_stu.begin();
   // while (ap != list_ans.end()) {
   //   if (sp == list_stu.end()) {
-  //     EXPECT_EQ((*ap).first, -1);
-  //     EXPECT_EQ((*ap).second, not_found);
+  //     ASSERT_EQ((*ap).first, -1);
+  //     ASSERT_EQ((*ap).second, not_found);
   //     ap++;
   //   } else {
-  //     EXPECT_EQ((*ap).first, (*sp).first);
-  //     EXPECT_EQ((*ap).second, (*sp).second);
+  //     ASSERT_EQ((*ap).first, (*sp).first);
+  //     ASSERT_EQ((*ap).second, (*sp).second);
   //     ap++;
   //     sp++;
   //   }
@@ -492,26 +493,26 @@ TEST_F(KVStoreTestChangeBF, AnotherLargeScanWithDel) {
   auto not_found = "";
   int max = 345;
   // Test a single key
-  EXPECT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(not_found, pStore->get(1));
   pStore->put(1, "SE");
-  EXPECT_EQ("SE", pStore->get(1));
-  EXPECT_EQ(true, pStore->del(1));
-  EXPECT_EQ(not_found, pStore->get(1));
-  EXPECT_EQ(false, pStore->del(1));
+  ASSERT_EQ("SE", pStore->get(1));
+  ASSERT_EQ(true, pStore->del(1));
+  ASSERT_EQ(not_found, pStore->get(1));
+  ASSERT_EQ(false, pStore->del(1));
   for (i = 0; i < max; ++i) {
     pStore->put(i, std::to_string(i));
   }
 
   // Test deletions
   for (i = 0; i < max; i += 2) {
-    EXPECT_EQ(true, pStore->del(i));
+    ASSERT_EQ(true, pStore->del(i));
   }
 
   for (i = 0; i < max; ++i)
-    EXPECT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
+    ASSERT_EQ((i & 1) ? std::to_string(i) : not_found, pStore->get(i));
 
   for (i = 1; i < max; ++i)
-    EXPECT_EQ(i & 1, pStore->del(i));
+    ASSERT_EQ(i & 1, pStore->del(i));
 }
 
 TEST_F(KVStoreTestChangeBF, basicGC) {
@@ -528,7 +529,7 @@ TEST_F(KVStoreTestChangeBF, basicGC) {
   pStore->printMem();
   for (i = 0; i < max; ++i) {
     // std::cout << "idx: " << i << std::endl;
-    EXPECT_EQ(std::to_string(i), pStore->get(i));
+    ASSERT_EQ(std::to_string(i), pStore->get(i));
     // std::cout << "after get" << std::endl;
     switch (i % 3) {
     case 0:
@@ -546,7 +547,7 @@ TEST_F(KVStoreTestChangeBF, basicGC) {
 
     if (i % gc_trigger == 0) [[unlikely]] {
       std::cout << "gc_start: " << i << std::endl;
-      check_gc(16 * KB);
+      check_gc(4 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
@@ -561,7 +562,7 @@ TEST_F(KVStoreTestChangeBF, SmallPutOverride) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i) + 'a');
@@ -581,13 +582,13 @@ TEST_F(KVStoreTestChangeBF, SmallPutOverride) {
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
@@ -603,19 +604,19 @@ TEST_F(KVStoreTestChangeBF, MidPutOverride1) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i) + 'a');
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
       pStore->put(i, std::to_string(i) + 'b');
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
       pStore->put(i, std::to_string(i) + 'c');
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
@@ -629,13 +630,13 @@ TEST_F(KVStoreTestChangeBF, MidPutOverride1) {
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
@@ -652,25 +653,25 @@ TEST_F(KVStoreTestChangeBF, MidPutOverride2) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i) + 'a');
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
       pStore->put(i, std::to_string(i) + 'b');
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
       pStore->put(i, std::to_string(i) + 'c');
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
     }
     if (i % gc_trigger == 0) [[unlikely]] {
-      check_gc(16 * KB);
+      check_gc(4 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
@@ -678,13 +679,13 @@ TEST_F(KVStoreTestChangeBF, MidPutOverride2) {
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
@@ -701,25 +702,25 @@ TEST_F(KVStoreTestChangeBF, LargePutOverride) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i) + 'a');
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
       pStore->put(i, std::to_string(i) + 'b');
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
       pStore->put(i, std::to_string(i) + 'c');
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
     }
     if (i % gc_trigger == 0) [[unlikely]] {
-      check_gc(16 * KB);
+      check_gc(4 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
@@ -727,13 +728,13 @@ TEST_F(KVStoreTestChangeBF, LargePutOverride) {
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
@@ -751,26 +752,26 @@ TEST_F(KVStoreTestChangeBF, LargeGC) {
   }
   std::cout << "Put end." << std::endl;
   for (i = 0; i < max; ++i) {
-    EXPECT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
+    ASSERT_EQ(std::string(std::to_string(i) + 's'), pStore->get(i));
     switch (i % 3) {
     case 0:
       pStore->put(i, std::to_string(i) + 'a');
-      EXPECT_EQ(std::to_string(i) + 'a', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'a', pStore->get(i));
       break;
     case 1:
       pStore->put(i, std::to_string(i) + 'b');
-      EXPECT_EQ(std::to_string(i) + 'b', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'b', pStore->get(i));
       break;
     case 2:
       pStore->put(i, std::to_string(i) + 'c');
 
-      EXPECT_EQ(std::to_string(i) + 'c', pStore->get(i));
+      ASSERT_EQ(std::to_string(i) + 'c', pStore->get(i));
       break;
     default:
       assert(0);
     }
     if (i % gc_trigger == 0) [[unlikely]] {
-      check_gc(16 * KB);
+      check_gc(4 * KB);
     }
   }
   std::cout << "Stage 1 end." << std::endl;
@@ -780,15 +781,15 @@ TEST_F(KVStoreTestChangeBF, LargeGC) {
   for (i = 0; i < max; ++i) {
     switch (i % 3) {
     case 0:
-      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'a',
+      ASSERT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'a',
                 pStore->get(i));
       break;
     case 1:
-      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'b',
+      ASSERT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'b',
                 pStore->get(i));
       break;
     case 2:
-      EXPECT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'c',
+      ASSERT_EQ(i % 2 == 0 ? not_found : std::to_string(i) + 'c',
                 pStore->get(i));
       break;
     default:
@@ -807,7 +808,7 @@ TEST_F(KVStoreTestChangeBF, largePutAndDel) {
   }
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 
@@ -839,7 +840,7 @@ TEST_F(KVStoreTestChangeBF, simulatedPersistence) {
   pStore->rebuildMem();
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 TEST_F(KVStoreTestChangeBF, smallPersisWithGC) {
@@ -856,7 +857,7 @@ TEST_F(KVStoreTestChangeBF, smallPersisWithGC) {
   pStore->rebuildMem();
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 TEST_F(KVStoreTestChangeBF, largerPersisWithGC) {
@@ -873,7 +874,7 @@ TEST_F(KVStoreTestChangeBF, largerPersisWithGC) {
   pStore->rebuildMem();
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 TEST_F(KVStoreTestChangeBF, simulatedPersistenceWithGC) {
@@ -890,7 +891,7 @@ TEST_F(KVStoreTestChangeBF, simulatedPersistenceWithGC) {
   pStore->rebuildMem();
 
   for (int i = 0; i < max; ++i) {
-    EXPECT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
+    ASSERT_EQ(pStore->get(i), i % 2 == 0 ? "" : std::to_string(i));
   }
 }
 
@@ -927,7 +928,7 @@ TEST_F(KVStoreTestChangeBF, randomLargeSizeSmallNumTest) {
   auto get_fn = [&kvs, &test_kvs]() {
     for (int i = 0; i < get_test_times; ++i) {
       string value = kvs->get(test_kvs[i].first);
-      EXPECT_EQ(value, test_kvs[i].second);
+      ASSERT_EQ(value, test_kvs[i].second);
     }
   };
   cal_time(get_fn, "Get", get_test_times);
@@ -1002,7 +1003,7 @@ TEST_F(KVStoreTestChangeBF, randomSmallSizeSmallNumTest) {
   auto get_fn = [&kvs, &test_kvs]() {
     for (int i = 0; i < get_test_times; ++i) {
       string value = kvs->get(test_kvs[i].first);
-      EXPECT_EQ(value, test_kvs[i].second);
+      ASSERT_EQ(value, test_kvs[i].second);
     }
   };
   cal_time(get_fn, "Get", get_test_times);

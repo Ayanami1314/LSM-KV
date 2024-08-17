@@ -4,12 +4,12 @@ project(my_project)
 
 # GoogleTest requires at least C++14
 
-set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # debug on
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FALGS} -Wall -Ofast")
+set(CMAKE_CXX_FLAGS "-std=c++2b ${CMAKE_CXX_FALGS} -Wall -g")
 # link_libraries(ubsan asan)
 
 include(FetchContent)

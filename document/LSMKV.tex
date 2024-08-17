@@ -109,13 +109,13 @@ LSM-KV 的主要特点包括高性能（通过使用 LSM tree，LSM-KV 可以提
 \begin{figure}[ht]
     \centering
     \subfigure[]{
-        \includegraphics[width=0.3\textwidth]{../imgs/Thourghput with prebuilt_data_num=1000.png}
+        \includegraphics[width=0.3\textwidth]{../imgs/gpds/no_bf, no_cache with prebuilt_data_size=3000.png}
     }
     \subfigure[]{
-        \includegraphics[width=0.3\textwidth]{../imgs/Thourghput with prebuilt_data_num=3000.png}
+        \includegraphics[width=0.3\textwidth]{../imgs/gpds/no_bf, use_cache with prebuilt_data_size=3000.png}
     }
     \subfigure[]{
-        \includegraphics[width=0.3\textwidth]{../imgs/Thourghput with prebuilt_data_num=5000.png}
+        \includegraphics[width=0.3\textwidth]{../imgs/gpds/use_bf, use_cache with prebuilt_data_size=3000.png}
     }
     \caption{性能对比图}\label{fig:性能对比图}
 \end{figure}
@@ -125,8 +125,9 @@ LSM-KV 的主要特点包括高性能（通过使用 LSM tree，LSM-KV 可以提
 \end{enumerate}
 \begin{enumerate}
      \item 四种操作的速度从大到小为：DEL>GET>PUT>SCAN
-     \item DEL速度非常快。这是因为在我的实现之中，DEL只在内存之中查找，最坏也只需要PUT一个短的value
-     \item value较大时，GET操作退化的速度比PUT快，甚至到value\_size为10000个字节时，PUT比GET还快。这是因为GET需要多次query来确认key对应的value有效，而在存储的键值对都较长时，相关开销（例如，文件定位、取到验证用的magic和校验和）的开销远远超过了内存操作的开销，成为了开销的主体。这也验证了LSM结构在写上的优越性和读上效率不高的问题。
+     \item 有缓存的情况下，GET和PUT的速度差别不大；但没有缓存的情况下，GET明显慢于PUT。
+     \item DEL速度非常快。这是因为在我的实现之中对DEL进行了优化，DEL只在内存之中查找，最坏也只需要PUT一个短的value
+     \item value较大时，GET操作退化的速度比PUT快，在value\_size为1000个字节数量级时，PUT的速度就已经超越了GET。这是因为GET需要多次query来确认key对应的value有效，而在存储的键值对都较长时，相关开销（例如，文件定位、取到验证用的magic和校验和）的开销远远超过了内存操作的开销，成为了开销的主体。这也验证了LSM结构在写上的优越性和读上效率不高的问题。
      \item SCAN操作也如预期的非常慢，与其他三种操作有数个数量级的差距。这是由于SCAN需要在sstable之中对每一层都进行查找归并，同时在vlog里面查找多个值。
 \end{enumerate}
 
@@ -137,27 +138,29 @@ LSM-KV 的主要特点包括高性能（通过使用 LSM tree，LSM-KV 可以提
     \item 内存中只缓存了SSTable的索引信息，通过二分查找从SSTable的索引中找到offset，并在磁盘中读取对应的值
     \item 内存中缓存SSTable的Bloom Filter和索引，先通过Bloom Filter判断一个键值是否可能在一个SSTable中，如果存在再利用二分查找，否则直接查看下一个SSTable的索引
 \end{enumerate}
-GET操作平均时延对比如下图~\ref{fig:三种情况下的GET平均时延随value大小变化}
+GET操作平均时延对比如下图~\ref{fig:不同数量的数据下，缓存策略对GET平均时延随value大小变化影响示意图}。
 \begin{figure}[h]
     \centering
     \subfigure[]{
-        \includegraphics[width=0.3\textwidth]{../imgs/GET Throughput with prebuilt_data_size=1000}
+        \includegraphics[width=0.3\textwidth]{../imgs/gpds/GET Throughput with prebuilt_data_size=1000.png}
     }
     \subfigure[]{
-                \includegraphics[width=0.3\textwidth]{../imgs/GET Throughput with prebuilt_data_size=3000}
+                \includegraphics[width=0.3\textwidth]{../imgs/gpds/GET Throughput with prebuilt_data_size=3000.png}
     }
     \subfigure[]{
-            \includegraphics[width=0.3\textwidth]{../imgs/GET Throughput with prebuilt_data_size=5000}
+            \includegraphics[width=0.3\textwidth]{../imgs/gpds/GET Throughput with prebuilt_data_size=5000.png}
     }
-    \label{fig:三种情况下的GET平均时延随value大小变化}
+    \label{fig:不同数量的数据下，缓存策略对GET平均时延随value大小变化影响示意图}
 \end{figure}
-可以看到，在value大小较小，例如10个字节时，内存操作是影响GET平均时延的核心，因而缓存和布隆过滤器均有明显的加速效果，但在-Ofast优化下，效果也没有数量级的显著——约为20\%；而随着value变大，GET的平均时延转移到了磁盘操作，三种情况下时延趋于相同。
+可以看到，在value大小较小时，内存操作是影响GET平均时延的核心，因而缓存和布隆过滤器均有极为明显的加速效果。\
+而当value变大到10000字节量级时，影响GET的平均时延的关键点转移到了磁盘操作，不同缓存策略下时延趋于相同。\
+而对于布隆过滤器，在数据量较大时，由于它会使得每个SSTable容纳的键值对数量变少，LSM树更深，优化程度有所下降，需要权衡。
 
 \subsubsection{Compaction的影响}
 不断插入数据的情况下，PUT吞吐量随时间变化如图~\ref{fig:PUT吞吐量随时间变化图}：
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{../imgs/put_plot_8KB.png}
+    \includegraphics[width=0.8\textwidth]{../imgs/put_plot_test/put_plot_8KB.png}
     \caption{PUT吞吐量随时间变化图}\label{fig:PUT吞吐量随时间变化图}
 \end{figure}
 可以发现，大趋势是put的吞吐量随时间增加而下降，但是在以秒计数的时间间隔之中，数值抖动明显，并且不断出现了局部吞吐量随时间增加而上升的情况。原因为：初始时数据较少，合并开销小，吞吐量非常高；而随着时间的增加，合并可能涉及的层数和SSTable个数也越来越多，合并的平均耗时增加。而抖动的原因是，新建一层的大合并（或者任意层数为n）的合并出现所需要的新增键值对个数随指数增长，在一秒的时间间隔内，已经无法保证合并的均匀性，在产生大合并的时间段内，吞吐量就低；而大合并结束后，吞吐量高，出现抖动。
@@ -171,28 +174,29 @@ GET操作平均时延对比如下图~\ref{fig:三种情况下的GET平均时延�
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{../imgs/comparison.png}
+    \includegraphics[width=0.5\textwidth]{../imgs/put_plot_test/comparison.png}
     \caption{不同BloomFilter大小下的PUT}\label{fig:不同BloomFilter大小下的PUT}
 \end{figure}
 
 可以看到，曲线之间区别较小，可见在本次实验之中，PUT的性能决定点为vLog的写入部分，而BloomFilter大小的间接影响虽然不小，但相较vLog写入并不是最关键的。
 而对于GET操作，我在不同value大小和预置数据大小上进行了测试，见图~\ref{fig:不同BloomFilter大小下的GET}。
 
-\begin{figure}[H]
+\begin{figure}[!h]
     \centering
     \subfigure[]{
-        \includegraphics[width=0.45\textwidth]{../imgs/GET Thourghput with value_size=10 bytes, prebuilt num=1000 .png}
-        \includegraphics[width=0.45\textwidth]{../imgs/GET Thourghput with value_size=100 bytes, prebuilt num=1000 .png}
+        \includegraphics[width=0.45\textwidth]{../imgs/gpds/GET Thourghput with value_size=10 bytes, prebuilt num=1000 .png}
+        \includegraphics[width=0.45\textwidth]{../imgs/gpds/GET Thourghput with value_size=100 bytes, prebuilt num=1000 .png}
     }
     \subfigure[]{
-        \includegraphics[width=0.45\textwidth]{../imgs/GET Thourghput with value_size=1000 bytes, prebuilt num=1000 .png}
-        \includegraphics[width=0.45\textwidth]{../imgs/GET Thourghput with value_size=10000 bytes, prebuilt num=1000 .png}
+        \includegraphics[width=0.45\textwidth]{../imgs/gpds/GET Thourghput with value_size=1000 bytes, prebuilt num=1000 .png}
+        \includegraphics[width=0.45\textwidth]{../imgs/gpds/GET Thourghput with value_size=10000 bytes, prebuilt num=1000 .png}
     }
     \caption{不同BloomFilter大小下的GET}\label{fig:不同BloomFilter大小下的GET}
 \end{figure}
 
-可见整体上，决定GET吞吐量的是数据的value大小，这个参数对结果有数量级的影响。而在相同value大小下，在value大小较小时，BloomFilter的大小对性能的影响与理论较接近，适中的大小BloomFilter大小能够带来更好的性能表现；
-但当value大小较大时，整体波动明显，BloomFilter的大小对性能的影响较小，性能瓶颈变成磁盘IO操作。
+可见在布隆过滤器较小时，实测结果和预测有一定出入，具体表现在布隆过滤器大小对性能的影响较小、抖动明显，且在布隆过滤器较小时，
+反而有更高的效率。这可能是由于我的测试集本身较小（最大5000个数据），使得布隆过滤器在LSM层数上的负面影响更大。\
+但基本的，当布隆过滤器变得较大时，GET的性能较差，这是符合预期的。
 \section{结论}
 在这个Project之中，我实现了一个具备较高鲁棒性和可用性的LSM键值存储系统，同时通过多种方法实现了较为完备的正确性和性能分析，性能表现符合预期，让我对这个project和对应的LSM树具备了更深刻的理解。
 
