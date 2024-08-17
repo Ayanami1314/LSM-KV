@@ -27,7 +27,6 @@ if __name__=="__main__":
     default_single_data ={"value_size": 0, "prebuilt_data_num": 0,"Get": [], "Put":[], "Del": [], "Scan": []} 
     single_data = deepcopy(default_single_data)
     last_operation = "Get"
-    # FIXME bug in change_bf
     for line in lines:
         if line.startswith("Test with different BloomFilter size"):
             if len(single_data['Get']) > 0:
@@ -40,7 +39,7 @@ if __name__=="__main__":
             test_mode = "change-bf"
             continue
         if line.startswith("BloomFilter size"):
-            parttern = "\d+ Bytes"
+            parttern = r"\d+ Bytes"
             bf_size = re.findall(parttern, line)[0]
             single_config = {"use_bf": True, "use_cache": True,
 "bf_size": 65536, "bf_func_num": 3}
